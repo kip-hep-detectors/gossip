@@ -42,7 +42,6 @@ daqMC.o: daqMC.cc daqMC.hh sipmMC.o HitMatrix.o PhotonSource.o
 sipm: sipmGUI.cc sipmGUI.hh sipmMC.o daqMC.o PhotonSource.o HitMatrix.o PhotonList.o Dict.o
 	@echo "Compiling $< ..."
 	@$(CC) $(ROOTCFLAGS) $(ROOTLIBS) $(ROOTGLIBS) $^ -o $@
-	./sipm
 
 
 clean:

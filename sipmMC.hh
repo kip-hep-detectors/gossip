@@ -27,6 +27,9 @@ class sipmMC{
     sipmMC();
     ~sipmMC();
     
+    static sipmMC*  Instance() { return fInstance; };
+    static sipmMC*  fInstance;
+    
     int    Npix;
     int    NpixX;
     int    NpixY;
@@ -45,10 +48,12 @@ class sipmMC{
     double noiseRMS;
     
     double     Generate( PhotonList photons );
+    void       GetParaFile( const char* filename );
     void       SetGeometry(string Geometry){ geometry = Geometry; };
     void       SetPulseShape( double Tau1 = 1, double Tau2 = 40, double Resolution = 0.1, double cutOff = 0.0001 );
     void       SetPulseShape( TH1* PulseShape );
     void       SetGate( double Gate );
+    double     GetGate(){ return gate; };
     TH1*       GetPulseShape(){ return h_pulseShape; };
     TH1D*      GetWaveform();
     HitMatrix* GetHitMatrix(){ return hitMatrix; };

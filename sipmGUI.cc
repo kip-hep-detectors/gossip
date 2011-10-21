@@ -6,6 +6,7 @@
 #include <TFile.h>
 #include <TSystem.h>
 #include <string>
+#include <fstream>
 
 
 ClassImp (sipmGUI);
@@ -233,10 +234,10 @@ TGNumberEntry(fVframeParaEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberForm
     fLabelThreshStep = new TGLabel(fVframeMeasParaLabels,"Threshold step");
     fVframeMeasParaLabels->AddFrame(fLabelThreshStep, fLayout2);
     
-    fNumberEntryDiscriDeadTime = new TGNumberEntry(fVframeMeasParaEntries,5,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
-    fVframeMeasParaEntries->AddFrame(fNumberEntryDiscriDeadTime, fLayout1);
-    fLabelDiscriDeadTime = new TGLabel(fVframeMeasParaLabels,"Discri. deadtime");
-    fVframeMeasParaLabels->AddFrame(fLabelDiscriDeadTime, fLayout2);
+    fNumberEntryDiscriMinTime = new TGNumberEntry(fVframeMeasParaEntries,3,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
+    fVframeMeasParaEntries->AddFrame(fNumberEntryDiscriMinTime, fLayout1);
+    fLabelDiscriMinTime = new TGLabel(fVframeMeasParaLabels,"Discri. mintime");
+    fVframeMeasParaLabels->AddFrame(fLabelDiscriMinTime, fLayout2);
     
     fNumberEntryDiscriWidth = new TGNumberEntry(fVframeMeasParaEntries,10,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
     fVframeMeasParaEntries->AddFrame(fNumberEntryDiscriWidth, fLayout1);
@@ -522,9 +523,69 @@ void sipmGUI::SetParameters(){
   sipm->SetGate(fNumberEntryGate->GetNumber());
   daq->SetPedestal(fNumberEntryPedestal->GetNumber());
 
-  daq->SetDiscriDeadTime(fNumberEntryDiscriDeadTime->GetNumber());
+  daq->SetDiscriMinTime(fNumberEntryDiscriMinTime->GetNumber());
   daq->SetDiscriWidth(fNumberEntryDiscriWidth->GetNumber());
+  
+}
 
+void sipmGUI::ReadParaFile( const char* filename )
+{
+
+  string para, pm, dump;
+  ifstream in(filename);
+  
+  double PDE,gain,tau_dr,Pap_s,tau_ap_s,Pap_f,tau_ap_f,Pxt,ENF,EN,tau_recovery,NpixX,NpixY,xSipm,ySipm,noiseRMS,signalAmp,tau1,tau2,gate;
+  
+  while(1)
+  {
+    in >> para;
+    if(para == "PDE") in >> PDE;
+    else if(para == "Gain") in >> gain;
+    else if(para == "TauDR") in >> tau_dr;
+    else if(para == "AP_s") in >> Pap_s;
+    else if(para == "TauAP_s") in >> tau_ap_s;
+    else if(para == "AP_f") in >> Pap_f;
+    else if(para == "TauAP_f") in >> tau_ap_f;
+    else if(para == "XT") in >> Pxt;
+    else if(para == "ENF") in >> ENF;
+    else if(para == "EN") in >> EN;
+    else if(para == "TauRec") in >> tau_recovery;
+    else if(para == "Npx") in >> NpixX;
+    else if(para == "Npy") in >> NpixY;
+    else if(para == "SizeX") in >> xSipm;
+    else if(para == "SizeY") in >> ySipm;
+    else if(para == "NoiseRMS") in >> noiseRMS;
+    else if(para == "SignalAmp") in >> signalAmp;
+    else if(para == "Tau1") in >> tau1;
+    else if(para == "Tau2") in >> tau2;
+    else if(para == "Gate") in >> gate;
+    else getline(in, dump);
+    
+    if(!in.good()) break;
+  }
+  
+  in.close();
+  
+  fNumberEntryPDE->SetNumber(PDE*100.0);
+  fNumberEntryTau_dr->SetNumber(tau_dr);
+  fNumberEntryPap1->SetNumber(Pap_s*100.0);
+  fNumberEntryTau_ap1->SetNumber(tau_ap_s);
+  fNumberEntryPap2->SetNumber(Pap_f*100.0);
+  fNumberEntryTau_ap2->SetNumber(tau_ap_f);
+  fNumberEntryPx->SetNumber(Pxt*100.0);
+  fNumberEntryNpx->SetNumber(NpixX);
+  fNumberEntryNpy->SetNumber(NpixY);
+  fNumberEntrySizeX->SetNumber(xSipm);
+  fNumberEntrySizeY->SetNumber(ySipm);
+  fNumberEntryTau_le->SetNumber(tau1);
+  fNumberEntryTau_te->SetNumber(tau2);
+  fNumberEntryGain->SetNumber(gain);
+  fNumberEntryENF->SetNumber(ENF);
+  fNumberEntryEN->SetNumber(EN);
+  fNumberEntryTau_rec->SetNumber(tau_recovery);
+  fNumberEntrySignalAmp->SetNumber(signalAmp);
+  fNumberEntryRMS->SetNumber(noiseRMS);
+  fNumberEntryGate->SetNumber(gate);
 }
 
 
@@ -536,13 +597,16 @@ sipmGUI::~sipmGUI(){
 
 
 //------------------------------------
-int main(){
+int main(int argc,char** argv){
 
   //     gROOT->Macro("$(HOME)/RootStyle/ilcStylePatrick.C");
 
   TApplication app("sipmMC", 0, 0);
   sipmGUI mainWin;
+  if(argc == 2) mainWin.ReadParaFile(argv[1]);
   app.Run();
+
+  
 
   return 0;
 }

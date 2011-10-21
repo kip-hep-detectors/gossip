@@ -45,7 +45,7 @@ class daqMC{
   void    SetQDCChannels( int nChannels ){ h_QDC->SetBins(nChannels,0,nChannels); };
   void    SetPedestal( double Pedestal ){ pedestal = Pedestal; };
   
-  void    SetDiscriDeadTime( double deadtime ){ discriDeadTime = deadtime; };
+  void    SetDiscriMinTime( double mintime ){ discriMinTime = mintime; };
   void    SetDiscriWidth( double width ){ discriWidth = width; };
   
   
@@ -76,7 +76,7 @@ class daqMC{
   PhotonSource*        photonSource;
   TH1D*                waveform;
   
-  double discriDeadTime;
+  double discriMinTime;
   double discriWidth;
   
   int                  plast;

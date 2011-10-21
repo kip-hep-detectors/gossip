@@ -62,7 +62,7 @@ private:
 			*fNumberEntryThreshStart,
 			*fNumberEntryThreshStop,
 			*fNumberEntryThreshStep,
-			*fNumberEntryDiscriDeadTime,
+			*fNumberEntryDiscriMinTime,
 			*fNumberEntryDiscriWidth,
 			*fNumberEntryNgammaMax,
 			*fNumberEntryNgammaStep;
@@ -104,7 +104,7 @@ private:
 			*fLabelThreshStart,
 			*fLabelThreshStop,
 			*fLabelThreshStep,
-			*fLabelDiscriDeadTime,
+			*fLabelDiscriMinTime,
 			*fLabelDiscriWidth,
 			*fLabelNgammaMax,
 			*fLabelNgammaStep;
@@ -157,6 +157,7 @@ public:
     void SetParameters();
     void SetProgress(int);
     void EnableEntries( int );
+    void ReadParaFile( const char* filename );
     
 };
 

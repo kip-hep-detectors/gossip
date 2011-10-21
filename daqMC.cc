@@ -10,7 +10,9 @@
 #include <fstream>
 #include <TH2.h>
 #include <TMath.h>
+#include <TFile.h>
 #include <ctime>
+#include <vector>
 
 using namespace std;
 
@@ -30,7 +32,7 @@ daqMC::daqMC() : sipm(0), photonSource(0)
   SetQDCChannels(1024);
   SetPedestal(50);
   
-  discriDeadTime= 5;
+  discriMinTime= 1.5;
   discriWidth = 5;
   
   h_TDC = new TH1D();
@@ -211,29 +213,40 @@ TH1D* daqMC::TDCSpectrum( int N )
 //Fit
 
   TF1 *fit = new TF1("fit",drTDCspec,0,65000,6);
-  fit->SetParNames("N","Pap_s","Pap_f","tau_dr","tau_ap_s","tau_ap_f","Pxt");
-  fit->SetParameters(N,sipm->Pap_s,sipm->Pap_f,sipm->tau_dr,sipm->tau_ap_s,sipm->tau_ap_f,sipm->Pxt);
-  fit->SetParLimits(0,0,1e8);
-  fit->SetParLimits(1,0,1);
-  fit->SetParLimits(2,0,1);
-  fit->SetParLimits(3,0,1e5);
-  fit->SetParLimits(4,0,1e4);
-  fit->SetParLimits(5,0,1e4);
-  fit->SetParLimits(6,0,1);
+  fit->SetLineColor(2);
+//   fit->SetParNames("N","Pap_s","Pap_f","tau_dr","tau_ap_s","tau_ap_f","Pxt");
+//   fit->SetParameters(N,sipm->Pap_s,sipm->Pap_f,sipm->tau_dr,sipm->tau_ap_s,sipm->tau_ap_f,sipm->Pxt);
+  fit->SetParLimits(0,1e4,1e8);
+  fit->SetParLimits(1,1e4,1e8);
+  fit->SetParLimits(2,1e4,1e8);
+//   fit->SetParLimits(3,0,1e5);
+//   fit->SetParLimits(4,0,1e4);
+//   fit->SetParLimits(5,0,1e4);
+//   fit->SetParLimits(6,0,1);
 
-  fit->FixParameter(0,N);
+//   fit->FixParameter(0,N);
 //   fit->FixParameter(1,sipm->Pap_s);
 //   fit->FixParameter(2,sipm-Pap_f);
 //   fit->FixParameter(3,sipm->tau_dr);
 //   fit->FixParameter(4,sipm->tau_ap_s);
 //   fit->FixParameter(5,sipm->tau_ap_f);
-//   fit->FixParameter(6,sipm->Pxt);
+//   fit->FixParameter(6,0/*sipm->Pxt*/);
+
+  fit->SetParameters(1e7,1e5,1e5,1e3,160,50);
 
   fit->SetLineColor(2);
-  h_TDC->Fit("fit","M","",2*sipm->tau_recovery,sipm->tau_dr*5);
+  h_TDC->Fit("fit","M",""/*,2*sipm->tau_recovery,sipm->tau_dr*3*/);
 //   cout << "\n RedChi2: " << fit->GetChisquare()/fit->GetNDF() << endl;
 
+  double d = fit->GetParameter(0);
+  double s = fit->GetParameter(1);
+  double f = fit->GetParameter(2);
+  
+  cout << "slow: " << s/(s+d+f) << " - fast: " << f/(s+d+f) << endl;
+
+  
   h_TDC->Draw("HIST E0");
+  fit->Draw("SAME");
   
   return h_TDC;
 }
@@ -246,7 +259,8 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
   sipm->SetGate(gate);
   
   PhotonList empty = photonSource->GeneratePhotons();
-  
+
+  int nthresh = (tstop-tstart)/tstep+1;
   const int N = 10000;//(tstop-tstart)/tstep+1;
   
   double thresh;
@@ -294,48 +308,116 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
     
   //----------------------------------------------------------------------------//
   
-  bool on[N]={0};
-  double toff[N]={0};
-  double ton[N]={0};
+//   bool on[N]={0};
+//   double toff[N]={0};
+//   double ton[N]={0};
+//   
+//   TH1D *h = new TH1D("h","h",nbins,0,nbins*resolution);
+//   
+//   for(int i=1;i<=nbins;i++)
+//   {
+//     if(cancel==true) break;
+// 
+//     if((i-1)%(nbins/100)==0) Progress((i-1)/(nbins/100));
+//     
+//     double amp = waveform->GetBinContent(i);
+//     double time = i*resolution;
+//     
+//     n=0;
+//     for(thresh=tstart;thresh<=tstop;thresh+=tstep)
+//     {
+//       if(i==1) V[n]=thresh;
+//       if(amp>=thresh && on[n]==false && time-toff[n]>=discriDeadTime)
+//       {
+// 	count[n]++;
+// 	on[n]=true;
+// 	ton[n]=time;
+//       }
+//       if(amp<thresh && on[n]==true && time-ton[n]>=discriWidth)
+//       {
+// 	on[n]=false;
+// 	toff[n]=time;
+//       }
+//       if(thresh==tstart)h->SetBinContent(i,on[0]*tstart);
+//       n++;
+//     }
+//   }
   
-  TH1D *h = new TH1D("h","h",nbins,0,nbins*resolution);
+  //----------------------------------------------------------------------------//  
   
-  for(int i=1;i<=nbins;i++)
-  {
-    if(cancel==true) break;
+//   for(int i=0;i<n;i++)
+//   {
+//       count_err[i]=sqrt(count[i]);
+//       V_err[i]=0;
+//   }
 
-    if((i-1)%(nbins/100)==0) Progress((i-1)/(nbins/100));
-    
-    double amp = waveform->GetBinContent(i);
-    double time = i*resolution;
+  //----------------------------------------------------------------------------//
+
+    vector<int> on, off;
+    double toff[N]={0};
+    double ton[N]={0};
+
+    TH1D *h = new TH1D("h","h",nbins,0,nbins*resolution);
     
     n=0;
     for(thresh=tstart;thresh<=tstop;thresh+=tstep)
     {
-      if(i==1) V[n]=thresh;
-      if(amp>=thresh && on[n]==false && time-toff[n]>=discriDeadTime)
+      if(cancel==true) break;
+      
+      if((n*50)%nthresh==0) Progress(100*n/nthresh);
+      
+      for(int i=1;i<=nbins;i++)
       {
-	count[n]++;
-	on[n]=true;
-	ton[n]=time;
+	double amp = waveform->GetBinContent(i);
+	double time = i*resolution;
+	
+	if(i==1)
+	{
+	  on.clear();
+	  off.clear();
+	  on.push_back(-1);
+	  off.push_back(-1);
+	}
+	
+	if(amp>=thresh && off.back()>=on.back())
+	{
+	  on.push_back(i);
+	  if((on.back()-off.back())*resolution<=discriMinTime)
+	  {
+	    on.pop_back();
+	    off.pop_back();
+	  }
+	}
+	
+	if(amp<thresh && off.back()<on.back())
+	{
+	  off.push_back(i);
+	  if((off.back()-on.back())*resolution<=discriMinTime)
+	  {
+	    on.pop_back();
+	    off.pop_back();
+	  }
+	  
+	  if((i-on.back())*resolution<discriWidth)
+	  {
+	    off.pop_back();
+	  }
+	}
       }
-      if(amp<thresh && on[n]==true && time-ton[n]>=discriWidth)
-      {
-	on[n]=false;
-	toff[n]=time;
-      }
-      if(thresh==tstart)h->SetBinContent(i,on[0]*tstart);
+      count[n]=on.size()-1;
+      V[n]=thresh;
       n++;
     }
-  }
-  
-  //----------------------------------------------------------------------------//  
-  
-  for(int i=0;i<n;i++)
-  {
-      count_err[i]=sqrt(count[i]);
-      V_err[i]=0;
-  }
+
+// for(int i=1;i<on.size();i++)
+// {
+//   for(int j=on.at(i);j<off.at(i);j++)
+//   {
+//     h->SetBinContent(j,thresh);
+//   }
+// }
+
+  //----------------------------------------------------------------------------//
 
   g_threshScan = new TGraphErrors(n,V,count,V_err,count_err);
 
@@ -343,6 +425,7 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
   g_threshScan->Draw("ALP");
 //   waveform->Draw();
 //   h->Draw("SAME");
+//   h->SetLineColor(2);
   return g_threshScan;
 }
 

@@ -13,40 +13,51 @@
 
 using namespace std;
 
+sipmMC* sipmMC::fInstance = NULL;
+
 sipmMC::sipmMC()
 {
-  NpixX=10;
-  NpixY=10;
-  xSipm=1;
-  ySipm=1;
-  gate=300;
-  tau_recovery=10;
-  PDE=0.1;
-  Pxt=0.1;
-  Pap_s=0.1;
-  Pap_f=0.1;
-  tau_ap_s=150;
-  tau_ap_f=40;
-  tau_dr=2000;
-  gain=20;
-  ENF=2;
-  EN=2;
-  signalAmp = 1;
-  noiseRMS = 1;
+  if(fInstance)
+  {
+    return;
+  }
+  else
+  {
+    this->fInstance = this;
+    
+    NpixX=10;
+    NpixY=10;
+    xSipm=1;
+    ySipm=1;
+    gate=300;
+    tau_recovery=10;
+    PDE=0.1;
+    Pxt=0.1;
+    Pap_s=0.1;
+    Pap_f=0.1;
+    tau_ap_s=150;
+    tau_ap_f=40;
+    tau_dr=2000;
+    gain=20;
+    ENF=2;
+    EN=2;
+    signalAmp = 1;
+    noiseRMS = 1;
 
-  r.SetSeed(time (NULL));
+    r.SetSeed(time (NULL));
 
-  hitMatrix = new HitMatrix();
+    hitMatrix = new HitMatrix();
 
-  geometry = "square";
-  h_geometry = new TH2I();
-  h_geometry->SetNameTitle("h_geometry","h_geometry");
+    geometry = "square";
+    h_geometry = new TH2I();
+    h_geometry->SetNameTitle("h_geometry","h_geometry");
 
-  waveform = new TH1D();
-  h_pulseShape = new TH1D();
+    waveform = new TH1D();
+    h_pulseShape = new TH1D();
 
-  SetPulseShape();
-  BuildGeometry();
+    SetPulseShape();
+    BuildGeometry();
+  }
 
 }
 
@@ -55,8 +66,9 @@ sipmMC::~sipmMC()
 {
   delete hitMatrix;
   delete h_geometry;
+  delete waveform;
+  delete h_pulseShape;
 }
-
 
 
 void sipmMC::Reset()
@@ -64,6 +76,49 @@ void sipmMC::Reset()
   charge = 0;
 }
 
+
+void sipmMC::GetParaFile( const char* filename )
+{
+
+  string para, pm, dump;
+  ifstream in(filename);
+  
+  double tau1F, tau2F, gateF;
+  
+  while(1)
+  {
+    in >> para;
+    if(para == "PDE") in >> PDE;
+    else if(para == "Gain") in >> gain;
+    else if(para == "TauDR") in >> tau_dr;
+    else if(para == "AP_s") in >> Pap_s;
+    else if(para == "TauAP_s") in >> tau_ap_s;
+    else if(para == "AP_f") in >> Pap_f;
+    else if(para == "TauAP_f") in >> tau_ap_f;
+    else if(para == "XT") in >> Pxt;
+    else if(para == "ENF") in >> ENF;
+    else if(para == "EN") in >> EN;
+    else if(para == "TauRec") in >> tau_recovery;
+    else if(para == "Npx") in >> NpixX;
+    else if(para == "Npy") in >> NpixY;
+    else if(para == "SizeX") in >> xSipm;
+    else if(para == "SizeY") in >> ySipm;
+    else if(para == "NoiseRMS") in >> noiseRMS;
+    else if(para == "SignalAmp") in >> signalAmp;
+    else if(para == "Tau1") in >> tau1F;
+    else if(para == "Tau2") in >> tau2F;
+    else if(para == "Gate") in >> gateF;
+    else getline(in, dump);
+      
+    SetPulseShape(tau1F, tau2F);
+    SetGate(gateF);
+    
+    if(!in.good()) break;
+  }
+
+  in.close();
+
+}
 
 void sipmMC::SetGate( double Gate )
 {
@@ -140,13 +195,14 @@ void sipmMC::SetPulseShape( TH1* PulseShape )
 
 void sipmMC::ImportPhotons(PhotonList photons)
 {
+  
   photonList = photons;
-
+  
   for(unsigned int i=0;i<photonList.size();i++)
   {
     double x = photonList[i][X];
     double y = photonList[i][Y];
-    
+
     if( x>=-xSipm/2. && x<=xSipm/2. && y>=-ySipm/2. && y<=ySipm/2.)
     {
       photonList[i][X] = (int)(((x+0.5*xSipm))/xSipm*h_geometry->GetNbinsX());
@@ -158,7 +214,7 @@ void sipmMC::ImportPhotons(PhotonList photons)
       i--;
     }
   }
-
+  
 }
 
 
@@ -259,9 +315,7 @@ double sipmMC::Generate( PhotonList photons )
   double q = (1-TMath::Power(1-Pxt,0.25));
 
   for(int i=0;i<hitMatrix->nHits();i++)
-  {
-    if(Pap_s==0 && Pap_f==0 && Pxt==0) break;
-    
+  {    
     hit.clear();
     hit=hitMatrix->GetHit(i);
     int x=hit[X];
