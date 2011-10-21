@@ -36,7 +36,7 @@ daqMC::daqMC() : sipm(0), photonSource(0)
   discriWidth = 5;
   
   h_TDC = new TH1D();
-  h_TDC->SetNameTitle("Time Spectrum","Time Spectrum");
+  h_TDC->SetNameTitle("TimeSpectrum","TimeSpectrum");
   h_TDC->GetXaxis()->SetTitle("Time [ns]");
   h_TDC->GetYaxis()->SetTitle("# Entries");
   
@@ -213,6 +213,7 @@ TH1D* daqMC::TDCSpectrum( int N )
 //Fit
 
   TF1 *fit = new TF1("fit",drTDCspec,0,65000,6);
+  fit->SetNpx(65000);
   fit->SetLineColor(2);
 //   fit->SetParNames("N","Pap_s","Pap_f","tau_dr","tau_ap_s","tau_ap_f","Pxt");
 //   fit->SetParameters(N,sipm->Pap_s,sipm->Pap_f,sipm->tau_dr,sipm->tau_ap_s,sipm->tau_ap_f,sipm->Pxt);

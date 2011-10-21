@@ -5,6 +5,7 @@
 ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs)
 ROOTGLIBS    := $(shell root-config --glibs)
+LDFLAGS      :="-Wl,--no-as-needed"
 CC = g++
 
 
@@ -41,7 +42,7 @@ daqMC.o: daqMC.cc daqMC.hh sipmMC.o HitMatrix.o PhotonSource.o
 
 sipm: sipmGUI.cc sipmGUI.hh sipmMC.o daqMC.o PhotonSource.o HitMatrix.o PhotonList.o Dict.o
 	@echo "Compiling $< ..."
-	@$(CC) $(ROOTCFLAGS) $(ROOTLIBS) $(ROOTGLIBS) $^ -o $@
+	@$(CC) $(LDFLAGS) $(ROOTCFLAGS) $(ROOTLIBS) $(ROOTGLIBS) -o $@ $^
 
 
 clean:
