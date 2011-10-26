@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <ctime>
+#include <sys/time.h>
 
 using namespace std;
 
@@ -44,8 +45,10 @@ sipmMC::sipmMC()
     signalAmp = 1;
     noiseRMS = 1;
 
-    r.SetSeed(time (NULL));
-
+    timeval time;
+    gettimeofday(&time,NULL);    
+    r.SetSeed(time.tv_usec);
+    
     hitMatrix = new HitMatrix();
 
     geometry = "square";
