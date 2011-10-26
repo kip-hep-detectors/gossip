@@ -547,8 +547,8 @@ TGraphErrors* daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
   g_Response = new TGraphErrors(Npoints,Ngamma,Mean,0,Mean_err);
   g_Response->SetMarkerStyle(20);
 
-  TF1 *fit = new TF1("fit","[0]*(1-TMath::Exp(-[1]*x/[0]))",0,Ngamma_max);
-  fit->SetParameters(sipm->Npix,sipm->PDE);
+  TF1 *fit = new TF1("fit","[0]*(1-TMath::Exp(-x*[1]/[0]))+[2]",0,Ngamma_max);
+  fit->SetParameters(sipm->Npix,sipm->PDE,1);
   g_Response->Fit("fit","M","",0,Ngamma_max);
 
   g_Response->SetTitle("Response");
