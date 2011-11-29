@@ -33,12 +33,13 @@ class HitMatrix
     TH2D*                   DrawMatrix();						//Draws all hits of type (-1 = all)
     void                    PrintMatrix();						//Prints out matrix
     void                    SetAmplitude( unsigned int iHit, double amplitude );	//Set amplitude for iHit
-    void                    SetGate(double g){ gate = g; };
+    void                    SetGate( double g, bool gCut=true ){ gate = g; gateCut = gCut; };
     void                    SetGeometry( TH2I* geometry );
     
   private:
     
     double                  gate;							//Integration gate
+    bool		    gateCut;
     TH2I                   *h_geometry;
     int                     Nx,Ny;							//Number of pixels in x,y
     vector<vector<double> > matrix; 							//matrix of the hit-hits

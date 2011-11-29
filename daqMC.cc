@@ -3,6 +3,7 @@
 #include "daqMC.hh"
 #include "HitMatrix.hh"
 #include "drTDCspec.h"
+#include "drTDCspec2.h"
 #include <TRandom1.h>
 #include <TROOT.h>
 #include <TCanvas.h>
@@ -186,7 +187,7 @@ TH1D* daqMC::TDCSpectrum( int N )
   h_TDC->SetBins(65000,0,65000);
   
   photonSource->SetNgamma(0);
-  sipm->SetGate(65000);
+  sipm->SetGate(65000,false);
   
   PhotonList empty = photonSource->GeneratePhotons();
 
@@ -210,44 +211,64 @@ TH1D* daqMC::TDCSpectrum( int N )
     }
   }
 
+  h_TDC->Draw("HIST E0");
+
 //Fit
 
-  TF1 *fit = new TF1("fit",drTDCspec,0,65000,6);
-  fit->SetNpx(65000);
-  fit->SetLineColor(2);
-//   fit->SetParNames("N","Pap_s","Pap_f","tau_dr","tau_ap_s","tau_ap_f","Pxt");
-//   fit->SetParameters(N,sipm->Pap_s,sipm->Pap_f,sipm->tau_dr,sipm->tau_ap_s,sipm->tau_ap_f,sipm->Pxt);
-  fit->SetParLimits(0,1e4,1e8);
-  fit->SetParLimits(1,1e4,1e8);
-  fit->SetParLimits(2,1e4,1e8);
-//   fit->SetParLimits(3,0,1e5);
-//   fit->SetParLimits(4,0,1e4);
-//   fit->SetParLimits(5,0,1e4);
-//   fit->SetParLimits(6,0,1);
+//   TF1 *fit = new TF1("fit",drTDCspec,0,65000,6);
+//   fit->SetNpx(65000);
+//   fit->SetLineColor(2);
+//   fit->SetParameters(1e7,1e5,1e5,1e3,160,50);
+// //   fit->SetParNames("N","Pap_s","Pap_f","tau_dr","tau_ap_s","tau_ap_f","Pxt");
+//   fit->SetParLimits(0,1e4,1e8);
+//   fit->SetParLimits(1,1e4,1e8);
+//   fit->SetParLimits(2,1e4,1e8);
+// 
+// //   fit->FixParameter(1,0);
+// //   fit->FixParameter(2,0);
+//   
+//   h_TDC->Fit("fit","M",""/*,2*sipm->tau_recovery,sipm->tau_dr*3*/);
+// //   cout << "\n RedChi2: " << fit->GetChisquare()/fit->GetNDF() << endl;
+// 
+//   double d = fit->GetParameter(0);
+//   double s = fit->GetParameter(1);
+//   double f = fit->GetParameter(2);
+//   
+//   cout << "slow: " << s/(s+d+f) << " - fast: " << f/(s+d+f) << endl;
+//   
+//   fit->Draw("SAME");
 
-//   fit->FixParameter(0,N);
-//   fit->FixParameter(1,sipm->Pap_s);
-//   fit->FixParameter(2,sipm-Pap_f);
+
+
+  TF1 *fit2 = new TF1("fit2",drTDCspec2,0,65000,7);
+  fit2->SetNpx(65000);
+  fit2->SetLineColor(3);
+  fit2->SetParameters(1e7,1e5,1e5,1e3,160,50,0);
+  fit2->SetParNames("N","Pap_s","Pap_f","tau_dr","tau_ap_s","tau_ap_f","Pxt");
+  fit2->SetParameters(N,sipm->Pap_s,sipm->Pap_f,sipm->tau_dr,sipm->tau_ap_s,sipm->tau_ap_f,sipm->Pxt);
+  fit2->SetParLimits(0,1e4,1e8);
+  fit2->SetParLimits(1,0,1);
+  fit2->SetParLimits(2,0,1);
+  fit2->SetParLimits(3,0,1e5);
+  fit2->SetParLimits(4,0,1e4);
+  fit2->SetParLimits(5,0,1e4);
+  fit2->SetParLimits(6,0,1);
+  
+//   fit2->FixParameter(0,N);
+//   fit2->FixParameter(1,0);
+//   fit2->FixParameter(2,0);
 //   fit->FixParameter(3,sipm->tau_dr);
 //   fit->FixParameter(4,sipm->tau_ap_s);
 //   fit->FixParameter(5,sipm->tau_ap_f);
-//   fit->FixParameter(6,0/*sipm->Pxt*/);
-
-  fit->SetParameters(1e7,1e5,1e5,1e3,160,50);
-
-  fit->SetLineColor(2);
-  h_TDC->Fit("fit","M",""/*,2*sipm->tau_recovery,sipm->tau_dr*3*/);
-//   cout << "\n RedChi2: " << fit->GetChisquare()/fit->GetNDF() << endl;
-
-  double d = fit->GetParameter(0);
-  double s = fit->GetParameter(1);
-  double f = fit->GetParameter(2);
+  fit2->FixParameter(6,0);
   
-  cout << "slow: " << s/(s+d+f) << " - fast: " << f/(s+d+f) << endl;
-
   
-  h_TDC->Draw("HIST E0");
-  fit->Draw("SAME");
+  
+  h_TDC->Fit("fit2","M",""/*,2*sipm->tau_recovery,sipm->tau_dr*3*/);
+  //   cout << "\n RedChi2: " << fit->GetChisquare()/fit->GetNDF() << endl;
+
+  fit2->Draw("SAME");
+  
   
   return h_TDC;
 }

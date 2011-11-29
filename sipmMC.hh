@@ -52,7 +52,7 @@ class sipmMC{
     void       SetGeometry(string Geometry){ geometry = Geometry; };
     void       SetPulseShape( double Tau1 = 1, double Tau2 = 40, double Resolution = 0.1, double cutOff = 0.0001 );
     void       SetPulseShape( TH1* PulseShape );
-    void       SetGate( double Gate );
+    void       SetGate( double Gate, bool gateCut=true );
     double     GetGate(){ return gate; };
     TH1*       GetPulseShape(){ return h_pulseShape; };
     TH1D*      GetWaveform();

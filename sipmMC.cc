@@ -123,11 +123,11 @@ void sipmMC::GetParaFile( const char* filename )
 
 }
 
-void sipmMC::SetGate( double Gate )
+void sipmMC::SetGate( double Gate, bool gateCut )
 {
   gate = Gate;
   if(customPulse==false) SetPulseShape(tau1, tau2, resolution, cutoff);
-  hitMatrix->SetGate(gate);
+  hitMatrix->SetGate(gate, gateCut);
 }
 
 
@@ -284,7 +284,6 @@ double sipmMC::Generate( PhotonList photons )
     EN=0;
     cout << "ERROR: EN smaller than zero! Set EN to 0!" << endl;
   }
-
 
   ///detected photons:
   for(unsigned int i=0;i<photonList.size();i++)

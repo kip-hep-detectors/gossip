@@ -12,6 +12,7 @@ HitMatrix::HitMatrix()
   Nx=10;
   Ny=10;
   gate=100;
+  gateCut=true;
   h_geometry = new TH2I("h_geometry","h_geometry",10,0,10,10,0,10);
   h_hits = new TH2D();
   h_hits->SetNameTitle("HitMatrix","HitMatrix");
@@ -62,15 +63,18 @@ int HitMatrix::AddHit( int x, int y, double time, int type )
 
   hit.clear();
 
-  if(time<=gate && time>=0 && h_geometry->GetBinContent(x+1,y+1)==1)
+  if(h_geometry->GetBinContent(x+1,y+1)==1)
   {
-    hit.push_back(x);
-    hit.push_back(y);
-    hit.push_back(time);
-    hit.push_back(type);
-    hit.push_back(amplitude);
-    hit.push_back(processed);
-    matrix.push_back(hit);
+    if((time<=gate && time>=0) || gateCut==false)
+    {
+      hit.push_back(x);
+      hit.push_back(y);
+      hit.push_back(time);
+      hit.push_back(type);
+      hit.push_back(amplitude);
+      hit.push_back(processed);
+      matrix.push_back(hit);
+    }
   }
   else good=-1;
 

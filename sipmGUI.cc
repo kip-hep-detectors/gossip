@@ -7,7 +7,7 @@
 #include <TSystem.h>
 #include <string>
 #include <fstream>
-
+#include <TGIcon.h>
 
 ClassImp (sipmGUI);
 
@@ -337,7 +337,7 @@ TGNumberEntry(fVframeParaEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberForm
 
 
   //Start Frame
-  fGframeStart = new TGGroupFrame(fMainFrame, "Version 2.0", kVerticalFrame);
+  fGframeStart = new TGGroupFrame(fMainFrame, "GosSiP 2.0", kVerticalFrame);
   fMainFrame->AddFrame(fGframeStart, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 0, 0));
 
   //Run Button
@@ -366,8 +366,14 @@ TGNumberEntry(fVframeParaEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberForm
 
   //
 
-  fMainFrame->SetWindowName("SiPM MC - Version 2.0");
-  fMainFrame->SetIconName("SiPM MC - Version 2.0");
+  TGIcon *fIconLogo = new TGIcon(fMainFrame,"gossip_logo.png");
+  fIconLogo->SetName("fIconLogo");
+  fMainFrame->AddFrame(fIconLogo, new TGLayoutHints(kLHintsRight | kLHintsBottom,10,10,10,5));
+  fIconLogo->Resize(3764/18,1920/18);
+  
+
+  fMainFrame->SetWindowName("GosSiP 2.0 - Generic framework for the simulation of Silicon Photomultipliers");
+  fMainFrame->SetIconName("GosSiP 2.0");
 
   fMainFrame->SetMWMHints(kMWMDecorAll, kMWMFuncAll, kMWMInputModeless);
   fMainFrame->MapSubwindows();
@@ -597,18 +603,18 @@ sipmGUI::~sipmGUI(){
 
 
 //------------------------------------
-int main(int argc,char** argv){
-
-  //     gROOT->Macro("$(HOME)/RootStyle/ilcStylePatrick.C");
-
-  TApplication app("sipmMC", 0, 0);
-  sipmGUI mainWin;
-  if(argc == 2) mainWin.ReadParaFile(argv[1]);
-  app.Run();
-
-  
-
-  return 0;
-}
+// int main(int argc,char** argv){
+// 
+//   //     gROOT->Macro("$(HOME)/RootStyle/ilcStylePatrick.C");
+// 
+//   TApplication app("sipmMC", 0, 0);
+//   sipmGUI mainWin;
+//   if(argc == 2) mainWin.ReadParaFile(argv[1]);
+//   app.Run();
+// 
+//   
+// 
+//   return 0;
+// }
 //------------------------------------
 
