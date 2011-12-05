@@ -50,9 +50,9 @@ double drTDCspec2(double *x, double *par){
 	double Pd=1/tau_dr*TMath::Exp(-t/tau_dr);
 	double Xd=TMath::Exp(-t/tau_dr);
 	double Ps=As/tau_s*TMath::Exp(-t/tau_s);
-	double Xs=1-As+As*TMath::Exp(-t/tau_s);
+	double Xs=As*TMath::Exp(-t/tau_s)+(1-As);
 	double Pf=Af/tau_f*TMath::Exp(-t/tau_f);
-	double Xf=1-Af+Af*TMath::Exp(-t/tau_f);
+	double Xf=Af*TMath::Exp(-t/tau_f)+(1-Af);
 
 	double q = 1-pow(1-Px,0.25);
 	double Px0=pow(1-q,4);
