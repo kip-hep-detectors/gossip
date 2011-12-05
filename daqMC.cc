@@ -188,7 +188,7 @@ TH1D* daqMC::TDCSpectrum( int N )
   h_TDC->SetBins(65000,0,65000);
   
   photonSource->SetNgamma(0);
-  sipm->SetGate(65000,false);
+  sipm->SetGate(65000/*,false*/);
   
   PhotonList empty = photonSource->GeneratePhotons();
 
