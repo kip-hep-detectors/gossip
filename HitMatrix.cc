@@ -75,6 +75,7 @@ int HitMatrix::AddHit( int x, int y, double time, int type )
       hit.push_back(processed);
       matrix.push_back(hit);
     }
+    else good=-1;
   }
   else good=-1;
 
