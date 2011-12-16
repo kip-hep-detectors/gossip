@@ -51,7 +51,6 @@ sipmMC::sipmMC()
     
     hitMatrix = new HitMatrix();
 
-    geometry = "square";
     h_geometry = new TH2I();
     h_geometry->SetNameTitle("h_geometry","h_geometry");
 
@@ -59,7 +58,7 @@ sipmMC::sipmMC()
     h_pulseShape = new TH1D();
 
     SetPulseShape();
-    BuildGeometry();
+    SetGeometry("square");
   }
 
 }
@@ -123,6 +122,7 @@ void sipmMC::GetParaFile( const char* filename )
 
 }
 
+
 void sipmMC::SetGate( double Gate, bool gateCut )
 {
   gate = Gate;
@@ -131,13 +131,12 @@ void sipmMC::SetGate( double Gate, bool gateCut )
 }
 
 
-void sipmMC::BuildGeometry()
+void sipmMC::SetGeometry(string Geometry)
 {
   h_geometry->Reset("M");
 
-  if(geometry=="square")
+  if(Geometry=="square")
   {
-    Npix = NpixY*NpixY;
     h_geometry->SetBins(NpixX,0,NpixX,NpixY,0,NpixY);
     
     for(int x=0;x<NpixX;x++)
@@ -150,6 +149,20 @@ void sipmMC::BuildGeometry()
   }
   else cout << "Error! Geometry not found" << endl;
 
+  Npix = h_geometry->Integral();
+
+  hitMatrix->SetGeometry(h_geometry);
+}
+
+
+void sipmMC::SetGeometry( TH2I* hgeometry )
+{
+  h_geometry->Reset("M");
+
+  h_geometry = hgeometry;
+
+  Npix = h_geometry->Integral();
+  
   hitMatrix->SetGeometry(h_geometry);
 }
 
@@ -328,7 +341,7 @@ double sipmMC::Generate( PhotonList photons )
     double amplitude=r.Gaus(gain,ENF);
     if(amplitude<0) amplitude=0;
     double tlast=hitMatrix->GetPreviousTime(i);
-    if(tlast!=-1) amplitude=amplitude*(1-TMath::Exp(-(time-tlast)/tau_recovery));
+    if(tlast!=-1 && tau_recovery>0) amplitude=amplitude*(1-TMath::Exp(-(time-tlast)/tau_recovery));
     hitMatrix->SetAmplitude(i,amplitude);
     
     double overflow;

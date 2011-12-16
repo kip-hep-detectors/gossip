@@ -510,7 +510,7 @@ void sipmGUI::SetParameters(){
   sipm->signalAmp = fNumberEntrySignalAmp->GetNumber();
   sipm->noiseRMS = fNumberEntryRMS->GetNumber();
 
-  sipm->BuildGeometry();
+  sipm->SetGeometry("square");
 
   //photon Source
   photonSource->SetNgamma(fNumberEntryNgamma->GetNumber());

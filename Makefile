@@ -11,7 +11,7 @@ LDFLAGS      :="-Wl,--no-as-needed"
 CC = g++
 
 
-all: Dict.cxx Dict.o libDict.so HitMatrix.o libHitMatrix.so PhotonList.o libPhotonList.so PhotonSource.o libPhotonSource.so sipmMC.o libsipmMC.so daqMC.o libdaqMC.so sipmGUI.o libsipmGUI.so sipm
+all: Dict.cxx Dict.o libDict.so HitMatrix.o libHitMatrix.so PhotonList.o libPhotonList.so PhotonSource.o libPhotonSource.so sipmMC.o libsipmMC.so daqMC.o libdaqMC.so sipmGUI.o libsipmGUI.so gossip
 
 
 Dict.cxx: HitMatrix.hh PhotonList.hh PhotonSource.hh sipmMC.hh daqMC.hh sipmGUI.hh LinkDef.h
@@ -74,13 +74,13 @@ libsipmGUI.so: sipmGUI.o
 	@echo "Compiling $< ..."
 	@$(CC) -fPIC -shared $(ROOTCFLAGS) -o $@ $^
 
-sipm: main.cc
+gossip: main.cc
 	@echo "Compiling $< ..."
 	@$(CC) $(LDFLAGS) $(ROOTCFLAGS) $(ROOTLIBS) $(ROOTGLIBS) $^ -o $@ -L. -lHitMatrix -lPhotonList -lPhotonSource -lsipmMC -ldaqMC -lsipmGUI -lDict
 
 
 clean:
-	@rm -f Dict.cxx Dict.o libDict.so HitMatrix.o libHitMatrix.so PhotonList.o libPhotonList.so PhotonSource.o libPhotonSource.so sipmMC.o libsipmMC.so daqMC.o libdaqMC.so sipmGUI.o libsipmGUI.so sipm
+	@rm -f Dict.cxx Dict.o libDict.so HitMatrix.o libHitMatrix.so PhotonList.o libPhotonList.so PhotonSource.o libPhotonSource.so sipmMC.o libsipmMC.so daqMC.o libdaqMC.so sipmGUI.o libsipmGUI.so gossip
 
 
 

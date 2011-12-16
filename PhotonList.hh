@@ -1,4 +1,3 @@
-/********** Version 2.0 **********/
 
 #ifndef PhotonList_hh
 #define PhotonList_hh

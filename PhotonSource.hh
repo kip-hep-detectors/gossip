@@ -1,4 +1,3 @@
-/********** Version 2.0 **********/
 
 #ifndef PhotonSource_hh
 #define PhotonSource_hh
@@ -31,16 +30,16 @@ class PhotonSource
     
   private:
     
-    PhotonList photonList;
+    PhotonList	photonList;
     
-    bool fluctuation;
+    bool 	fluctuation;
     
-    TRandom3 r;
+    TRandom3 	r;
     
-    double x, y;
-    double xWidth, yWidth;
-    double t, tWidth;
-    double Ngamma;
+    double 	x, y;
+    double 	xWidth, yWidth;
+    double 	t, tWidth;
+    double 	Ngamma;
     
     string shape, pulse;
 };

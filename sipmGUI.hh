@@ -1,3 +1,4 @@
+
 #ifndef sipmGUI_hh
 #define sipmGUI_hh
 
@@ -148,6 +149,7 @@ public:
     TCanvas *c_main, *c;
     TPad *pad1,
          *pad2;
+	 
     sipmMC *sipm;
     daqMC *daq;
     PhotonSource *photonSource;
@@ -155,11 +157,10 @@ public:
     void RunMeasurement();
     void CancelMeasurement();
     void SetParameters();
-    void SetProgress(int);
+    void SetProgress( int );
     void EnableEntries( int );
     void ReadParaFile( const char* filename );
     
 };
 
 #endif
-
