@@ -1,4 +1,3 @@
-
 #ifndef sipmMC_hh
 #define sipmMC_hh
 
@@ -14,11 +13,15 @@
 #include <TGraphErrors.h>
 #include <stdlib.h>
 #include <vector>
-#include <map>
 #include <string>
 
 using namespace std;
 
+/**
+ * Main SiPM simulation class
+ *
+ * Generates the waveform and charge from a photon list
+ */
 class sipmMC{
 
   public:
@@ -26,37 +29,47 @@ class sipmMC{
     sipmMC();
     ~sipmMC();
     
-    static sipmMC*  Instance() { return fInstance; };
-    static sipmMC*  fInstance;
+    static sipmMC*	Instance() { return fInstance; };
+    static sipmMC*	fInstance;
     
-    int			NpixX;			//Number of pixels in X ()
-    int			NpixY;			//Number of pixels in Y
-    double		xSipm;			//Size of active area in x
-    double		ySipm;			//Size of active area in y
-    double		tau_recovery;		//Recovery time
-    double		PDE;			//Photon detection efficiency
-    double		Pxt;			//Cross-talk probability
-    double		Pap_s, Pap_f;		//After-pulse probability (slow & fast)
-    double		tau_ap_s, tau_ap_f;	//After-pulse time constant (slow & fast)
-    double		tau_dr;			//Thermal pulse time constant
-    double		gain;			//Gain
-    double		ENF;			//Pixel noise
-    double		EN;			//Electronic noise
-    double		signalAmp;		//Singel pixel signal amplitude
-    double		noiseRMS;		//RMS of noise
+    int			NpixX;						/**<Number of pixels in x. Disregarded when SetGeometry( TH2I* hgeometry ) is used.*/
+    int			NpixY;						/**<Number of pixels in y. Disregarded when SetGeometry( TH2I* hgeometry ) is used.*/
+    double		xSipm;						/**<Size of active area in x*/
+    double		ySipm;						/**<Size of active area in y*/
+    double		tau_recovery;					/**<Pixel recovery time*/
+    double		PDE;						/**<Photon detection efficiency*/
+    double		Pxt;						/**<Cross-talk probability (probability for one ore more cross-talk events per avalanche)*/
+    double		Pap_s;						/**<After-pulse probability (slow)*/
+    double		Pap_f;						/**<After-pulse probability (fast)*/
+    double		tau_ap_s;					/**<After-pulse time constant (slow)*/
+    double		tau_ap_f;					/**<After-pulse time constant (fast)*/
+    double		tau_dr;						/**<Thermal pulse time constant*/
+    double		gain;						/**<Gain*/
+    double		ENF;						/**<Excess noise (=gain fluctuations)*/
+    double		EN;						/**<Electronic noise (=pedestal noise)*/
+    double		signalAmp;					/**<Singel pixel signal amplitude*/
+    double		noiseRMS;					/**<RMS of noise*/
     
-    double		Generate( PhotonList photons );
-    void		GetParaFile( const char* filename );
-    void		SetGeometry( string Geometry );
-    void		SetGeometry( TH2I* hgeometry );
-    void      		SetPulseShape( double Tau1 = 1, double Tau2 = 40, double Resolution = 0.1, double cutOff = 0.0001 );
-    void      		SetPulseShape( TH1* PulseShape );
-    void		SetGate( double Gate, bool gateCut=true );
+    double		Generate( PhotonList photons );			/**<Generates waveform and returns signal charge*/
+    void		GetParaFile( const char* filename );		/**<Sets SiPM parameters from config file*/
+    void		SetGeometry( string Geometry );			/**<Sets pixel arrangement. Only "square" implemented at the moment*/
+    void		SetGeometry( TH2I* hgeometry );			/**<Sets custom pixel arrangement from TH2I*/
+    void      		SetPulseShape( double Tau1 = 1,
+				       double Tau2 = 40,
+				       double Resolution = 0.1,
+				       double cutOff = 0.0001 ); 	/**<Sets double exponential single pixel waveform with time constants "Tau1", "Tau2". "Resolution" is the sampling time of the simualtion in ns. Waveform is cut off at a fraction "cutOff" of the amplitude*/
+    void      		SetPulseShape( TH1* PulseShape );		/**<Sets custom single pixel waveform from TH2I*/
+    void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see HitMatrix class)*/
+    TH1D*		GetWaveform();					/**<Returns simulated signal waveform*/
+									/**Returns length of integration gate in ns*/
     double		GetGate(){ return gate; };
+									/**Returns single pixel waveform*/
     TH1*		GetPulseShape(){ return h_pulseShape; };
-    TH1D*		GetWaveform();
+									/**Returns hitmatrix*/
     HitMatrix*		GetHitMatrix(){ return hitMatrix; };
+									/**Returns number of pixels of the SiPM*/
     int			GetNpix(){ return Npix; };
+				   
     
   private:
 

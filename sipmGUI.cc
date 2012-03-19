@@ -1,5 +1,3 @@
-/********** Version 1.2 **********/
-
 #include "sipmGUI.hh"
 #include <TMultiGraph.h>
 #include <TROOT.h>
@@ -600,21 +598,3 @@ sipmGUI::~sipmGUI(){
 
   gApplication->Terminate();
 }
-
-
-//------------------------------------
-// int main(int argc,char** argv){
-// 
-//   //     gROOT->Macro("$(HOME)/RootStyle/ilcStylePatrick.C");
-// 
-//   TApplication app("sipmMC", 0, 0);
-//   sipmGUI mainWin;
-//   if(argc == 2) mainWin.ReadParaFile(argv[1]);
-//   app.Run();
-// 
-//   
-// 
-//   return 0;
-// }
-//------------------------------------
-

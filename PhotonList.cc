@@ -1,5 +1,3 @@
-/********** Version 2.0 **********/
-
 #include "PhotonList.hh"
 
 using namespace std;
@@ -16,4 +14,14 @@ void PhotonList::AddPhoton( double x, double y, double time )
   photon.push_back(y);
   photon.push_back(time);
   this->push_back(photon);
+}
+
+void PhotonList::AddPhotonList( PhotonList photonList )
+{
+  for(int i=0;i<photonList.size();i++)
+  {
+    photon.clear();
+    photon = photonList.at(i);
+    this->push_back(photon);
+  }
 }

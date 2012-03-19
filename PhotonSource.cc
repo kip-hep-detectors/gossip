@@ -1,5 +1,3 @@
-/********** Version 2.0 **********/
-
 #include "PhotonSource.hh"
 #include <iostream>
 #include "math.h"

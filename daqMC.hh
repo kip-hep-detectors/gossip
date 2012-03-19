@@ -1,4 +1,3 @@
-
 #ifndef daqMC_hh
 #define daqMC_hh
 
@@ -19,6 +18,9 @@
 
 using namespace std;
 
+/**
+ * Simple implementation of several characterization measurements
+ */
 class daqMC{
   RQ_OBJECT("daqMC")
 
@@ -27,46 +29,53 @@ class daqMC{
    daqMC();
   ~daqMC();
   
-  bool   cancel;
-  int    selector;
-  double progress;
+														/**Connect daqMC class with sipmMC object*/
+  void      		SetSiPM( sipmMC *mySiPM){ sipm = mySiPM; };							
+														/**Connect daqMC class with PhotonSource object*/
+  void      		SetPhotonSource( PhotonSource *myPhotonSource ){ photonSource = myPhotonSource; };		
+  void      		Statistic( int N );									/**<Plots number of pde, ct, ap, dr events in "N" events*/
+  TH1D*     		Scope( TH1D* waveform );								/**<Returns waveform (does nothing useful in this version)*/
+  TH1D*     		QDCSpectrum( int N );									/**<Simulates charge spectrum with "N" events*/
+  TGraphErrors*		ThreshScan( double gate, double tstart, double tstop, double tstep );			/**<Simulates theshold scan with "gate" integration time and thresholds from "tstart" to "tstop" with step size "tstep"*/
+  TH1D*     		TDCSpectrum( int N );									/**<Simulated time spectrum with "N" events*/
+  TGraphErrors* 	DynamicRange( int N, double Ngamma_max, double Ngamma_step );				/**<Simulates saturation curve and RMS with "N" events per intensity from 0 to "Ngamma_max" photons with "Ngamma_step" step width*/
+    
+  void   		QDC( double charge );									/**<Returns charge in QDC channels*/
+														/**Sets number of QDC channels*/
+  void    		SetQDCChannels( int nChannels ){ h_QDC->SetBins(nChannels,0,nChannels); };		
+														/**Sets pedestal of QDC*/
+  void    		SetPedestal( double Pedestal ){	pedestal = Pedestal; };							
+														/**Sets minimal time the input signal must be above the threshold for the discriminator to give a signal*/
+  void    		SetDiscriMinTime( double mintime ){ discriMinTime = mintime; };					
+														/**Sets minimal duration discriminator output pulse in ns*/
+  void    		SetDiscriWidth( double width ){	discriWidth = width; };
+  
+  TH1D*   		Discriminator( TH1D* waveform, double threshold );					/**<Returns discriminated waveform (MAY STILL BE BUGGY!)*/
 
-  void      Statistic( int N );
-  
-  TH1D*     	Scope( TH1D* waveform );
-  TH1D*     	QDCSpectrum( int N );
-  TGraphErrors*	ThreshScan( double gate, double tstart, double tstop, double tstep );
-  TH1D*     	TDCSpectrum( int N );
-  TGraphErrors* DynamicRange( int N, double Ngamma_max, double Ngamma_step );
-  
-  
-  void   	QDC( double charge );
-  void    	SetQDCChannels( int nChannels ){ h_QDC->SetBins(nChannels,0,nChannels); };
-  void    	SetPedestal( double Pedestal ){ pedestal = Pedestal; };
-  
-  void    	SetDiscriMinTime( double mintime ){ discriMinTime = mintime; };
-  void    	SetDiscriWidth( double width ){ discriWidth = width; };
-  
-  
-  
-  TH1D*   	Discriminator( TH1D* waveform, double threshold );
+//   void      		ScanCT( int );										/**<Single pixel scan.*/
 
-  void      	ScanCT( int );
-  void      	Progress( int ); //*SIGNAL*
-  
-  void      	SetSiPM( sipmMC *mySiPM){ sipm = mySiPM; };
-  void      	SetPhotonSource( PhotonSource *myPhotonSource ){ photonSource = myPhotonSource; };
+  void      		Progress( int ); //*SIGNAL*								
 
-  TGraphErrors  *g_Response, *g_ResNgamma, *g_threshScan;
-  TH1D          *h_pe, *h_dr, *h_xt, *h_ap, *h_QDC, *h_TDC;
+  TGraphErrors  	*g_Response;										/**<Saturation curve graph*/
+  TGraphErrors  	*g_ResNgamma;										/**<RMS of saturation curve graph*/
+  TGraphErrors  	*g_threshScan;										/**<Threshold scan graph*/
+  TH1D          	*h_pe;											/**<Number of detected photons histogram*/
+  TH1D          	*h_dr;											/**<Number of thermal pulses histogram*/
+  TH1D          	*h_xt;											/**<SNumber of cross-talk histogram*/
+  TH1D          	*h_ap;											/**<Number of after-pulses histogram*/
+  TH1D          	*h_QDC;											/**<Charge spectrum histogram*/
+  TH1D          	*h_TDC;											/**<Time spectrum histogram*/
+
+  bool   		cancel;											/**<Cancels simulation process*/
+  double 		progress;										/**<Progress of simulation*/
   
  private:
 
-  bool  	Check();
+  bool  		Check();
   
-  double 	pedestal;
+  double 		pedestal;
   
-  int 		nTDC_channels;
+  int 			nTDC_channels;
   
   TRandom3      	r;
   HitMatrix*    	hitMatrix;
@@ -83,4 +92,3 @@ class daqMC{
 };
 
 #endif
-

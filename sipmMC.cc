@@ -1,5 +1,3 @@
-/********** Version 1.2 **********/
-
 #include "sipmMC.hh"
 #include <TROOT.h>
 #include <TCanvas.h>
@@ -42,8 +40,8 @@ sipmMC::sipmMC()
     gain=20;
     ENF=2;
     EN=2;
-    signalAmp = 1;
-    noiseRMS = 1;
+    signalAmp = 20;
+    noiseRMS = 2;
 
     timeval time;
     gettimeofday(&time,NULL);    

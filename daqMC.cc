@@ -1,5 +1,3 @@
-/********** Version 1.2 **********/
-
 #include "daqMC.hh"
 #include "HitMatrix.hh"
 #include "drTDCspec.h"
@@ -591,7 +589,7 @@ TGraphErrors* daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 }
 
 
-void daqMC::ScanCT(int N){
+// void daqMC::ScanCT(int N){
   
 //     TH2D *h_scan = new TH2D("h_scan","h_scan",sipm->Npx,0,sipm->Npx,sipm->Npy,0,sipm->Npy);
 //     for(int x=0;x<sipm->Npx;x++){
@@ -609,4 +607,4 @@ void daqMC::ScanCT(int N){
 //     cout << "Done..." << endl;
 //     TCanvas *c_scan = new TCanvas("c_scan","c_scan",0,600,400,400);
 //     h_scan->Draw("colz");
-}
+// }
