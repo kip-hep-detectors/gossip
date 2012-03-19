@@ -10,7 +10,6 @@ INC          := -I/home/patrick/SiPM_MC/
 LDFLAGS      :="-Wl,--no-as-needed"
 CC = g++
 
-
 all: Dict.cxx Dict.o libDict.so HitMatrix.o libHitMatrix.so PhotonList.o libPhotonList.so PhotonSource.o libPhotonSource.so sipmMC.o libsipmMC.so daqMC.o libdaqMC.so sipmGUI.o libsipmGUI.so gossip
 
 

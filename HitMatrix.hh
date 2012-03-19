@@ -16,6 +16,8 @@ enum { X, Y, TIME, TYPE, AMPLITUDE, PROCESSED };
  * Class inherits from vector<vector<double> >
  * 
  * Hit vector contains: 0:x, 1:y, 2:type, 3:time, 4:amplitude, 5:processed flag
+ *
+ * Types are: 0:PE (detected photon), 1:DR (thermal pulse), 2:XT (cross-talk), 3:AP (after-pulse)
  */
 class HitMatrix : public vector<vector<double> >
 {
