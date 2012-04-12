@@ -295,6 +295,9 @@ double sipmMC::Generate( PhotonList photons )
     EN=0;
     cout << "ERROR: EN smaller than zero! Set EN to 0!" << endl;
   }
+  
+  ///operation over-voltage:
+  double Vop = 1;		///has to be 1!!! (only for custom voltage dependence of parameters important)
 
   ///detected photons:
   for(unsigned int i=0;i<photonList.size();i++)
@@ -334,12 +337,33 @@ double sipmMC::Generate( PhotonList photons )
     int x=hit[X];
     int y=hit[Y];
     double time=hit[TIME];
+
+    ///pixel recovery:
+    double Vover;
+    double tlast=hitMatrix->GetPreviousTime(i);
+    if(tlast!=-1 && tau_recovery>0) Vover = Vop*(1-TMath::Exp(-(time-tlast)/tau_recovery));
+    else Vover = Vop;
+
+    ///PDE reduced due to pixel recovery:
+    if(hit[TYPE]==PE && r.Rndm()>=Vover/Vop)
+    {
+      hitMatrix->EraseHit(hit);
+      i--;
+      continue;
+    }
     
+    ///Dark-rate reduced due to pixel recovery:
+    if(hit[TYPE]==DR && r.Rndm()>=Vover/Vop)
+    {
+      hitMatrix->EraseHit(hit);
+      i--;
+      continue;
+    }
+   
     ///amplitude:
     double amplitude=r.Gaus(gain,ENF);
     if(amplitude<0) amplitude=0;
-    double tlast=hitMatrix->GetPreviousTime(i);
-    if(tlast!=-1 && tau_recovery>0) amplitude=amplitude*(1-TMath::Exp(-(time-tlast)/tau_recovery));
+    amplitude=amplitude*Vover/Vop;	///recovery
     hitMatrix->SetAmplitude(i,amplitude);
     
     double overflow;
@@ -349,27 +373,27 @@ double sipmMC::Generate( PhotonList photons )
     
     if(hitMatrix->GetProcessed(i)==false)
     {
-      ///crosstalk;
+      ///crosstalk:
       if(Pxt!=0)
       {
 	//direct
-	if(r.Rndm()<q*amplitude/gain) hitMatrix->AddHit(x+1,y,hit[TIME],XT);
-	if(r.Rndm()<q*amplitude/gain) hitMatrix->AddHit(x-1,y,hit[TIME],XT);
-	if(r.Rndm()<q*amplitude/gain) hitMatrix->AddHit(x,y+1,hit[TIME],XT);
-	if(r.Rndm()<q*amplitude/gain) hitMatrix->AddHit(x,y-1,hit[TIME],XT);
+	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x+1,y,hit[TIME],XT);
+	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x-1,y,hit[TIME],XT);
+	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x,y+1,hit[TIME],XT);
+	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x,y-1,hit[TIME],XT);
 
 	//diagonal
-	// 	if(r.Rndm()<q*amplitude/gain*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y+1,hit[TIME],XT);
-	// 	if(r.Rndm()<q*amplitude/gain*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y-1,hit[TIME],XT);
-	// 	if(r.Rndm()<q*amplitude/gain*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y+1,hit[TIME],XT);
-	// 	if(r.Rndm()<q*amplitude/gain*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y-1,hit[TIME],XT);
+	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y+1,hit[TIME],XT);
+	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y-1,hit[TIME],XT);
+	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y+1,hit[TIME],XT);
+	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y-1,hit[TIME],XT);
       }
       
-      ///afterpulses
+      ///afterpulses:
       //carrier stays trapped if new avalanche occurs before it's released
       if(Pap_s!=0)
       {
-	int Nap=r.Poisson(Pap_s*amplitude/gain);
+	int Nap=r.Poisson(Pap_s*Vover/Vop);
 	for(int i_ap=0;i_ap<Nap;i_ap++)
 	{
 	  double time_ap = r.Exp(tau_ap_s);
@@ -378,7 +402,7 @@ double sipmMC::Generate( PhotonList photons )
       }
       if(Pap_f!=0)
       {
-	int Nap=r.Poisson(Pap_f*amplitude/gain);
+	int Nap=r.Poisson(Pap_f*Vover/Vop);
 	for(int i_ap=0;i_ap<Nap;i_ap++)
 	{
 	  double time_ap = r.Exp(tau_ap_f);
@@ -386,12 +410,12 @@ double sipmMC::Generate( PhotonList photons )
 	}
       }
       
-      ///mark hit as processed
+      ///mark hit as processed:
       hitMatrix->HitProcessed(i);
     }
   }
 
-  ///Add electronic noise
+  ///Add electronic noise:
   charge += r.Gaus(0,EN);
 
   return charge;

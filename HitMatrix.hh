@@ -34,6 +34,7 @@ class HitMatrix : public vector<vector<double> >
     bool                GetProcessed( unsigned int iHit );					/**<Returns processed status*/
     double              GetPreviousTime( unsigned int iHit );					/**<Returns time of pixel hit before iHit*/
     int                 FindHit( vector<double> aHit );						/**<Returns position i of aHit in the list*/
+    void 		EraseHit( vector<double> aHit );					/**<Deletes aHit from the list*/
     int                 nHits( int type );							/**<Returns number of hits of type "type"*/
     int                 nHits();								/**<Returns total number of hits*/
     TH2D*               DrawMatrix();								/**<Draws all hits of type "type" (-1 = all)*/

@@ -157,6 +157,12 @@ int HitMatrix::FindHit( vector<double> aHit )
   return n;
 }
 
+void HitMatrix::EraseHit( vector<double> aHit )
+{
+  int iHit = FindHit(aHit);
+  this->erase(this->begin()+iHit);
+}
+
 
 int HitMatrix::nHits(int type)
 {
