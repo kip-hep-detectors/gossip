@@ -224,8 +224,8 @@ void HitMatrix::PrintMatrix()
 cout<<this->at(i).at(0)<<"\t"<<this->at(i).at(1)<<"\t"<<this->at(i).at(TIME)<<"\tPE\t"<<this->at(i).at(AMPLITUDE)<<"\t\t"<<this->at(i).at(PROCESSED)<<endl;
     if(this->at(i).at(TYPE)==DR)
 cout<<this->at(i).at(0)<<"\t"<<this->at(i).at(1)<<"\t"<<this->at(i).at(TIME)<<"\tDR\t"<<this->at(i).at(AMPLITUDE)<<"\t\t"<<this->at(i).at(PROCESSED)<<endl;
-    if(this->at(i).at(TYPE)==XT)
-cout<<this->at(i).at(0)<<"\t"<<this->at(i).at(1)<<"\t"<<this->at(i).at(TIME)<<"\tXT\t"<<this->at(i).at(AMPLITUDE)<<"\t\t"<<this->at(i).at(PROCESSED)<<endl;
+    if(this->at(i).at(TYPE)==CT)
+cout<<this->at(i).at(0)<<"\t"<<this->at(i).at(1)<<"\t"<<this->at(i).at(TIME)<<"\tCT\t"<<this->at(i).at(AMPLITUDE)<<"\t\t"<<this->at(i).at(PROCESSED)<<endl;
     if(this->at(i).at(TYPE)==AP)
 cout<<this->at(i).at(0)<<"\t"<<this->at(i).at(1)<<"\t"<<this->at(i).at(TIME)<<"\tAP\t"<<this->at(i).at(AMPLITUDE)<<"\t\t"<<this->at(i).at(PROCESSED)<<endl;
   }

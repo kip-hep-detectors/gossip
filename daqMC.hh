@@ -18,6 +18,24 @@
 
 using namespace std;
 
+struct GResonseCurve /**<Structure of response measurement return value*/
+{
+  TGraphErrors *response;
+  TGraphErrors *resolution;
+  TGraphErrors *responsePE;
+  TGraphErrors *resolutionPE;
+  TGraphErrors *responseDR;
+  TGraphErrors *resolutionDR;
+  TGraphErrors *responseAP;
+  TGraphErrors *resolutionAP;
+  TGraphErrors *responseCT;
+  TGraphErrors *resolutionCT;
+  TGraphErrors *responseENF;
+  TGraphErrors *resolutionENF;
+  TGraphErrors *responseEN;
+  TGraphErrors *resolutionEN;
+};
+
 /**
  * Simple implementation of several characterization measurements
  */
@@ -38,9 +56,9 @@ class daqMC{
   TH1D*     		QDCSpectrum( int N );									/**<Simulates charge spectrum with "N" events*/
   TGraphErrors*		ThreshScan( double gate, double tstart, double tstop, double tstep );			/**<Simulates theshold scan with "gate" integration time and thresholds from "tstart" to "tstop" with step size "tstep"*/
   TH1D*     		TDCSpectrum( int N );									/**<Simulated time spectrum with "N" events*/
-  TGraphErrors* 	DynamicRange( int N, double Ngamma_max, double Ngamma_step );				/**<Simulates saturation curve and RMS with "N" events per intensity from 0 to "Ngamma_max" photons with "Ngamma_step" step width*/
+  GResonseCurve 	DynamicRange( int N, double Ngamma_max, double Ngamma_step );				/**<Simulates saturation curve and RMS with "N" events per intensity from 0 to "Ngamma_max" photons with "Ngamma_step" step width*/
     
-  void   		QDC( double charge );									/**<Returns charge in QDC channels*/
+  double   		QDC( double charge );									/**<Returns charge in QDC channels*/
 														/**Sets number of QDC channels*/
   void    		SetQDCChannels( int nChannels ){ h_QDC->SetBins(nChannels,0,nChannels); };		
 														/**Sets pedestal of QDC*/
@@ -56,8 +74,7 @@ class daqMC{
 
   void      		Progress( int ); //*SIGNAL*								
 
-  TGraphErrors  	*g_Response;										/**<Saturation curve graph*/
-  TGraphErrors  	*g_ResNgamma;										/**<RMS of saturation curve graph*/
+  GResonseCurve         responseCurve;										/**<Response curve and resolution graphs*/
   TGraphErrors  	*g_threshScan;										/**<Threshold scan graph*/
   TH1D          	*h_pe;											/**<Number of detected photons histogram*/
   TH1D          	*h_dr;											/**<Number of thermal pulses histogram*/

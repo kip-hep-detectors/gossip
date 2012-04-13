@@ -73,7 +73,13 @@ sipmMC::~sipmMC()
 
 void sipmMC::Reset()
 {
-  charge = 0;
+  charge.all = 0;
+  charge.pe  = 0;
+  charge.dr  = 0;
+  charge.ap  = 0;
+  charge.ct  = 0;
+  charge.en  = 0;
+  charge.enf = 0;
 }
 
 
@@ -238,7 +244,7 @@ void sipmMC::InitHitMatrix()
 }
 
 
-double sipmMC::Generate( PhotonList photons )
+GCharge sipmMC::Generate( PhotonList photons )
 {
   Reset();
   ImportPhotons(photons);	//Übersetzte Potonen aus PhotonList auf Pixelbasis
@@ -361,7 +367,8 @@ double sipmMC::Generate( PhotonList photons )
     }
    
     ///amplitude:
-    double amplitude=r.Gaus(gain,ENF);
+    double enfNoise = r.Gaus(0,ENF*Vover/Vop);
+    double amplitude= gain + enfNoise;
     if(amplitude<0) amplitude=0;
     amplitude=amplitude*Vover/Vop;	///recovery
     hitMatrix->SetAmplitude(i,amplitude);
@@ -369,7 +376,16 @@ double sipmMC::Generate( PhotonList photons )
     double overflow;
     if(customPulse==true)  overflow = h_pulseShape->Integral((gate-time)/resolution+1,nBinsPulseShape)/pulseIntegral*amplitude;
     if(customPulse==false) overflow = amplitude/(tau1-tau2)*(tau1*exp(-(gate-time)/tau1)-tau2*exp(-(gate-time)/tau2));
-    charge+=amplitude-overflow;
+    charge.all+=amplitude-overflow;
+
+    if(amplitude>0)
+    {
+      if(hit[TYPE]==PE) charge.pe+=gain*Vover/Vop*(1-overflow/amplitude);	///formular from amplitude = (gain + enf)*Vover/Vop - overflow
+      if(hit[TYPE]==CT) charge.ct+=gain*Vover/Vop*(1-overflow/amplitude);	///                        = (gain + enf)*Vover/Vop - (gain + enf)*Vover/Vop*overflow/amplitude
+      if(hit[TYPE]==AP) charge.ap+=gain*Vover/Vop*(1-overflow/amplitude);	///                        = gain*Vover/Vop*(1-overflow/amplitude) + enf*Vover/Vop*(1-overflow/amplitude)
+      if(hit[TYPE]==DR) charge.dr+=gain*Vover/Vop*(1-overflow/amplitude);
+			charge.enf+=enfNoise*Vover/Vop*(1-overflow/amplitude);
+    }
     
     if(hitMatrix->GetProcessed(i)==false)
     {
@@ -377,16 +393,16 @@ double sipmMC::Generate( PhotonList photons )
       if(Pxt!=0)
       {
 	//direct
-	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x+1,y,hit[TIME],XT);
-	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x-1,y,hit[TIME],XT);
-	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x,y+1,hit[TIME],XT);
-	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x,y-1,hit[TIME],XT);
+	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x+1,y,hit[TIME],CT);
+	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x-1,y,hit[TIME],CT);
+	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x,y+1,hit[TIME],CT);
+	if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x,y-1,hit[TIME],CT);
 
 	//diagonal
-	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y+1,hit[TIME],XT);
-	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y-1,hit[TIME],XT);
-	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y+1,hit[TIME],XT);
-	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y-1,hit[TIME],XT);
+	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y+1,hit[TIME],CT);
+	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y-1,hit[TIME],CT);
+	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y+1,hit[TIME],CT);
+	// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y-1,hit[TIME],CT);
       }
       
       ///afterpulses:
@@ -416,7 +432,9 @@ double sipmMC::Generate( PhotonList photons )
   }
 
   ///Add electronic noise:
-  charge += r.Gaus(0,EN);
+  double eNoise = r.Gaus(0,EN);
+  charge.en = eNoise;
+  charge.all += eNoise;
 
   return charge;
 }

@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum { PE, DR, XT, AP };
+enum { PE, DR, CT, AP };
 enum { X, Y, TIME, TYPE, AMPLITUDE, PROCESSED };
 
 /**
@@ -17,7 +17,7 @@ enum { X, Y, TIME, TYPE, AMPLITUDE, PROCESSED };
  * 
  * Hit vector contains: 0:x, 1:y, 2:type, 3:time, 4:amplitude, 5:processed flag
  *
- * Types are: 0:PE (detected photon), 1:DR (thermal pulse), 2:XT (cross-talk), 3:AP (after-pulse)
+ * Types are: 0:PE (detected photon), 1:DR (thermal pulse), 2:CT (cross-talk), 3:AP (after-pulse)
  */
 class HitMatrix : public vector<vector<double> >
 {

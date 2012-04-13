@@ -17,6 +17,17 @@
 
 using namespace std;
 
+struct GCharge /**<Structure of charge return value*/
+{
+  double all;
+  double pe;
+  double dr;
+  double ct;
+  double ap;
+  double enf;
+  double en;
+};
+
 /**
  * Main SiPM simulation class
  *
@@ -50,7 +61,7 @@ class sipmMC{
     double		signalAmp;					/**<Singel pixel signal amplitude*/
     double		noiseRMS;					/**<RMS of noise*/
     
-    double		Generate( PhotonList photons );			/**<Generates waveform and returns signal charge*/
+    GCharge		Generate( PhotonList photons );			/**<Generates SiPM response*/
     void		GetParaFile( const char* filename );		/**<Sets SiPM parameters from config file*/
     void		SetGeometry( string Geometry );			/**<Sets pixel arrangement. Only "square" implemented at the moment*/
     void		SetGeometry( TH2I* hgeometry );			/**<Sets custom pixel arrangement from TH2I*/
@@ -67,6 +78,8 @@ class sipmMC{
     TH1*		GetPulseShape(){ return h_pulseShape; };
 									/**Returns hitmatrix*/
     HitMatrix*		GetHitMatrix(){ return hitMatrix; };
+									/**Returns signal charge*/
+    GCharge             GetCharge(){ return charge; };
 									/**Returns number of pixels of the SiPM*/
     int			GetNpix(){ return Npix; };
 				   
@@ -78,7 +91,7 @@ class sipmMC{
     TH1D*		waveform;
     TH1*		h_pulseShape;
     double		pulseIntegral;
-    double		charge;
+    GCharge		charge;
     bool		customPulse;
     double		gate;
     

@@ -49,11 +49,26 @@ daqMC::daqMC() : sipm(0), photonSource(0)
   h_dr->SetNameTitle("DR","DR");
   h_dr->SetLineColor(2);
   h_xt = new TH1D();
-  h_xt->SetNameTitle("XT","XT");
+  h_xt->SetNameTitle("CT","CT");
   h_xt->SetLineColor(3);
   h_ap = new TH1D();
   h_ap->SetNameTitle("AP","AP");
   h_ap->SetLineColor(4);
+
+  responseCurve.response = new TGraphErrors();
+  responseCurve.responsePE = new TGraphErrors();
+  responseCurve.responseDR = new TGraphErrors();
+  responseCurve.responseAP = new TGraphErrors();
+  responseCurve.responseCT = new TGraphErrors();
+  responseCurve.responseEN = new TGraphErrors();
+  responseCurve.responseENF = new TGraphErrors();
+  responseCurve.resolution = new TGraphErrors();
+  responseCurve.resolutionPE = new TGraphErrors();
+  responseCurve.resolutionDR = new TGraphErrors();
+  responseCurve.resolutionAP = new TGraphErrors();
+  responseCurve.resolutionCT = new TGraphErrors();
+  responseCurve.resolutionEN = new TGraphErrors();
+  responseCurve.resolutionENF = new TGraphErrors();
   
 //   sipm = new sipmMC();
 //   photonSource = new PhotonSource();
@@ -73,8 +88,6 @@ daqMC::~daqMC()
     delete h_QDC;
     delete h_TDC;
     delete g_threshScan;
-    delete g_Response;
-    delete g_ResNgamma;
 }
 
 
@@ -118,12 +131,12 @@ void daqMC::Statistic( int N )
     
     int npe = hitMatrix->nHits(PE);
     int ndr = hitMatrix->nHits(DR);
-    int nxt = hitMatrix->nHits(XT);
+    int nxt = hitMatrix->nHits(CT);
     int nap = hitMatrix->nHits(AP);
     
     h_pe->Fill(hitMatrix->nHits(PE));
     h_dr->Fill(hitMatrix->nHits(DR));
-    h_xt->Fill(hitMatrix->nHits(XT));
+    h_xt->Fill(hitMatrix->nHits(CT));
     h_ap->Fill(hitMatrix->nHits(AP));
     if(npe>=max) max=npe;
     if(ndr>=max) max=ndr;
@@ -163,8 +176,9 @@ TH1D* daqMC::QDCSpectrum( int N )
     if(cancel==true) break;
     Progress(i*100/N);
     
-    double charge = sipm->Generate(photonSource->GeneratePhotons());
-    QDC(charge);
+    sipm->Generate(photonSource->GeneratePhotons());
+    GCharge charge = sipm->GetCharge();
+    h_QDC->Fill(QDC(charge.all));
   }
   
   h_QDC->Draw("HIST E0");
@@ -203,7 +217,7 @@ TH1D* daqMC::TDCSpectrum( int N )
     {
       hit.clear();
       hit=hitMatrix->GetHit(i);
-      if(hit[TYPE]==XT || hit[TYPE]==PE || hit[TIME]-tlast<=deadtime) continue;
+      if(hit[TYPE]==CT || hit[TYPE]==PE || hit[TIME]-tlast<=deadtime) continue;
       h_TDC->Fill(hit[TIME]-tlast);
       tlast=hit[TIME];
       if(h_TDC->GetEntries()>=N) break;
@@ -452,9 +466,9 @@ TH1D* daqMC::Scope( TH1D* waveform )
 }
 
 
-void daqMC::QDC( double charge )
+double daqMC::QDC( double charge )
 {
-  h_QDC->Fill(charge+pedestal);
+  return charge+pedestal;
 }
 
 
@@ -518,8 +532,9 @@ TH1D* daqMC::Discriminator( TH1D* waveform, double threshold )
 }
 
 
-TGraphErrors* daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step )
+GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step )
 {
+  SetQDCChannels(1000000);
 
   const int Npoints = Ngamma_max/Ngamma_step+1;
 
@@ -533,59 +548,203 @@ TGraphErrors* daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 
   const int Np = 100000;
 
-  double Ngamma[Np]={0}, Mean[Np]={0}, Mean_err[Np], RMS[Np]={0}, RMS_err[Np]={0}, Sigma[Np]={0};
+  double Ngamma=0, Mean=0, Mean_err=0, RMS=0, RMS_err=0, Sigma=0;
 
   for(int i=0; i<Npoints; i++)
   {
-    Ngamma[i]=i*Ngamma_step;
-    photonSource->SetNgamma(Ngamma[i]);
+    Ngamma=i*Ngamma_step;
+    photonSource->SetNgamma(Ngamma);
     
     h_QDC->Reset("M");
+
+    TH1D h_QDC_pe("h_QDC_pe","h_QDC_pe",h_QDC->GetNbinsX(),0,h_QDC->GetNbinsX());
+    TH1D h_QDC_dr("h_QDC_dr","h_QDC_dr",h_QDC->GetNbinsX(),0,h_QDC->GetNbinsX());
+    TH1D h_QDC_ct("h_QDC_ct","h_QDC_ct",h_QDC->GetNbinsX(),0,h_QDC->GetNbinsX());
+    TH1D h_QDC_ap("h_QDC_ap","h_QDC_ap",h_QDC->GetNbinsX(),0,h_QDC->GetNbinsX());
+    TH1D h_QDC_enf("h_QDC_enf","h_QDC_enf",h_QDC->GetNbinsX(),0,h_QDC->GetNbinsX());
+    TH1D h_QDC_en("h_QDC_en","h_QDC_en",h_QDC->GetNbinsX(),0,h_QDC->GetNbinsX());
     
     for(int n=0;n<N;n++)
     {
       if(cancel==true) break;
-      double charge = sipm->Generate(photonSource->GeneratePhotons());
-      QDC(charge);
+      sipm->Generate(photonSource->GeneratePhotons());
+      GCharge charge = sipm->GetCharge();
+      h_QDC->Fill(QDC(charge.all));
+      h_QDC_pe.Fill(QDC(charge.pe));
+      h_QDC_dr.Fill(QDC(charge.dr));
+      h_QDC_ct.Fill(QDC(charge.ct));
+      h_QDC_ap.Fill(QDC(charge.ap));
+      h_QDC_enf.Fill(QDC(charge.enf));
+      h_QDC_en.Fill(QDC(charge.en));
     }
     
-    Mean[i]=(h_QDC->GetMean()-pedestal)/sipm->gain;
-    RMS[i]=h_QDC->GetRMS()/sipm->gain;
-    Mean_err[i]=h_QDC->GetMeanError()/sipm->gain;
-    RMS_err[i]=h_QDC->GetRMSError()/sipm->gain;
+    Mean=(h_QDC->GetMean()-pedestal)/sipm->gain;
+    RMS=h_QDC->GetRMS()/sipm->gain;
+    Mean_err=h_QDC->GetMeanError()/sipm->gain;
+    RMS_err=h_QDC->GetRMSError()/sipm->gain;
+    responseCurve.response->SetPoint(i,Ngamma,Mean);
+    responseCurve.response->SetPointError(i,0,Mean_err);
+    responseCurve.resolution->SetPoint(i,Ngamma,RMS);
+    responseCurve.resolution->SetPointError(i,0,RMS_err);
+
+    Mean=(h_QDC_pe.GetMean()-pedestal)/sipm->gain;
+    RMS=h_QDC_pe.GetRMS()/sipm->gain;
+    Mean_err=h_QDC_pe.GetMeanError()/sipm->gain;
+    RMS_err=h_QDC_pe.GetRMSError()/sipm->gain;
+    responseCurve.responsePE->SetPoint(i,Ngamma,Mean);
+    responseCurve.responsePE->SetPointError(i,0,Mean_err);
+    responseCurve.resolutionPE->SetPoint(i,Ngamma,RMS);
+    responseCurve.resolutionPE->SetPointError(i,0,RMS_err);
+
+    Mean=(h_QDC_dr.GetMean()-pedestal)/sipm->gain;
+    RMS=h_QDC_dr.GetRMS()/sipm->gain;
+    Mean_err=h_QDC_dr.GetMeanError()/sipm->gain;
+    RMS_err=h_QDC_dr.GetRMSError()/sipm->gain;
+    responseCurve.responseDR->SetPoint(i,Ngamma,Mean);
+    responseCurve.responseDR->SetPointError(i,0,Mean_err);
+    responseCurve.resolutionDR->SetPoint(i,Ngamma,RMS);
+    responseCurve.resolutionDR->SetPointError(i,0,RMS_err);
+
+    Mean=(h_QDC_ct.GetMean()-pedestal)/sipm->gain;
+    RMS=h_QDC_ct.GetRMS()/sipm->gain;
+    Mean_err=h_QDC_ct.GetMeanError()/sipm->gain;
+    RMS_err=h_QDC_ct.GetRMSError()/sipm->gain;
+    responseCurve.responseCT->SetPoint(i,Ngamma,Mean);
+    responseCurve.responseCT->SetPointError(i,0,Mean_err);
+    responseCurve.resolutionCT->SetPoint(i,Ngamma,RMS);
+    responseCurve.resolutionCT->SetPointError(i,0,RMS_err);
+
+    Mean=(h_QDC_ap.GetMean()-pedestal)/sipm->gain;
+    RMS=h_QDC_ap.GetRMS()/sipm->gain;
+    Mean_err=h_QDC_ap.GetMeanError()/sipm->gain;
+    RMS_err=h_QDC_ap.GetRMSError()/sipm->gain;
+    responseCurve.responseAP->SetPoint(i,Ngamma,Mean);
+    responseCurve.responseAP->SetPointError(i,0,Mean_err);
+    responseCurve.resolutionAP->SetPoint(i,Ngamma,RMS);
+    responseCurve.resolutionAP->SetPointError(i,0,RMS_err);
+
+    Mean=(h_QDC_enf.GetMean()-pedestal)/sipm->gain;
+    RMS=h_QDC_enf.GetRMS()/sipm->gain;
+    Mean_err=h_QDC_enf.GetMeanError()/sipm->gain;
+    RMS_err=h_QDC_enf.GetRMSError()/sipm->gain;
+    responseCurve.responseENF->SetPoint(i,Ngamma,Mean);
+    responseCurve.responseENF->SetPointError(i,0,Mean_err);
+    responseCurve.resolutionENF->SetPoint(i,Ngamma,RMS);
+    responseCurve.resolutionENF->SetPointError(i,0,RMS_err);
+
+    Mean=(h_QDC_en.GetMean()-pedestal)/sipm->gain;
+    RMS=h_QDC_en.GetRMS()/sipm->gain;
+    Mean_err=h_QDC_en.GetMeanError()/sipm->gain;
+    RMS_err=h_QDC_en.GetRMSError()/sipm->gain;
+    responseCurve.responseEN->SetPoint(i,Ngamma,Mean);
+    responseCurve.responseEN->SetPointError(i,0,Mean_err);
+    responseCurve.resolutionEN->SetPoint(i,Ngamma,RMS);
+    responseCurve.resolutionEN->SetPointError(i,0,RMS_err);
     
-    Ndone+=Ngamma[i];
+    Ndone+=Ngamma;
     Progress(100*Ndone/Ntot);
   }
 
-  g_Response = new TGraphErrors(Npoints,Ngamma,Mean,0,Mean_err);
-  g_Response->SetMarkerStyle(20);
+  responseCurve.response->Set(Npoints);
+  responseCurve.responsePE->Set(Npoints);
+  responseCurve.responseDR->Set(Npoints);
+  responseCurve.responseAP->Set(Npoints);
+  responseCurve.responseCT->Set(Npoints);
+  responseCurve.responseENF->Set(Npoints);
+  responseCurve.responseEN->Set(Npoints);
+  responseCurve.resolution->Set(Npoints);
+  responseCurve.resolutionPE->Set(Npoints);
+  responseCurve.resolutionDR->Set(Npoints);
+  responseCurve.resolutionAP->Set(Npoints);
+  responseCurve.resolutionCT->Set(Npoints);
+  responseCurve.resolutionENF->Set(Npoints);
+  responseCurve.resolutionEN->Set(Npoints);
 
-  TF1 *fit = new TF1("fit","[0]*(1-TMath::Exp(-x*[1]/[0]))+[2]",0,Ngamma_max);
-  fit->SetParameters(sipm->GetNpix(),sipm->PDE,1);
-  g_Response->Fit("fit","M","",0,Ngamma_max);
+  responseCurve.response->SetMarkerStyle(20);
+  responseCurve.response->SetTitle("Response");
+  responseCurve.response->Draw("ALP");
 
-  g_Response->SetTitle("Response");
-  g_Response->Draw("ALP");
+  responseCurve.responsePE->SetMarkerStyle(20);
+  responseCurve.responsePE->SetLineColor(4);
+  responseCurve.responsePE->SetMarkerColor(4);
+  responseCurve.responsePE->SetTitle("PE");
+  responseCurve.responsePE->Draw("SAMELP");
+  responseCurve.responseDR->SetMarkerStyle(20);
+  responseCurve.responseDR->SetLineColor(3);
+  responseCurve.responseDR->SetMarkerColor(3);
+  responseCurve.responseDR->SetTitle("DR");
+  responseCurve.responseDR->Draw("SAMELP");
+  responseCurve.responseCT->SetMarkerStyle(20);
+  responseCurve.responseCT->SetLineColor(5);
+  responseCurve.responseCT->SetMarkerColor(5);
+  responseCurve.responseCT->SetTitle("CT");
+  responseCurve.responseCT->Draw("SAMELP");
+  responseCurve.responseAP->SetMarkerStyle(20);
+  responseCurve.responseAP->SetLineColor(2);
+  responseCurve.responseAP->SetMarkerColor(2);
+  responseCurve.responseAP->SetTitle("AP");
+  responseCurve.responseAP->Draw("SAMELP");
+  responseCurve.responseENF->SetMarkerStyle(20);
+  responseCurve.responseENF->SetLineColor(6);
+  responseCurve.responseENF->SetMarkerColor(6);
+  responseCurve.responseENF->SetTitle("ENF");
+  responseCurve.responseENF->Draw("SAMELP");
+  responseCurve.responseEN->SetMarkerStyle(20);
+  responseCurve.responseEN->SetLineColor(7);
+  responseCurve.responseEN->SetMarkerColor(7);
+  responseCurve.responseEN->SetTitle("EN");
+  responseCurve.responseEN->Draw("SAMELP");
 
-  ///Resolution
+//   TF1 *fit = new TF1("fit","[0]*(1-TMath::Exp(-x*[1]/[0]))+[2]",0,Ngamma_max);
+//   fit->SetParameters(sipm->GetNpix(),sipm->PDE,1);
+//   g_Response->Fit("fit","M","",0,Ngamma_max);
 
-  for(int i=0;i<Npoints;i++)
-  {
-    Sigma[i]=RMS[i]*fit->GetParameter(0)/fit->GetParameter(1)/(fit->GetParameter(0)-Mean[i])/Ngamma[i];
-  }
+//   FOR(INT I=0;I<NPOINTS;I++)
+//   {
+//     SIGMA[I]=RMS[I]*FIT->GETPARAMETER(0)/FIT->GETPARAMETER(1)/(FIT->GETPARAMETER(0)-MEAN[I])/NGAMMA[I];
+//   }
+//   DELETE FIT;
 
-  //g_ResNgamma = new TGraph(Npoints,Ngamma,Sigma);
-  g_ResNgamma = new TGraphErrors(Npoints,Ngamma,RMS,0,RMS_err);
-  g_ResNgamma->SetMarkerStyle(20);
-
-  delete fit;
+//   G_RESNGAMMA = NEW TGRAPH(NPOINTS,NGAMMA,SIGMA);
 
   TCanvas *cc2 = new TCanvas("cc2","cc2",750,0,700,500);
-  g_ResNgamma->SetTitle("RMS");
-  g_ResNgamma->Draw("ALP");
+  
+  responseCurve.resolution->SetMarkerStyle(20);
+  responseCurve.resolution->SetTitle("Resolution");
+  responseCurve.resolution->Draw("ALP");
 
-  return g_ResNgamma;
+  responseCurve.resolutionPE->SetMarkerStyle(20);
+  responseCurve.resolutionPE->SetLineColor(4);
+  responseCurve.resolutionPE->SetMarkerColor(4);
+  responseCurve.resolutionPE->SetTitle("PE");
+  responseCurve.resolutionPE->Draw("SAMELP");
+  responseCurve.resolutionDR->SetMarkerStyle(20);
+  responseCurve.resolutionDR->SetLineColor(3);
+  responseCurve.resolutionDR->SetMarkerColor(3);
+  responseCurve.resolutionDR->SetTitle("DR");
+  responseCurve.resolutionDR->Draw("SAMELP");
+  responseCurve.resolutionCT->SetMarkerStyle(20);
+  responseCurve.resolutionCT->SetLineColor(5);
+  responseCurve.resolutionCT->SetMarkerColor(5);
+  responseCurve.resolutionCT->SetTitle("CT");
+  responseCurve.resolutionCT->Draw("SAMELP");
+  responseCurve.resolutionAP->SetMarkerStyle(20);
+  responseCurve.resolutionAP->SetLineColor(2);
+  responseCurve.resolutionAP->SetMarkerColor(2);
+  responseCurve.resolutionAP->SetTitle("AP");
+  responseCurve.resolutionAP->Draw("SAMELP");
+  responseCurve.resolutionENF->SetMarkerStyle(20);
+  responseCurve.resolutionENF->SetLineColor(6);
+  responseCurve.resolutionENF->SetMarkerColor(6);
+  responseCurve.resolutionENF->SetTitle("ENF");
+  responseCurve.resolutionENF->Draw("SAMELP");
+  responseCurve.resolutionEN->SetMarkerStyle(20);
+  responseCurve.resolutionEN->SetLineColor(7);
+  responseCurve.resolutionEN->SetMarkerColor(7);
+  responseCurve.resolutionEN->SetTitle("EN");
+  responseCurve.resolutionEN->Draw("SAMELP");
+
+  return responseCurve;
 }
 
 
