@@ -132,7 +132,7 @@ double HitMatrix::GetPreviousTime( unsigned int iHit )
 
   while(i>=0)
   {
-    if(this->at(i).at(X)==this->at(iHit).at(X) && this->at(i).at(Y)==this->at(iHit).at(X))
+    if(this->at(i).at(X)==this->at(iHit).at(X) && this->at(i).at(Y)==this->at(iHit).at(Y))
     {
       tlast = this->at(i).at(TIME);
       break;
