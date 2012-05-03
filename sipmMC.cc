@@ -42,6 +42,7 @@ sipmMC::sipmMC()
     EN=2;
     signalAmp = 20;
     noiseRMS = 2;
+    jitter = 0.25;
 
     timeval time;
     gettimeofday(&time,NULL);    
@@ -175,8 +176,17 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2, double Resolution, double 
 {
   customPulse = false;
   resolution = Resolution;
-  tau1 = Tau1;
-  tau2 = Tau2;
+
+  if(Tau1<Tau2)
+  {
+    tau1 = Tau1;
+    tau2 = Tau2;
+  }
+  else
+  {
+    tau1 = Tau2;
+    tau2 = Tau1;
+  }
 
   cutoff = cutOff;
 
@@ -375,7 +385,7 @@ GCharge sipmMC::Generate( PhotonList photons )
     
     double overflow;
     if(customPulse==true)  overflow = h_pulseShape->Integral((gate-time)/resolution+1,nBinsPulseShape)/pulseIntegral*amplitude;
-    if(customPulse==false) overflow = amplitude/(tau1-tau2)*(tau1*exp(-(gate-time)/tau1)-tau2*exp(-(gate-time)/tau2));
+    if(customPulse==false) overflow = amplitude/(tau1-tau2)*(tau1*exp(-(gate-time)/tau1)-tau2*exp(-(gate-time)/tau2));		///Not effected by jitter!
     charge.all+=amplitude-overflow;
 
     if(amplitude>0)
@@ -463,17 +473,20 @@ TH1D* sipmMC::GetWaveform()
     }
     if(customPulse==false)
     {
+      double tau1_jittered = r.Gaus(tau1,jitter);
+      if(tau1_jittered<0) tau1_jittered = 0.001;
+      
       int i_wf=time/resolution+1;
       int j=0;
       double t=0;
       while(i_wf<=gate/resolution)
-      {
+      {	
 	t=j*resolution;
-	double amp = amplitude/gain*signalAmp/(pow(tau1/tau2,-tau2/(tau1-tau2))-pow(tau1/tau2,-tau1/(tau1-tau2)))*(exp(-t/tau1) -exp(-t/tau2));
+	double amp = amplitude/gain*signalAmp/(pow(tau1_jittered/tau2,-tau2/(tau1_jittered-tau2))-pow(tau1_jittered/tau2,-tau1_jittered/(tau1_jittered-tau2)))*(exp(-t/tau1_jittered) -exp(-t/tau2));
 	waveform->AddBinContent(i_wf,amp);
 	i_wf++;
 	j++;
-	if(t>=log(tau1/tau2)/(1/tau2-1/tau1) && amp<signalAmp*cutoff) break;
+	if(t>=log(tau1_jittered/tau2)/(1/tau2-1/tau1_jittered) && amp<signalAmp*cutoff) break;
       }
     }
   }

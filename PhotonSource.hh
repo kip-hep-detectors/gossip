@@ -22,7 +22,7 @@ class PhotonSource
     PhotonList  GeneratePhotons();
     /**Sets light spot shape. Options are "square","elliptic"*/
     void        SetShape( string Shape ){ shape = Shape; };
-    /**Sets time distribution. Options are "gaus","flat","exp"*/
+    /**Sets time distribution. Options are "gaus","flat","exp","exp2"*/
     void        SetPulse( string Pulse ){ pulse = Pulse; };
     /**Sets x,y position in mm of light spot center*/
     void        SetXY( double X, double Y ){ x = X; y = Y; };
@@ -32,6 +32,8 @@ class PhotonSource
     void        SetTime( double T ){ t = T; };
     /**Sets duration of light pulse. For "gaus": sigma, "flat": width, "exp": time constant*/
     void        SetTimeWidth( double Twidth ){ tWidth = Twidth; };
+    /**Sets rise of light pulse. Only for "exp2" option*/
+    void        SetRiseTime( double Trise ){ tRise = Trise; };
     /**Sets mean number of photons in the pulse*/
     void        SetNgamma( int nGamma ){ Ngamma = nGamma; };
     /**Enables poisson smearing of number of photons in the pulse*/
@@ -45,7 +47,7 @@ class PhotonSource
     bool 	fluctuation;
     double 	x, y;
     double 	xWidth, yWidth;
-    double 	t, tWidth;
+    double 	t, tWidth, tRise;
     double 	Ngamma;
     string 	shape, pulse;
 };

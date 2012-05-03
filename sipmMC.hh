@@ -60,6 +60,7 @@ class sipmMC{
     double		EN;						/**<Electronic noise (=pedestal noise)*/
     double		signalAmp;					/**<Singel pixel signal amplitude*/
     double		noiseRMS;					/**<RMS of noise*/
+    double		jitter;						/**<Jitter of rising edge tau1*/
     
     GCharge		Generate( PhotonList photons );			/**<Generates SiPM response*/
     void		GetParaFile( const char* filename );		/**<Sets SiPM parameters from config file*/
