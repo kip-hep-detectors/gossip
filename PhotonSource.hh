@@ -58,6 +58,7 @@ class PhotonSource
     string 	shape, pulse;
     TH2		*hShape;
     TH1		*hTime;
+    TF1 	*fExp2;
 };
 
 #endif

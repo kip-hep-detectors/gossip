@@ -1,8 +1,8 @@
 #include "daqMC.hh"
 #include "HitMatrix.hh"
-#include "drTDCspec.h"
-#include "drTDCspec2.h"
-#include "tpTDCspec.h"
+// #include "drTDCspec.h"
+// #include "drTDCspec2.h"
+// #include "tpTDCspec.h"
 #include <TRandom1.h>
 #include <TROOT.h>
 #include <TCanvas.h>
@@ -175,8 +175,10 @@ TH1D* daqMC::QDCSpectrum( int N )
   {
     if(cancel==true) break;
     Progress(i*100/N);
+
+    PhotonList photons = photonSource->GeneratePhotons();
     
-    double charge = sipm->Generate(photonSource->GeneratePhotons());
+    double charge = sipm->Generate(photons);
     h_QDC->Fill(QDC(charge));
   }
   
@@ -198,10 +200,10 @@ TH1D* daqMC::TDCSpectrum( int N )
   h_TDC->Reset("M");
   h_TDC->SetBins(65000,0,65000);
   
-  photonSource->SetNgamma(0);
   sipm->SetGate(65000/*,false*/);
   
-  PhotonList empty = photonSource->GeneratePhotons();
+  PhotonList empty;
+  empty.clear();
 
   while(h_TDC->GetEntries()<N)
   {

@@ -417,7 +417,7 @@ void sipmGUI::EnableEntries(int meas){
   if(meas==2){
     measurement=2;
     fNumberEntryNentries->SetState(true);
-    fNumberEntryGate->SetState(true);
+    fNumberEntryGate->SetState(false);
     fNumberEntryPedestal->SetState(false);
     fNumberEntryThreshStart->SetState(false);
     fNumberEntryThreshStop->SetState(false);

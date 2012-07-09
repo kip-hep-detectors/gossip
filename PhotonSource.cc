@@ -20,6 +20,8 @@ PhotonSource::PhotonSource()
   shape="square";
   pulse="flat";
   fluctuation=true;
+
+  fExp2 = new TF1("exp2","[0]*[1]/([0]-[1])*(exp(-x/[0])-exp(-x/[1]))",0,1000);
 }
 
 
@@ -37,9 +39,7 @@ PhotonList PhotonSource::GeneratePhotons()
   double yHit=0;
   double tHit=0;
 
-  //Double exponential for exp2 option
-  TF1 exp2("exp2","[0]*[1]/([0]-[1])*(exp(-x/[0])-exp(-x/[1]))",0,1000);
-  exp2.SetParameters(tRise,tWidth);
+  fExp2->SetParameters(tRise,tWidth);
 
   for(int i=0;i<N;i++)
   {
@@ -68,7 +68,7 @@ PhotonList PhotonSource::GeneratePhotons()
     if(pulse=="flat") tHit=r.Rndm()*tWidth + t;
     else if(pulse=="gaus") tHit=r.Gaus (t,tWidth);
     else if(pulse=="exp" || (pulse=="exp2" && tRise<=0))  tHit=r.Exp  (tWidth) + t;
-    else if(pulse=="exp2") tHit=exp2.GetRandom() + t;
+    else if(pulse=="exp2") tHit=fExp2->GetRandom() + t;
     else if(pulse=="custom") tHit=hTime->GetRandom() + t;
     else cout << ">>> Error: Unknown pulse!" << endl;
     
