@@ -3,6 +3,8 @@
 
 #include <vector>
 #include "TRandom3.h"
+#include "TH1.h"
+#include "TH2.h"
 #include "PhotonList.hh"
 #include <iostream>
 
@@ -22,8 +24,12 @@ class PhotonSource
     PhotonList  GeneratePhotons();
     /**Sets light spot shape. Options are "square","elliptic"*/
     void        SetShape( string Shape ){ shape = Shape; };
+    /**Sets light spot shape from a TH2*/
+    void        SetShape( TH2 *h_shape ){ hShape = h_shape; shape = "custom"; };
     /**Sets time distribution. Options are "gaus","flat","exp","exp2"*/
     void        SetPulse( string Pulse ){ pulse = Pulse; };
+    /**Sets time distribution from a TH1*/
+    void        SetPulse( TH1 *h_time ){ hTime = h_time; pulse = "custom"; };
     /**Sets x,y position in mm of light spot center*/
     void        SetXY( double X, double Y ){ x = X; y = Y; };
     /**Sets width of light spot in x,y in mm*/
@@ -50,6 +56,8 @@ class PhotonSource
     double 	t, tWidth, tRise;
     double 	Ngamma;
     string 	shape, pulse;
+    TH2		*hShape;
+    TH1		*hTime;
 };
 
 #endif

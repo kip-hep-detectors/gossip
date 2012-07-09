@@ -176,9 +176,8 @@ TH1D* daqMC::QDCSpectrum( int N )
     if(cancel==true) break;
     Progress(i*100/N);
     
-    sipm->Generate(photonSource->GeneratePhotons());
-    GCharge charge = sipm->GetCharge();
-    h_QDC->Fill(QDC(charge.all));
+    double charge = sipm->Generate(photonSource->GeneratePhotons());
+    h_QDC->Fill(QDC(charge));
   }
   
   h_QDC->Draw("HIST E0");
@@ -228,54 +227,54 @@ TH1D* daqMC::TDCSpectrum( int N )
 
 //Fit
 
-  Float_t tpfitstart = 2000;
-  Float_t fitstart = 100;
-  Float_t fitstop = 1000;
-  
-  Int_t const n = 2.6e6;
-  
-  ///fitte termische pulse
-  TF1 *fittp = new TF1("fittp",tpTDCspec,0,n*0.025,2);
-  fittp->SetParameters(1e7,1e3);
-  
-  //finde rechte fitgrenze
-  Int_t tpstop = tpfitstart;
-  while(1)
-  {
-    if(h_TDC->GetBinContent(tpstop)<10) break;
-    tpstop=tpstop+1;
-  }
-  
-  //fitte
-  h_TDC->Fit("fittp","M0","",tpfitstart,tpstop);
-  
-  Double_t A3 = fittp->GetParameter(0);
-  Double_t tau3 = fittp->GetParameter(1);
-  Double_t A3_err = fittp->GetParError(0);
-  Double_t tau3_err = fittp->GetParError(1);
-  
-  
-  //fitte afterpulse
-  TF1 *fit = new TF1("fit",drTDCspec2,fitstart,n*0.025,6);
-  fit->SetParNames("N","APslow","APfast","tauDR","tauSlow","taufast");
-  fit->SetParameters(1e6,0.05,0.1,tau3,2000,200,50);
-  // 	fit->FixParameter(6,0);
-  fit->SetParLimits(0,0,1e9);
-  fit->SetParLimits(1,0,1);
-  fit->SetParLimits(2,0,1);
-  fit->SetParLimits(3,0,1e5);
-  fit->SetParLimits(4,100,1e4);
-  fit->SetParLimits(5,0,100);
-  fit->FixParameter(3,tau3);
-  
-  fit->SetLineColor(2);
-  
-  h_TDC->Fit("fit","M0","",fitstart,fitstop);
-  Double_t chi2 = fit->GetChisquare();
-  Double_t ndf = fit->GetNDF();
-  cout << "Reduced ChiSquare: " << chi2 << " / " << ndf << " = " << chi2/ndf << endl;
-  
-  fit->Draw("SAME");
+//   Float_t tpfitstart = 2000;
+//   Float_t fitstart = 100;
+//   Float_t fitstop = 1000;
+//   
+//   Int_t const n = 2.6e6;
+//   
+//   ///fitte termische pulse
+//   TF1 *fittp = new TF1("fittp",tpTDCspec,0,n*0.025,2);
+//   fittp->SetParameters(1e7,1e3);
+//   
+//   //finde rechte fitgrenze
+//   Int_t tpstop = tpfitstart;
+//   while(1)
+//   {
+//     if(h_TDC->GetBinContent(tpstop)<10) break;
+//     tpstop=tpstop+1;
+//   }
+//   
+//   //fitte
+//   h_TDC->Fit("fittp","M0","",tpfitstart,tpstop);
+//   
+//   Double_t A3 = fittp->GetParameter(0);
+//   Double_t tau3 = fittp->GetParameter(1);
+//   Double_t A3_err = fittp->GetParError(0);
+//   Double_t tau3_err = fittp->GetParError(1);
+//   
+//   
+//   //fitte afterpulse
+//   TF1 *fit = new TF1("fit",drTDCspec2,fitstart,n*0.025,6);
+//   fit->SetParNames("N","APslow","APfast","tauDR","tauSlow","taufast");
+//   fit->SetParameters(1e6,0.05,0.1,tau3,2000,200,50);
+//   // 	fit->FixParameter(6,0);
+//   fit->SetParLimits(0,0,1e9);
+//   fit->SetParLimits(1,0,1);
+//   fit->SetParLimits(2,0,1);
+//   fit->SetParLimits(3,0,1e5);
+//   fit->SetParLimits(4,100,1e4);
+//   fit->SetParLimits(5,0,100);
+//   fit->FixParameter(3,tau3);
+//   
+//   fit->SetLineColor(2);
+//   
+//   h_TDC->Fit("fit","M0","",fitstart,fitstop);
+//   Double_t chi2 = fit->GetChisquare();
+//   Double_t ndf = fit->GetNDF();
+//   cout << "Reduced ChiSquare: " << chi2 << " / " << ndf << " = " << chi2/ndf << endl;
+//   
+//   fit->Draw("SAME");
   
   return h_TDC;
 }
@@ -534,6 +533,7 @@ TH1D* daqMC::Discriminator( TH1D* waveform, double threshold )
 
 GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step )
 {
+  int nQDC_temp = h_QDC->GetNbinsX();
   SetQDCChannels(1000000);
 
   const int Npoints = Ngamma_max/Ngamma_step+1;
@@ -744,6 +744,8 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
   responseCurve.resolutionEN->SetTitle("EN");
   responseCurve.resolutionEN->Draw("SAMELP");
 
+  SetQDCChannels(nQDC_temp);
+  
   return responseCurve;
 }
 

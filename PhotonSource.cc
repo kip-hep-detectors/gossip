@@ -49,17 +49,28 @@ PhotonList PhotonSource::GeneratePhotons()
       xHit=(r.Rndm()-0.5)*xWidth + x;
       yHit=(r.Rndm()-0.5)*yWidth + y;
     }
-    if(shape=="elliptic")
+    else if(shape=="elliptic")
     {
       xHit=(r.Rndm()-0.5)*xWidth + x;
       yHit=2*(r.Rndm()-0.5)*sqrt(pow(yWidth/2.,2)-pow(yWidth/xWidth*xHit,2)) + y;
+    }
+    else if(shape=="custom")
+    {
+      xHit=hShape->ProjectionX()->GetRandom() + x;
+      yHit=hShape->ProjectionY()->GetRandom() + y;
+    }
+    else
+    {
+      cout << ">>> Error: Unknown shape!" << endl;
     }
 
     //Time structure
     if(pulse=="flat") tHit=r.Rndm()*tWidth + t;
     else if(pulse=="gaus") tHit=r.Gaus (t,tWidth);
     else if(pulse=="exp" || (pulse=="exp2" && tRise<=0))  tHit=r.Exp  (tWidth) + t;
-    else if(pulse=="exp2") tHit= exp2.GetRandom() + t;
+    else if(pulse=="exp2") tHit=exp2.GetRandom() + t;
+    else if(pulse=="custom") tHit=hTime->GetRandom() + t;
+    else cout << ">>> Error: Unknown pulse!" << endl;
     
     //Add photon to list
     photonList.AddPhoton(xHit,yHit,tHit);

@@ -106,6 +106,7 @@ void sipmMC::GetParaFile( const char* filename )
     else if(para == "ENF") in >> ENF;
     else if(para == "EN") in >> EN;
     else if(para == "TauRec") in >> tau_recovery;
+    else if(para == "Jitter") in >> jitter;
     else if(para == "Npx") in >> NpixX;
     else if(para == "Npy") in >> NpixY;
     else if(para == "SizeX") in >> xSipm;
@@ -119,9 +120,33 @@ void sipmMC::GetParaFile( const char* filename )
       
     SetPulseShape(tau1F, tau2F);
     SetGate(gateF);
+    SetGeometry("square");
     
     if(!in.good()) break;
   }
+
+  cout << "PDE = " << PDE << "\n"
+  << "Gain = " << gain << "\n"
+  << "TauDR = " << tau_dr << "\n"
+  << "AP_s = " << Pap_s << "\n"
+  << "TauAP_s = " << tau_ap_s << "\n"
+  << "AP_f = " << Pap_f << "\n"
+  << "TauAP_f = " << tau_ap_f << "\n"
+  << "XT = " << Pxt << "\n"
+  << "ENF = " << ENF << "\n"
+  << "EN = " << EN << "\n"
+  << "TauRec = " << tau_recovery << "\n"
+  << "Jitter = " << jitter << "\n"
+  << "Npx = " << NpixX << "\n"
+  << "Npy = " << NpixY << "\n"
+  << "SizeX = " << xSipm << "\n"
+  << "SizeY = " << ySipm << "\n"
+  << "NoiseRMS = " << noiseRMS << "\n"
+  << "SignalAmp = " << signalAmp << "\n"
+  << "Tau1 = " << tau1F << "\n"
+  << "Tau2 = " << tau2F << "\n"
+  << "Gate = " << gateF << "\n"
+  << endl;
 
   in.close();
 
@@ -215,7 +240,7 @@ void sipmMC::SetPulseShape( TH1* PulseShape )
   customPulse = true;
   resolution = PulseShape->GetBinWidth(1);
 
-  h_pulseShape = PulseShape;
+  h_pulseShape = (TH1D*)PulseShape;
   pulseIntegral = h_pulseShape->Integral();
   nBinsPulseShape = h_pulseShape->GetNbinsX();
 
@@ -254,7 +279,7 @@ void sipmMC::InitHitMatrix()
 }
 
 
-GCharge sipmMC::Generate( PhotonList photons )
+double sipmMC::Generate( PhotonList photons )
 {
   Reset();
   ImportPhotons(photons);	//Übersetzte Potonen aus PhotonList auf Pixelbasis
@@ -318,9 +343,12 @@ GCharge sipmMC::Generate( PhotonList photons )
   ///detected photons:
   for(unsigned int i=0;i<photonList.size();i++)
   {
-    if(r.Rndm()<PDE) hitMatrix->AddHit(photonList[i][X],photonList[i][Y],photonList[i][TIME],PE);
+    double time = r.Gaus(photonList[i][TIME],jitter);		///No time offset...signal can appear before photon time stamp! =)
+    if(r.Rndm()<PDE) hitMatrix->AddHit(photonList[i][X],photonList[i][Y],time,PE);
   }
 
+  ///NO JITTER FOR DR, CT and AP!
+  
   ///darkrate:
   if(tau_dr!=0)
   {
@@ -446,7 +474,7 @@ GCharge sipmMC::Generate( PhotonList photons )
   charge.en = eNoise;
   charge.all += eNoise;
 
-  return charge;
+  return charge.all;
 }
 
 
@@ -473,8 +501,10 @@ TH1D* sipmMC::GetWaveform()
     }
     if(customPulse==false)
     {
-      double tau1_jittered = r.Gaus(tau1,jitter);
-      if(tau1_jittered<0) tau1_jittered = 0.001;
+//       double tau1_jittered = r.Gaus(tau1,jitter/2.);
+//       if(tau1_jittered<0) tau1_jittered = 0.001;
+
+      double tau1_jittered = tau1;	///Risetime jitter disabled!
       
       int i_wf=time/resolution+1;
       int j=0;

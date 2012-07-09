@@ -62,7 +62,7 @@ class sipmMC{
     double		noiseRMS;					/**<RMS of noise*/
     double		jitter;						/**<Jitter of rising edge tau1*/
     
-    GCharge		Generate( PhotonList photons );			/**<Generates SiPM response*/
+    double		Generate( PhotonList photons );			/**<Generates SiPM response*/
     void		GetParaFile( const char* filename );		/**<Sets SiPM parameters from config file*/
     void		SetGeometry( string Geometry );			/**<Sets pixel arrangement. Only "square" implemented at the moment*/
     void		SetGeometry( TH2I* hgeometry );			/**<Sets custom pixel arrangement from TH2I*/
@@ -72,15 +72,16 @@ class sipmMC{
 				       double cutOff = 0.0001 ); 	/**<Sets double exponential single pixel waveform with time constants "Tau1", "Tau2". "Resolution" is the sampling time of the simualtion in ns. Waveform is cut off at a fraction "cutOff" of the amplitude*/
     void      		SetPulseShape( TH1* PulseShape );		/**<Sets custom single pixel waveform from TH2I*/
     void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see HitMatrix class)*/
+
     TH1D*		GetWaveform();					/**<Returns simulated signal waveform*/
+									/**Returns signal charge from different components*/
+    GCharge		GetCharge(){ return charge; };
 									/**Returns length of integration gate in ns*/
     double		GetGate(){ return gate; };
 									/**Returns single pixel waveform*/
-    TH1*		GetPulseShape(){ return h_pulseShape; };
+    TH1D*		GetPulseShape(){ return h_pulseShape; };
 									/**Returns hitmatrix*/
     HitMatrix*		GetHitMatrix(){ return hitMatrix; };
-									/**Returns signal charge*/
-    GCharge             GetCharge(){ return charge; };
 									/**Returns number of pixels of the SiPM*/
     int			GetNpix(){ return Npix; };
 				   
@@ -90,7 +91,7 @@ class sipmMC{
     int			Npix;
     HitMatrix*		hitMatrix;
     TH1D*		waveform;
-    TH1*		h_pulseShape;
+    TH1D*		h_pulseShape;
     double		pulseIntegral;
     GCharge		charge;
     bool		customPulse;

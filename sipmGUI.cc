@@ -145,12 +145,12 @@ TGNumberEntry(fVframeParaEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberForm
   {
     fNumberEntryTau_le = new TGNumberEntry(fVframeWaveformEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
     fVframeWaveformEntries->AddFrame(fNumberEntryTau_le, fLayout1);
-    fLabelTau_le = new TGLabel(fVframeWaveformLabels,"Leading edge time constant [ns]");
+    fLabelTau_le = new TGLabel(fVframeWaveformLabels,"Rise time [ns]");
     fVframeWaveformLabels->AddFrame(fLabelTau_le, fLayout2);
     
     fNumberEntryTau_te = new TGNumberEntry(fVframeWaveformEntries,40,6, -1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
     fVframeWaveformEntries->AddFrame(fNumberEntryTau_te, fLayout1);
-    fLabelTau_te = new TGLabel(fVframeWaveformLabels,"Trailing edge time constant [ns]");
+    fLabelTau_te = new TGLabel(fVframeWaveformLabels,"Decay time [ns]");
     fVframeWaveformLabels->AddFrame(fLabelTau_te, fLayout2);
     
     fNumberEntrySignalAmp = new TGNumberEntry(fVframeWaveformEntries,20,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
@@ -165,7 +165,7 @@ TGNumberEntry(fVframeParaEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberForm
     
     fNumberEntryResolution = new TGNumberEntry(fVframeWaveformEntries,0.1,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
     fVframeWaveformEntries->AddFrame(fNumberEntryResolution, fLayout1);
-    fLabelResolution = new TGLabel(fVframeWaveformLabels,"Resolution [ns]");
+    fLabelResolution = new TGLabel(fVframeWaveformLabels,"Sampling [ns]");
     fVframeWaveformLabels->AddFrame(fLabelResolution, fLayout2);
     
     fNumberEntryCutoff = new TGNumberEntry(fVframeWaveformEntries,0.01,6,-1,TGNumberFormat::kNESRealThree,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
@@ -184,13 +184,12 @@ TGNumberEntry(fVframeParaEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberForm
   new TGRadioButton(Mselect, "QDC Spectrum");
   new TGRadioButton(Mselect, "Time Spectrum");
   new TGRadioButton(Mselect, "Threshold Scan");
-  new TGRadioButton(Mselect, "Oscilloscope");
+  new TGRadioButton(Mselect, "Waveform");
   new TGRadioButton(Mselect, "Statistic");
-  new TGRadioButton(Mselect, "Dynamic Range");
+  new TGRadioButton(Mselect, "Response");
   Mselect->SetButton(kTextLeft);
   Mselect->Connect("Pressed(Int_t)", "sipmGUI", this, "EnableEntries( int )");
   fGframeMeasurement->AddFrame(Mselect,new TGLayoutHints(kLHintsLeft, 0, 0, 5, 0));
-  measurement=1;
 
   fHframeMeasurPara = new TGHorizontalFrame(fGframeMeasurement, 400, 400);	//Settings: LightSource und Measurement
   fGframeMeasurement->AddFrame(fHframeMeasurPara, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 0, 0, 0));
@@ -335,7 +334,7 @@ TGNumberEntry(fVframeParaEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberForm
 
 
   //Start Frame
-  fGframeStart = new TGGroupFrame(fMainFrame, "GosSiP 2.0", kVerticalFrame);
+  fGframeStart = new TGGroupFrame(fMainFrame, "GosSiP 1.10", kVerticalFrame);
   fMainFrame->AddFrame(fGframeStart, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 0, 0));
 
   //Run Button
@@ -370,13 +369,15 @@ TGNumberEntry(fVframeParaEntries,1,6,-1,TGNumberFormat::kNESRealOne,TGNumberForm
   fIconLogo->Resize(3764/18,1920/18);
   
 
-  fMainFrame->SetWindowName("GosSiP 2.0 - Generic framework for the simulation of Silicon Photomultipliers");
-  fMainFrame->SetIconName("GosSiP 2.0");
+  fMainFrame->SetWindowName("GosSiP - Generic framework for the simulation of Silicon Photomultipliers");
+  fMainFrame->SetIconName("GosSiP 1.10");
 
   fMainFrame->SetMWMHints(kMWMDecorAll, kMWMFuncAll, kMWMInputModeless);
   fMainFrame->MapSubwindows();
   fMainFrame->Resize(fMainFrame->GetDefaultSize());
   fMainFrame->MapWindow();
+
+  EnableEntries(1);
 
 }
 
@@ -391,57 +392,147 @@ void sipmGUI::EnableEntries(int meas){
 
   if(meas==1){
     measurement=1;
-    fNumberEntryGate->SetState(true);
     fNumberEntryNentries->SetState(true);
+    fNumberEntryGate->SetState(true);
     fNumberEntryPedestal->SetState(true);
+    fNumberEntryThreshStart->SetState(false);
+    fNumberEntryThreshStop->SetState(false);
+    fNumberEntryThreshStep->SetState(false);
+    fNumberEntryDiscriMinTime->SetState(false);
+    fNumberEntryDiscriWidth->SetState(false);
+    fNumberEntryNgammaMax->SetState(false);
+    fNumberEntryNgammaStep->SetState(false);
+    
     fNumberEntryNgamma->SetState(true);
+    fNumberEntryLEDtime->SetState(true);
+    fNumberEntryLEDtimeWidth->SetState(true);
+    fNumberEntryLEDxPos->SetState(true);
+    fNumberEntryLEDyPos->SetState(true);
+    fNumberEntryLEDxWidth->SetState(true);
+    fNumberEntryLEDyWidth->SetState(true);
+    
     fNumberEntryNentries->SetNumber(10000);
   }
   
   if(meas==2){
     measurement=2;
-    fNumberEntryGate->SetState(true);
     fNumberEntryNentries->SetState(true);
+    fNumberEntryGate->SetState(true);
     fNumberEntryPedestal->SetState(false);
+    fNumberEntryThreshStart->SetState(false);
+    fNumberEntryThreshStop->SetState(false);
+    fNumberEntryThreshStep->SetState(false);
+    fNumberEntryDiscriMinTime->SetState(false);
+    fNumberEntryDiscriWidth->SetState(false);
+    fNumberEntryNgammaMax->SetState(false);
+    fNumberEntryNgammaStep->SetState(false);
+    
     fNumberEntryNgamma->SetState(false);
+    fNumberEntryLEDtime->SetState(false);
+    fNumberEntryLEDtimeWidth->SetState(false);
+    fNumberEntryLEDxPos->SetState(false);
+    fNumberEntryLEDyPos->SetState(false);
+    fNumberEntryLEDxWidth->SetState(false);
+    fNumberEntryLEDyWidth->SetState(false);
+    
     fNumberEntryNentries->SetNumber(100000);
   }
   
   if(meas==3){
     measurement=3;
-    fNumberEntryGate->SetState(true);
     fNumberEntryNentries->SetState(false);
+    fNumberEntryGate->SetState(true);
     fNumberEntryPedestal->SetState(false);
+    fNumberEntryThreshStart->SetState(true);
+    fNumberEntryThreshStop->SetState(true);
+    fNumberEntryThreshStep->SetState(true);
+    fNumberEntryDiscriMinTime->SetState(true);
+    fNumberEntryDiscriWidth->SetState(true);
+    fNumberEntryNgammaMax->SetState(false);
+    fNumberEntryNgammaStep->SetState(false);
+    
     fNumberEntryNgamma->SetState(false);
+    fNumberEntryLEDtime->SetState(false);
+    fNumberEntryLEDtimeWidth->SetState(false);
+    fNumberEntryLEDxPos->SetState(false);
+    fNumberEntryLEDyPos->SetState(false);
+    fNumberEntryLEDxWidth->SetState(false);
+    fNumberEntryLEDyWidth->SetState(false);
+    
     fLabelGate->SetText("Integration gate [mu s]");
   }
   
   if(meas!=3) fLabelGate->SetText("Integration gate [ns]   ");
 
   if(meas==4){
-  measurement=4;
-  fNumberEntryGate->SetState(true);
-  fNumberEntryNentries->SetState(true);
-  fNumberEntryPedestal->SetState(false);
-  fNumberEntryNgamma->SetState(true);
-  fNumberEntryNentries->SetNumber(1);
+    measurement=4;
+    fNumberEntryNentries->SetState(false);
+    fNumberEntryGate->SetState(true);
+    fNumberEntryPedestal->SetState(false);
+    fNumberEntryThreshStart->SetState(false);
+    fNumberEntryThreshStop->SetState(false);
+    fNumberEntryThreshStep->SetState(false);
+    fNumberEntryDiscriMinTime->SetState(false);
+    fNumberEntryDiscriWidth->SetState(false);
+    fNumberEntryNgammaMax->SetState(false);
+    fNumberEntryNgammaStep->SetState(false);
+    
+    fNumberEntryNgamma->SetState(true);
+    fNumberEntryLEDtime->SetState(true);
+    fNumberEntryLEDtimeWidth->SetState(true);
+    fNumberEntryLEDxPos->SetState(true);
+    fNumberEntryLEDyPos->SetState(true);
+    fNumberEntryLEDxWidth->SetState(true);
+    fNumberEntryLEDyWidth->SetState(true);
+    
+    fNumberEntryNentries->SetNumber(1);
   }
   
   if(meas==5){
     measurement=5;
-    fNumberEntryGate->SetState(true);
     fNumberEntryNentries->SetState(true);
-    fNumberEntryPedestal->SetState(true);
+    fNumberEntryGate->SetState(true);
+    fNumberEntryPedestal->SetState(false);
+    fNumberEntryThreshStart->SetState(false);
+    fNumberEntryThreshStop->SetState(false);
+    fNumberEntryThreshStep->SetState(false);
+    fNumberEntryDiscriMinTime->SetState(false);
+    fNumberEntryDiscriWidth->SetState(false);
+    fNumberEntryNgammaMax->SetState(false);
+    fNumberEntryNgammaStep->SetState(false);
+    
     fNumberEntryNgamma->SetState(true);
+    fNumberEntryLEDtime->SetState(true);
+    fNumberEntryLEDtimeWidth->SetState(true);
+    fNumberEntryLEDxPos->SetState(true);
+    fNumberEntryLEDyPos->SetState(true);
+    fNumberEntryLEDxWidth->SetState(true);
+    fNumberEntryLEDyWidth->SetState(true);
+    
     fNumberEntryNentries->SetNumber(10000);
   }
   
   if(meas==6){
     measurement=6;
-    fNumberEntryGate->SetState(true);
     fNumberEntryNentries->SetState(true);
-    fNumberEntryPedestal->SetState(true);
+    fNumberEntryGate->SetState(true);
+    fNumberEntryPedestal->SetState(false);
+    fNumberEntryThreshStart->SetState(false);
+    fNumberEntryThreshStop->SetState(false);
+    fNumberEntryThreshStep->SetState(false);
+    fNumberEntryDiscriMinTime->SetState(false);
+    fNumberEntryDiscriWidth->SetState(false);
+    fNumberEntryNgammaMax->SetState(true);
+    fNumberEntryNgammaStep->SetState(true);
+    
     fNumberEntryNgamma->SetState(true);
+    fNumberEntryLEDtime->SetState(true);
+    fNumberEntryLEDtimeWidth->SetState(true);
+    fNumberEntryLEDxPos->SetState(true);
+    fNumberEntryLEDyPos->SetState(true);
+    fNumberEntryLEDxWidth->SetState(true);
+    fNumberEntryLEDyWidth->SetState(true);
+    
     fNumberEntryNentries->SetNumber(10000);
   }
 }
@@ -531,6 +622,7 @@ void sipmGUI::SetParameters(){
   daq->SetDiscriWidth(fNumberEntryDiscriWidth->GetNumber());
   
 }
+
 
 void sipmGUI::ReadParaFile( const char* filename )
 {
