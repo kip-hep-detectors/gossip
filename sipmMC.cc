@@ -115,11 +115,9 @@ void sipmMC::GetParaFile( const char* filename )
     else if(para == "SignalAmp") in >> signalAmp;
     else if(para == "Tau1") in >> tau1F;
     else if(para == "Tau2") in >> tau2F;
-    else if(para == "Gate") in >> gateF;
     else getline(in, dump);
       
-    SetPulseShape(tau1F, tau2F);
-    SetGate(gateF);
+    SetPulseShape(tau1F, tau2F, resolution, cutoff);
     SetGeometry("square");
     
     if(!in.good()) break;
@@ -145,7 +143,6 @@ void sipmMC::GetParaFile( const char* filename )
   << "SignalAmp = " << signalAmp << "\n"
   << "Tau1 = " << tau1F << "\n"
   << "Tau2 = " << tau2F << "\n"
-  << "Gate = " << gateF << "\n"
   << endl;
 
   in.close();
