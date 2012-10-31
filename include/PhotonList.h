@@ -1,5 +1,5 @@
-#ifndef PhotonList_hh
-#define PhotonList_hh
+#ifndef PhotonList_h
+#define PhotonList_h
 
 #include <vector>
 

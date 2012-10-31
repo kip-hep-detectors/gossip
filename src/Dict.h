@@ -31,12 +31,12 @@ extern void G__set_cpp_environmentDict();
 
 #include "TObject.h"
 #include "TMemberInspector.h"
-#include "/home/patrick/SiPM_MC/include/HitMatrix.hh"
-#include "/home/patrick/SiPM_MC/include/PhotonList.hh"
-#include "/home/patrick/SiPM_MC/include/PhotonSource.hh"
-#include "/home/patrick/SiPM_MC/include/sipmMC.hh"
-#include "/home/patrick/SiPM_MC/include/daqMC.hh"
-#include "/home/patrick/SiPM_MC/include/sipmGUI.hh"
+#include "/home/patrick/SiPM_MC/newGUI/include/HitMatrix.h"
+#include "/home/patrick/SiPM_MC/newGUI/include/PhotonList.h"
+#include "/home/patrick/SiPM_MC/newGUI/include/PhotonSource.h"
+#include "/home/patrick/SiPM_MC/newGUI/include/sipmMC.h"
+#include "/home/patrick/SiPM_MC/newGUI/include/daqMC.h"
+#include "/home/patrick/SiPM_MC/newGUI/include/gossipGUI.h"
 #include <algorithm>
 namespace std { }
 using namespace std;
@@ -63,7 +63,6 @@ extern G__linked_taginfo G__DictLN_TH2I;
 extern G__linked_taginfo G__DictLN_TH2D;
 extern G__linked_taginfo G__DictLN_TQObjSender;
 extern G__linked_taginfo G__DictLN_TCanvas;
-extern G__linked_taginfo G__DictLN_TPad;
 extern G__linked_taginfo G__DictLN_HitMatrix;
 extern G__linked_taginfo G__DictLN_vectorlEvectorlEdoublecOallocatorlEdoublegRsPgRcOallocatorlEvectorlEdoublecOallocatorlEdoublegRsPgRsPgRsPgR;
 extern G__linked_taginfo G__DictLN_reverse_iteratorlEvectorlEvectorlEdoublecOallocatorlEdoublegRsPgRcOallocatorlEvectorlEdoublecOallocatorlEdoublegRsPgRsPgRsPgRcLcLiteratorgR;
@@ -76,16 +75,16 @@ extern G__linked_taginfo G__DictLN_GCharge;
 extern G__linked_taginfo G__DictLN_sipmMC;
 extern G__linked_taginfo G__DictLN_GResonseCurve;
 extern G__linked_taginfo G__DictLN_daqMC;
+extern G__linked_taginfo G__DictLN_TGFrame;
 extern G__linked_taginfo G__DictLN_TGCompositeFrame;
 extern G__linked_taginfo G__DictLN_TGLayoutHints;
-extern G__linked_taginfo G__DictLN_TGTextButton;
-extern G__linked_taginfo G__DictLN_TGGroupFrame;
-extern G__linked_taginfo G__DictLN_TGButtonGroup;
+extern G__linked_taginfo G__DictLN_TGMainFrame;
+extern G__linked_taginfo G__DictLN_TGTab;
 extern G__linked_taginfo G__DictLN_TGCheckButton;
 extern G__linked_taginfo G__DictLN_TGNumberEntry;
 extern G__linked_taginfo G__DictLN_TGLabel;
 extern G__linked_taginfo G__DictLN_TGComboBox;
 extern G__linked_taginfo G__DictLN_TGHProgressBar;
-extern G__linked_taginfo G__DictLN_sipmGUI;
+extern G__linked_taginfo G__DictLN_gossipGUI;
 
 /* STUB derived class for protected member access */

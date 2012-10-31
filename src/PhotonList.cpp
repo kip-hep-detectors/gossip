@@ -1,4 +1,4 @@
-#include "PhotonList.hh"
+#include "PhotonList.h"
 
 using namespace std;
 

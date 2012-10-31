@@ -1,4 +1,4 @@
-#include "HitMatrix.hh"
+#include "HitMatrix.h"
 #include <iostream>
 #include <stdio.h>
 

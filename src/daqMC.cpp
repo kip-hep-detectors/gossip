@@ -1,5 +1,5 @@
-#include "daqMC.hh"
-#include "HitMatrix.hh"
+#include "daqMC.h"
+#include "HitMatrix.h"
 // #include "drTDCspec.h"
 // #include "drTDCspec2.h"
 // #include "tpTDCspec.h"
@@ -54,6 +54,11 @@ daqMC::daqMC() : sipm(0), photonSource(0)
   h_ap = new TH1D();
   h_ap->SetNameTitle("AP","AP");
   h_ap->SetLineColor(4);
+
+  h_wf = new TH1D();
+  h_wf->SetNameTitle("Waveform","Waveform");
+  h_wf->GetXaxis()->SetTitle("Time [ns]");
+  h_wf->GetYaxis()->SetTitle("Amplitude [mV]");
 
   responseCurve.response = new TGraphErrors();
   responseCurve.responsePE = new TGraphErrors();
@@ -460,10 +465,19 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 }
 
 
-TH1D* daqMC::Scope( TH1D* waveform )
+TH1D* daqMC::Scope()
 {
-  waveform->SetTitle("Waveform");
-  return waveform;
+
+  if(!Check()) return h_wf;
+  
+  h_wf->Reset("M");
+
+  PhotonList photons = photonSource->GeneratePhotons();
+
+  sipm->Generate(photons);
+  h_wf = sipm->GetWaveform();
+
+  return h_wf;
 }
 
 

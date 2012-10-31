@@ -8,6 +8,6 @@
 #pragma link C++ class HitMatrix;
 #pragma link C++ class sipmMC;
 #pragma link C++ class daqMC;
-#pragma link C++ class sipmGUI;
+#pragma link C++ class gossipGUI;
 
 #endif

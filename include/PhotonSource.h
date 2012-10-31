@@ -1,11 +1,11 @@
-#ifndef PhotonSource_hh
-#define PhotonSource_hh
+#ifndef PhotonSource_h
+#define PhotonSource_h
 
 #include <vector>
 #include "TRandom3.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "PhotonList.hh"
+#include "PhotonList.h"
 #include <iostream>
 
 using namespace std;

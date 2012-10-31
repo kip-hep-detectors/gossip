@@ -1,4 +1,4 @@
-#include "PhotonSource.hh"
+#include "PhotonSource.h"
 #include <iostream>
 #include "TF1.h"
 #include "math.h"

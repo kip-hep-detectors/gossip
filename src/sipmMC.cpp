@@ -1,4 +1,4 @@
-#include "sipmMC.hh"
+#include "sipmMC.h"
 #include <TROOT.h>
 #include <TCanvas.h>
 #include <iostream>

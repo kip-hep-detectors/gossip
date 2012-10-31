@@ -1,5 +1,5 @@
-#ifndef HitMatrix_hh
-#define HitMatrix_hh
+#ifndef HitMatrix_h
+#define HitMatrix_h
 
 #include <vector>
 #include <TH2.h>

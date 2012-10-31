@@ -1,10 +1,11 @@
-#ifndef daqMC_hh
-#define daqMC_hh
+#ifndef daqMC_h
+#define daqMC_h
 
-#include <string>
-#include "HitMatrix.hh"
-#include "PhotonSource.hh"
-#include "sipmMC.hh"
+
+#include "HitMatrix.h"
+#include "PhotonSource.h"
+#include "sipmMC.h"
+
 #include <TRandom3.h>
 #include <TGraph.h>
 #include <TH1.h>
@@ -14,6 +15,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <TROOT.h>
+#include <string>
 #include <RQ_OBJECT.h>
 
 using namespace std;
@@ -52,12 +54,12 @@ class daqMC{
 														/**Connect daqMC class with PhotonSource object*/
   void      		SetPhotonSource( PhotonSource *myPhotonSource ){ photonSource = myPhotonSource; };		
   void      		Statistic( int N );									/**<Plots number of pde, ct, ap, dr events in "N" events*/
-  TH1D*     		Scope( TH1D* waveform );								/**<Returns waveform (does nothing useful in this version)*/
+  TH1D*     		Scope();										/**<Returns waveform*/
   TH1D*     		QDCSpectrum( int N );									/**<Simulates charge spectrum with "N" events*/
   TGraphErrors*		ThreshScan( double gate, double tstart, double tstop, double tstep );			/**<Simulates theshold scan with "gate" integration time and thresholds from "tstart" to "tstop" with step size "tstep"*/
   TH1D*     		TDCSpectrum( int N );									/**<Simulated time spectrum with "N" events*/
   GResonseCurve 	DynamicRange( int N, double Ngamma_max, double Ngamma_step );				/**<Simulates saturation curve and RMS with "N" events per intensity from 0 to "Ngamma_max" photons with "Ngamma_step" step width*/
-    
+  
   double   		QDC( double charge );									/**<Returns charge in QDC channels*/
 														/**Sets number of QDC channels*/
   void    		SetQDCChannels( int nChannels ){ h_QDC->SetBins(nChannels,0,nChannels); };		
@@ -82,7 +84,9 @@ class daqMC{
   TH1D          	*h_ap;											/**<Number of after-pulses histogram*/
   TH1D          	*h_QDC;											/**<Charge spectrum histogram*/
   TH1D          	*h_TDC;											/**<Time spectrum histogram*/
-
+  TH1D          	*h_wf;											/**<Oscilloscope waveform*/
+  
+  
   bool   		cancel;											/**<Cancels simulation process*/
   double 		progress;										/**<Progress of simulation*/
   
