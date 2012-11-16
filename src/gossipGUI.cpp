@@ -149,10 +149,10 @@ void gossipGUI::BuildSiPMFrame( TGFrame *parentFrame )
   labelRMS = new TGLabel(waveformLabelsFrame,"Electronic Noise [mV]");
   waveformLabelsFrame->AddFrame(labelRMS, layout2);
   
-  entryResolution = new TGNumberEntry(waveformEntriesFrame,0.1,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
-  waveformEntriesFrame->AddFrame(entryResolution, layout1);
-  labelResolution = new TGLabel(waveformLabelsFrame,"Sampling [ns]");
-  waveformLabelsFrame->AddFrame(labelResolution, layout2);
+  entrySampling = new TGNumberEntry(waveformEntriesFrame,0.1,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
+  waveformEntriesFrame->AddFrame(entrySampling, layout1);
+  labelSampling = new TGLabel(waveformLabelsFrame,"Sampling [ns]");
+  waveformLabelsFrame->AddFrame(labelSampling, layout2);
   
   entryCutoff = new TGNumberEntry(waveformEntriesFrame,0.01,6,-1,TGNumberFormat::kNESRealThree,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
   waveformEntriesFrame->AddFrame(entryCutoff, layout1);
@@ -513,16 +513,18 @@ void gossipGUI::SetParameters()
   sipm->NpixY = entryNpy->GetNumber();
   sipm->xSipm = entrySizeX->GetNumber();
   sipm->ySipm = entrySizeY->GetNumber();
-  sipm->SetPulseShape(entryTau_le->GetNumber(), entryTau_te->GetNumber(), entryResolution->GetNumber(), entryCutoff->GetNumber()/100.);
+  sipm->SetPulseShape(entryTau_le->GetNumber(), entryTau_te->GetNumber());
+  sipm->SetSampling(entrySampling->GetNumber());
+  sipm->SetCutoff(entryCutoff->GetNumber()/100.);
   sipm->gain = entryGain->GetNumber();
   sipm->ENF = entryENF->GetNumber();
   sipm->EN = entryEN->GetNumber();
   sipm->tau_recovery = entryTau_rec->GetNumber();
   sipm->signalAmp = entrySignalAmp->GetNumber();
   sipm->noiseRMS = entryRMS->GetNumber();
-  
+
   sipm->SetGeometry("square");
-  
+
   //photon Source
   led->SetNgamma(entryNgamma->GetNumber());
   led->SetTime(entryLEDtime->GetNumber());
@@ -535,11 +537,11 @@ void gossipGUI::SetParameters()
   if(comboBoxLEDpulse->GetSelected()==2) led->SetPulse("gaus");
   if(comboBoxLEDpulse->GetSelected()==3) led->SetPulse("exp");
   led->SetFluctuation(checkButtonPhotonFluct->IsOn());
-  
+
   //daq
   sipm->SetGate(entryGate->GetNumber());
   daq->SetPedestal(entryPedestal->GetNumber());
-  
+
   daq->SetDiscriMinTime(entryDiscriMinTime->GetNumber());
   daq->SetDiscriWidth(entryDiscriWidth->GetNumber());
 }

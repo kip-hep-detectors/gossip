@@ -56,7 +56,9 @@ sipmMC::sipmMC()
     waveform = new TH1D();
     h_pulseShape = new TH1D();
 
-    SetPulseShape();
+    cutOff = 0.001;
+    sampling = 0.1;
+    SetPulseShape(1,40);
     SetGeometry("square");
   }
 
@@ -117,7 +119,7 @@ void sipmMC::GetParaFile( const char* filename )
     else if(para == "Tau2") in >> tau2F;
     else getline(in, dump);
       
-    SetPulseShape(tau1F, tau2F, resolution, cutoff);
+    SetPulseShape(tau1F, tau2F);
     SetGeometry("square");
     
     if(!in.good()) break;
@@ -153,7 +155,7 @@ void sipmMC::GetParaFile( const char* filename )
 void sipmMC::SetGate( double Gate, bool gateCut )
 {
   gate = Gate;
-  if(customPulse==false) SetPulseShape(tau1, tau2, resolution, cutoff);
+  if(customPulse==false) SetPulseShape(tau1, tau2);
   hitMatrix->SetGate(gate, gateCut);
 }
 
@@ -194,10 +196,37 @@ void sipmMC::SetGeometry( TH2I* hgeometry )
 }
 
 
-void sipmMC::SetPulseShape( double Tau1, double Tau2, double Resolution, double cutOff )
+void sipmMC::SetSampling( double Sampling )
+{
+  if(customPulse==false)
+  {
+    sampling = Sampling;
+    SetPulseShape(tau1, tau2);
+  }
+  else
+  {
+    cout << "WARNING: Custom pulse shape set. SetSampling has no effect!" << endl;
+  }
+}
+
+
+void sipmMC::SetCutoff( double Cutoff )
+{
+  if(customPulse==false)
+  {
+    cutOff = Cutoff;
+    SetPulseShape(tau1, tau2);
+  }
+  else
+  {
+    cout << "WARNING: Custom pulse shape set. SetCutoff has no effect!" << endl;
+  }
+}
+
+
+void sipmMC::SetPulseShape( double Tau1, double Tau2 )
 {
   customPulse = false;
-  resolution = Resolution;
 
   if(Tau1<Tau2)
   {
@@ -210,24 +239,22 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2, double Resolution, double 
     tau2 = Tau1;
   }
 
-  cutoff = cutOff;
-
   h_pulseShape->Reset("M");
-  h_pulseShape->SetBins(gate/resolution,0,gate);
+  h_pulseShape->SetBins(gate/sampling,0,gate);
   double t;
 
   int i=1;
-  while(i<=gate/resolution)
+  while(i<=gate/sampling)
   {
-    t=(i-1)*resolution;
+    t=(i-1)*sampling;
     double amp = signalAmp/(pow(tau1/tau2,-tau2/(tau1-tau2))-pow(tau1/tau2,-tau1/(tau1-tau2)))*(exp(-t/tau1) -exp(-t/tau2));
     h_pulseShape->SetBinContent(i,amp);
-    if(t>=log(tau1/tau2)/(1/tau2-1/tau1) && amp<signalAmp*cutoff) break;
+    if(t>=log(tau1/tau2)/(1/tau2-1/tau1) && amp<signalAmp*cutOff) break;
     i++;
   }
 
   nBinsPulseShape = i-1;
-  h_pulseShape->SetBins(nBinsPulseShape,0,nBinsPulseShape*resolution);
+  h_pulseShape->SetBins(nBinsPulseShape,0,nBinsPulseShape*sampling);
   pulseIntegral = h_pulseShape->Integral();
 }
 
@@ -235,7 +262,7 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2, double Resolution, double 
 void sipmMC::SetPulseShape( TH1* PulseShape )
 {
   customPulse = true;
-  resolution = PulseShape->GetBinWidth(1);
+  sampling = PulseShape->GetBinWidth(1);
 
   h_pulseShape = (TH1D*)PulseShape;
   pulseIntegral = h_pulseShape->Integral();
@@ -409,7 +436,7 @@ double sipmMC::Generate( PhotonList photons )
     hitMatrix->SetAmplitude(i,amplitude);
     
     double overflow;
-    if(customPulse==true)  overflow = h_pulseShape->Integral((gate-time)/resolution+1,nBinsPulseShape)/pulseIntegral*amplitude;
+    if(customPulse==true)  overflow = h_pulseShape->Integral((gate-time)/sampling+1,nBinsPulseShape)/pulseIntegral*amplitude;
     if(customPulse==false) overflow = amplitude/(tau1-tau2)*(tau1*exp(-(gate-time)/tau1)-tau2*exp(-(gate-time)/tau2));		///Not effected by jitter!
     charge.all+=amplitude-overflow;
 
@@ -479,7 +506,7 @@ TH1D* sipmMC::GetWaveform()
 {
 
   waveform->Reset("M");
-  waveform->SetBins(gate/resolution,0,gate);
+  waveform->SetBins(gate/sampling,0,gate);
 
   for(int i=0;i<hitMatrix->nHits();i++)
   {
@@ -488,10 +515,11 @@ TH1D* sipmMC::GetWaveform()
     
     if(customPulse==true)
     {
+      ///no risetime jitter implemented yet!!!
       int i_ps=1;
-      while(i_ps<=nBinsPulseShape && i_ps*resolution+time<=gate)
+      while(i_ps<=nBinsPulseShape && i_ps*sampling+time<=gate)
       {
-	int i_wf = time/resolution + i_ps;
+	int i_wf = time/sampling + i_ps;
 	waveform->AddBinContent(i_wf,h_pulseShape->GetBinContent(i_ps)*amplitude/gain*signalAmp);
 	i_ps++;
       }
@@ -501,19 +529,19 @@ TH1D* sipmMC::GetWaveform()
 //       double tau1_jittered = r.Gaus(tau1,jitter/2.);
 //       if(tau1_jittered<0) tau1_jittered = 0.001;
 
-      double tau1_jittered = tau1;	///Risetime jitter disabled!
+      double tau1_jittered = tau1;	///Risetime jitter disabled! (Only starting-time jitter...)
       
-      int i_wf=time/resolution+1;
+      int i_wf=time/sampling+1;
       int j=0;
       double t=0;
-      while(i_wf<=gate/resolution)
+      while(i_wf<=gate/sampling)
       {	
-	t=j*resolution;
+	t=j*sampling;
 	double amp = amplitude/gain*signalAmp/(pow(tau1_jittered/tau2,-tau2/(tau1_jittered-tau2))-pow(tau1_jittered/tau2,-tau1_jittered/(tau1_jittered-tau2)))*(exp(-t/tau1_jittered) -exp(-t/tau2));
 	waveform->AddBinContent(i_wf,amp);
 	i_wf++;
 	j++;
-	if(t>=log(tau1_jittered/tau2)/(1/tau2-1/tau1_jittered) && amp<signalAmp*cutoff) break;
+	if(t>=log(tau1_jittered/tau2)/(1/tau2-1/tau1_jittered) && amp<signalAmp*cutOff) break;
       }
     }
   }

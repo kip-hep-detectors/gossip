@@ -67,11 +67,10 @@ class sipmMC{
     void		GetParaFile( const char* filename );		/**<Sets SiPM parameters from config file*/
     void		SetGeometry( string Geometry );			/**<Sets pixel arrangement. Only "square" implemented at the moment*/
     void		SetGeometry( TH2I* hgeometry );			/**<Sets custom pixel arrangement from TH2I*/
-    void      		SetPulseShape( double Tau1 = 1,
-				       double Tau2 = 40,
-				       double Resolution = 0.1,
-				       double cutOff = 0.0001 ); 	/**<Sets double exponential single pixel waveform with time constants "Tau1", "Tau2". "Resolution" is the sampling time of the simualtion in ns. Waveform is cut off at a fraction "cutOff" of the amplitude*/
+    void      		SetPulseShape( double Tau1, double Tau2 );	/**<Sets double exponential single pixel waveform with time constants "Tau1", "Tau2". "Sampling" is the sampling time of the simualtion in ns. Waveform is cut off at a fraction "cutOff" of the amplitude*/
     void      		SetPulseShape( TH1* PulseShape );		/**<Sets custom single pixel waveform from TH2I*/
+    void		SetSampling( double Sampling );			/**<Sets waveform sampling*/
+    void		SetCutoff( double Cutoff );			/**<Sets pixel waveform cutoff*/
     void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see HitMatrix class)*/
 
     TH1D*		GetWaveform();					/**<Returns simulated signal waveform*/
@@ -102,8 +101,8 @@ class sipmMC{
     vector<double>	hit;
     PhotonList		photonList;
     TH2I*		h_geometry;
-    double		resolution;
-    double		cutoff;
+    double		sampling;
+    double		cutOff;
     double		tau1, tau2;
     int			nBinsPulseShape;
     
