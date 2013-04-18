@@ -224,6 +224,7 @@ void gossipGUI::BuildLightSourceFrame( TGFrame *parentFrame )
   comboBoxLEDpulse->AddEntry("flat",1);
   comboBoxLEDpulse->AddEntry("gaus",2);
   comboBoxLEDpulse->AddEntry("exp",3);
+  comboBoxLEDpulse->AddEntry("exp2",4);
   comboBoxLEDpulse->Resize(80,22);
   comboBoxLEDpulse->Select(1);
   
@@ -508,6 +509,7 @@ void gossipGUI::SetParameters()
   sipm->tau_ap_s = entryTau_ap1->GetNumber();
   sipm->Pap_f = entryPap2->GetNumber()/100.0;
   sipm->tau_ap_f = entryTau_ap2->GetNumber();
+  sipm->jitter = entryJitter->GetNumber()/1000.;
   sipm->Pxt = entryPx->GetNumber()/100.0;
   sipm->NpixX = entryNpx->GetNumber();
   sipm->NpixY = entryNpy->GetNumber();
@@ -536,6 +538,7 @@ void gossipGUI::SetParameters()
   if(comboBoxLEDpulse->GetSelected()==1) led->SetPulse("flat");
   if(comboBoxLEDpulse->GetSelected()==2) led->SetPulse("gaus");
   if(comboBoxLEDpulse->GetSelected()==3) led->SetPulse("exp");
+  if(comboBoxLEDpulse->GetSelected()==4) led->SetPulse("exp2");
   led->SetFluctuation(checkButtonPhotonFluct->IsOn());
 
   //daq

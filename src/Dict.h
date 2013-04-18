@@ -31,12 +31,12 @@ extern void G__set_cpp_environmentDict();
 
 #include "TObject.h"
 #include "TMemberInspector.h"
-#include "/home/patrick/SiPM_MC/newGUI/include/HitMatrix.h"
-#include "/home/patrick/SiPM_MC/newGUI/include/PhotonList.h"
-#include "/home/patrick/SiPM_MC/newGUI/include/PhotonSource.h"
-#include "/home/patrick/SiPM_MC/newGUI/include/sipmMC.h"
-#include "/home/patrick/SiPM_MC/newGUI/include/daqMC.h"
-#include "/home/patrick/SiPM_MC/newGUI/include/gossipGUI.h"
+#include "/home/patrick/SiPM_MC/include/HitMatrix.h"
+#include "/home/patrick/SiPM_MC/include/PhotonList.h"
+#include "/home/patrick/SiPM_MC/include/PhotonSource.h"
+#include "/home/patrick/SiPM_MC/include/sipmMC.h"
+#include "/home/patrick/SiPM_MC/include/daqMC.h"
+#include "/home/patrick/SiPM_MC/include/gossipGUI.h"
 #include <algorithm>
 namespace std { }
 using namespace std;
@@ -61,6 +61,9 @@ extern G__linked_taginfo G__DictLN_TMatrixTBaselEdoublegR;
 extern G__linked_taginfo G__DictLN_TH2;
 extern G__linked_taginfo G__DictLN_TH2I;
 extern G__linked_taginfo G__DictLN_TH2D;
+extern G__linked_taginfo G__DictLN_pairlEunsignedsPintcOintgR;
+extern G__linked_taginfo G__DictLN_vectorlEpairlEunsignedsPintcOintgRcOallocatorlEpairlEunsignedsPintcOintgRsPgRsPgR;
+extern G__linked_taginfo G__DictLN_reverse_iteratorlEvectorlEpairlEunsignedsPintcOintgRcOallocatorlEpairlEunsignedsPintcOintgRsPgRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__DictLN_TQObjSender;
 extern G__linked_taginfo G__DictLN_TCanvas;
 extern G__linked_taginfo G__DictLN_HitMatrix;
