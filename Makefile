@@ -14,7 +14,8 @@ all: Dict.cxx HitMatrix.o libHitMatrix.so PhotonList.o libPhotonList.so PhotonSo
 
 Dict.cxx: $(gossip)/include/HitMatrix.h $(gossip)/include/PhotonList.h $(gossip)/include/PhotonSource.h $(gossip)/include/sipmMC.h $(gossip)/include/daqMC.h $(gossip)/include/gossipGUI.h $(gossip)/include/LinkDef.h
 	@echo "Generating Dictionary $@..."
-	@rootcint -f src/$@ -c $^ 
+	@rootcint -f src/$@ -c $^
+	mkdir lib
 
 HitMatrix.o: src/HitMatrix.cpp include/HitMatrix.h
 	@echo "Compiling $< ..."
