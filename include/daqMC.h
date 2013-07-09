@@ -54,7 +54,7 @@ class daqMC{
 														/**Connect daqMC class with PhotonSource object*/
   void      		SetPhotonSource( PhotonSource *myPhotonSource ){ photonSource = myPhotonSource; };		
   void      		Statistic( int N );									/**<Plots number of pde, ct, ap, dr events in "N" events*/
-  TH1D*     		Scope();										/**<Returns waveform*/
+  TGraph*     		Scope();										/**<Returns waveform*/
   TH1D*     		QDCSpectrum( int N );									/**<Simulates charge spectrum with "N" events*/
   TGraphErrors*		ThreshScan( double gate, double tstart, double tstop, double tstep );			/**<Simulates theshold scan with "gate" integration time and thresholds from "tstart" to "tstop" with step size "tstep"*/
   TH1D*     		TDCSpectrum( int N );									/**<Simulated time spectrum with "N" events*/
@@ -70,7 +70,7 @@ class daqMC{
 														/**Sets minimal duration discriminator output pulse in ns*/
   void    		SetDiscriWidth( double width ){	discriWidth = width; };
   
-  TH1D*   		Discriminator( TH1D* waveform, double threshold );					/**<Returns discriminated waveform (MAY STILL BE BUGGY!)*/
+  TGraph*   		Discriminator( TGraph* waveform, double threshold );					/**<Returns discriminated waveform (MAY STILL BE BUGGY!)*/
 
 //   void      		ScanCT( int );										/**<Single pixel scan.*/
 
@@ -84,7 +84,7 @@ class daqMC{
   TH1D          	*h_ap;											/**<Number of after-pulses histogram*/
   TH1D          	*h_QDC;											/**<Charge spectrum histogram*/
   TH1D          	*h_TDC;											/**<Time spectrum histogram*/
-  TH1D          	*h_wf;											/**<Oscilloscope waveform*/
+//   TGraph          	*g_wf;											/**<Oscilloscope waveform*/
   
   
   bool   		cancel;											/**<Cancels simulation process*/
@@ -103,7 +103,7 @@ class daqMC{
   vector<double>	hit;
   sipmMC*              	sipm;
   PhotonSource*       	photonSource;
-  TH1D*               	waveform;
+  TGraph*              	g_waveform;
   
   double 		discriMinTime;
   double 		discriWidth;

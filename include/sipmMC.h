@@ -10,7 +10,6 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TF1.h>
-#include <TGraph.h>
 #include <TGraphErrors.h>
 #include <stdlib.h>
 #include <vector>
@@ -68,33 +67,41 @@ class sipmMC{
     void		SetGeometry( string Geometry );			/**<Sets pixel arrangement. Only "square" implemented at the moment*/
     void		SetGeometry( TH2I* hgeometry );			/**<Sets custom pixel arrangement from TH2I*/
     void      		SetPulseShape( double Tau1, double Tau2 );	/**<Sets double exponential single pixel waveform with time constants "Tau1", "Tau2". "Sampling" is the sampling time of the simualtion in ns. Waveform is cut off at a fraction "cutOff" of the amplitude*/
-    void      		SetPulseShape( TH1* PulseShape );		/**<Sets custom single pixel waveform from TH2I*/
+    void      		SetPulseShape( TF1* pulse_shape );		/**<Sets single pixel waveform from TF1*/
     void		SetSampling( double Sampling );			/**<Sets waveform sampling*/
     void		SetCutoff( double Cutoff );			/**<Sets pixel waveform cutoff*/
     void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see HitMatrix class)*/
-
-    TH1D*		GetWaveform();					/**<Returns simulated signal waveform*/
+    
+    TGraph*		GetWaveform();					/**<Returns simulated signal waveform*/
 									/**Returns signal charge from different components*/
     GCharge		GetCharge(){ return charge; };
 									/**Returns length of integration gate in ns*/
     double		GetGate(){ return gate; };
 									/**Returns single pixel waveform*/
-    TH1D*		GetPulseShape(){ return h_pulseShape; };
+    TF1*		GetPulseShape(){ return f_pulse_shape; };
 									/**Returns hitmatrix*/
     HitMatrix*		GetHitMatrix(){ return hitMatrix; };
 									/**Returns number of pixels of the SiPM*/
     int			GetNpix(){ return Npix; };
-				   
+									/**Returns sampling rate*/
+    double		GetSampling(){ return sampling; };
     
   private:
 
+    void		UpdatePulseShape();				/**<Builds g_pulse_charge*/
+    
+    TF1*		f_pulse_shape;
+    TF1*		f_pulse_shape_intern;
+    double		pulse_shape_func_max;
+    bool		update_pulse_shape;
+
     int			Npix;
     HitMatrix*		hitMatrix;
-    TH1D*		waveform;
-    TH1D*		h_pulseShape;
+    TGraph*		g_waveform;
+    TGraph		g_pulse_charge;
     double		pulseIntegral;
+    int			n_pulse_samples;
     GCharge		charge;
-    bool		customPulse;
     double		gate;
     
     TRandom3		r;
@@ -104,7 +111,6 @@ class sipmMC{
     double		sampling;
     double		cutOff;
     double		tau1, tau2;
-    int			nBinsPulseShape;
     
     void		Reset();
     void		ImportPhotons( PhotonList photons );

@@ -443,42 +443,42 @@ void gossipGUI::onRunButtonClicked()
     c_main->Clear();
     for(int i=0;i<entryNentries->GetNumber();i++)
     {
-      daq->Scope()->Draw();
+      daq->Scope()->Draw("ALP");
     }
-    c_main->SetLogy(0);
-    c_main->SetLogx(0);
+    c_main->SetLogy(false);
+    c_main->SetLogx(false);
     sipm->GetHitMatrix()->DrawMatrix();
   }
   if(measurement==2)
   {
     daq->QDCSpectrum(entryNentries->GetNumber());
-    c_main->SetLogy(0);
-    c_main->SetLogx(0);
+    c_main->SetLogy(false);
+    c_main->SetLogx(false);
   }
   if(measurement==3)
   {
     daq->TDCSpectrum(entryNentries->GetNumber());
-    c_main->SetLogy();
-    c_main->SetLogx();
+    c_main->SetLogy(true);
+    c_main->SetLogx(true);
   }
   if(measurement==4)
   {
     daq->ThreshScan(entryGate->GetNumber()*1000,entryThreshStart->GetNumber(),entryThreshStop->GetNumber(),entryThreshStep->
     GetNumber());
-    c_main->SetLogy();
-    c_main->SetLogx(0);
+    c_main->SetLogy(true);
+    c_main->SetLogx(false);
   }
   if(measurement==5)
   {
     daq->Statistic(entryNentries->GetNumber());
-    c_main->SetLogy(0);
-    c_main->SetLogx(0);
+    c_main->SetLogy(false);
+    c_main->SetLogx(false);
   }
   if(measurement==6)
   {
     daq->DynamicRange(entryNentries->GetNumber(),entryNgammaMax->GetNumber(),entryNgammaStep->GetNumber());
-    c_main->SetLogy(0);
-    c_main->SetLogx(0);
+    c_main->SetLogy(false);
+    c_main->SetLogx(false);
   }
 
   c_main->Update();

@@ -73,6 +73,7 @@ extern G__linked_taginfo G__DictLN_PhotonList;
 extern G__linked_taginfo G__DictLN_TRandom3;
 extern G__linked_taginfo G__DictLN_PhotonSource;
 extern G__linked_taginfo G__DictLN_iteratorlEbidirectional_iterator_tagcOTObjectmUcOlongcOconstsPTObjectmUmUcOconstsPTObjectmUaNgR;
+extern G__linked_taginfo G__DictLN_TGraph;
 extern G__linked_taginfo G__DictLN_TGraphErrors;
 extern G__linked_taginfo G__DictLN_GCharge;
 extern G__linked_taginfo G__DictLN_sipmMC;

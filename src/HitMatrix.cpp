@@ -14,12 +14,21 @@ HitMatrix::HitMatrix()
   h_geometry = new TH2I("h_geometry","h_geometry",10,0,10,10,0,10);
   h_hits = new TH2D();
   h_hits->SetNameTitle("HitMatrix","HitMatrix");
+
+  c_hitMatrix = NULL;
 }
 
 
 void HitMatrix::Init()
 {
   this->clear();
+  
+  if(c_hitMatrix!=NULL)
+  {
+    delete c_hitMatrix;
+    c_hitMatrix = NULL;
+  }
+  
 }
 
 

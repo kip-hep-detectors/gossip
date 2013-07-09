@@ -55,11 +55,6 @@ daqMC::daqMC() : sipm(0), photonSource(0)
   h_ap->SetNameTitle("AP","AP");
   h_ap->SetLineColor(4);
 
-  h_wf = new TH1D();
-  h_wf->SetNameTitle("Waveform","Waveform");
-  h_wf->GetXaxis()->SetTitle("Time [ns]");
-  h_wf->GetYaxis()->SetTitle("Amplitude [mV]");
-
   responseCurve.response = new TGraphErrors();
   responseCurve.responsePE = new TGraphErrors();
   responseCurve.responseDR = new TGraphErrors();
@@ -82,10 +77,8 @@ daqMC::daqMC() : sipm(0), photonSource(0)
 
 daqMC::~daqMC()
 {
-    delete hitMatrix;
     delete sipm;
     delete photonSource;
-    delete waveform;
     delete h_pe;
     delete h_dr;
     delete h_xt;
@@ -188,6 +181,7 @@ TH1D* daqMC::QDCSpectrum( int N )
   }
   
   h_QDC->Draw("HIST E0");
+  h_QDC->Draw("");
   
   return h_QDC;
 }
@@ -200,11 +194,12 @@ TH1D* daqMC::TDCSpectrum( int N )
 
   double deadtime = 0;
 
-  if(!Check()) return h_TDC;
+  if(!Check()) return 0;
   
   h_TDC->Reset("M");
-  h_TDC->SetBins(65000,0,65000);
   
+  h_TDC->SetBins(65000,0,65000);
+
   sipm->SetGate(65000/*,false*/);
   
   PhotonList empty;
@@ -218,7 +213,7 @@ TH1D* daqMC::TDCSpectrum( int N )
     double tlast=0;
     sipm->Generate(empty);
     hitMatrix = sipm->GetHitMatrix();
-    
+
     for(int i=0;i<hitMatrix->nHits();i++)
     {
       hit.clear();
@@ -230,7 +225,8 @@ TH1D* daqMC::TDCSpectrum( int N )
     }
   }
 
-  h_TDC->Draw("HIST E0");
+//   h_TDC->Draw("HIST E0");
+  h_TDC->Draw("");
 
 //Fit
 
@@ -289,7 +285,7 @@ TH1D* daqMC::TDCSpectrum( int N )
 
 TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, double tstep )
 {
-
+  
   photonSource->SetNgamma(0);
   sipm->SetGate(gate);
   
@@ -304,15 +300,18 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
   double tlast[N]={0};
   
   sipm->Generate(empty);
-  waveform = sipm->GetWaveform();
+  g_waveform = sipm->GetWaveform();
   hitMatrix = sipm->GetHitMatrix();
   
-  int imax = sipm->GetPulseShape()->GetMaximumBin();
+//   int imax = sipm->GetPulseShape()->GetMaximumBin();
+
+  double *wf_x = g_waveform->GetX();
+  double *wf_y = g_waveform->GetY();
   
-  int nbins = waveform->GetNbinsX();
-  double resolution = waveform->GetBinWidth(1);
-  double tmin = waveform->GetBinCenter(1)-0.5*resolution;
-  double tmax = tmin+resolution*nbins;
+  int nbins = g_waveform->GetN();
+  double sampling = sipm->GetSampling();
+  double tmin = wf_x[0];
+  double tmax = wf_x[g_waveform->GetN()-1];
   
   int n;
   
@@ -326,7 +325,7 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 //     hit.clear();
 //     hit=hitMatrix->GetHit(i);
 // 
-//     double amp = waveform->GetBinContent(hit[TIME]/resolution+imax+1);
+  //     double amp = wf_y[hit[TIME]/sampling+imax];
 // 
 //     n=0;
 //     for(thresh=tstart;thresh<=tstop;thresh+=tstep)
@@ -347,21 +346,21 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 //   double toff[N]={0};
 //   double ton[N]={0};
 //   
-//   TH1D *h = new TH1D("h","h",nbins,0,nbins*resolution);
+//   TH1D *h = new TH1D("h","h",nbins,0,nbins*sampling);
 //   
-//   for(int i=1;i<=nbins;i++)
+//   for(int i=0;i<nbins;i++)
 //   {
 //     if(cancel==true) break;
 // 
-//     if((i-1)%(nbins/100)==0) Progress((i-1)/(nbins/100));
+//     if(i%(nbins/100)==0) Progress(i/(nbins/100));
 //     
-//     double amp = waveform->GetBinContent(i);
-//     double time = i*resolution;
+//     double amp = wf_y[i];
+//     double time = wf_x[i];
 //     
 //     n=0;
 //     for(thresh=tstart;thresh<=tstop;thresh+=tstep)
 //     {
-//       if(i==1) V[n]=thresh;
+//       if(i==0) V[n]=thresh;
 //       if(amp>=thresh && on[n]==false && time-toff[n]>=discriDeadTime)
 //       {
 // 	count[n]++;
@@ -373,7 +372,7 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 // 	on[n]=false;
 // 	toff[n]=time;
 //       }
-//       if(thresh==tstart)h->SetBinContent(i,on[0]*tstart);
+//       if(thresh==tstart)h->SetBinContent(i+1,on[0]*tstart);
 //       n++;
 //     }
 //   }
@@ -392,7 +391,7 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
     double toff[N]={0};
     double ton[N]={0};
 
-    TH1D *h = new TH1D("h","h",nbins,0,nbins*resolution);
+    TH1D *h = new TH1D("h","h",nbins,0,nbins*sampling);
     
     n=0;
     for(thresh=tstart;thresh<=tstop;thresh+=tstep)
@@ -401,12 +400,12 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
       
       if((n*50)%nthresh==0) Progress(100*n/nthresh);
       
-      for(int i=1;i<=nbins;i++)
+      for(int i=0;i<nbins;i++)
       {
-	double amp = waveform->GetBinContent(i);
-	double time = i*resolution;
-	
-	if(i==1)
+	double amp = wf_y[i];
+	double time = wf_x[i];
+
+	if(i==0)
 	{
 	  on.clear();
 	  off.clear();
@@ -417,7 +416,7 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 	if(amp>=thresh && off.back()>=on.back())
 	{
 	  on.push_back(i);
-	  if((on.back()-off.back())*resolution<=discriMinTime)
+	  if((on.back()-off.back())*sampling<=discriMinTime)
 	  {
 	    on.pop_back();
 	    off.pop_back();
@@ -427,13 +426,13 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 	if(amp<thresh && off.back()<on.back())
 	{
 	  off.push_back(i);
-	  if((off.back()-on.back())*resolution<=discriMinTime)
+	  if((off.back()-on.back())*sampling<=discriMinTime)
 	  {
 	    on.pop_back();
 	    off.pop_back();
 	  }
 	  
-	  if((i-on.back())*resolution<discriWidth)
+	  if((i-on.back())*sampling<discriWidth)
 	  {
 	    off.pop_back();
 	  }
@@ -458,26 +457,24 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 
   g_threshScan->SetTitle("Threshold Scan");
   g_threshScan->Draw("ALP");
-//   waveform->Draw();
+//   g_waveform->Draw();
 //   h->Draw("SAME");
 //   h->SetLineColor(2);
   return g_threshScan;
 }
 
 
-TH1D* daqMC::Scope()
+TGraph* daqMC::Scope()
 {
 
-  if(!Check()) return h_wf;
+  if(!Check()) return 0;
   
-  h_wf->Reset("M");
-
   PhotonList photons = photonSource->GeneratePhotons();
 
   sipm->Generate(photons);
-  h_wf = sipm->GetWaveform();
+  g_waveform = sipm->GetWaveform();
 
-  return h_wf;
+  return g_waveform;
 }
 
 
@@ -487,7 +484,7 @@ double daqMC::QDC( double charge )
 }
 
 
-TH1D* daqMC::Discriminator( TH1D* waveform, double threshold )
+TGraph* daqMC::Discriminator( TGraph* g_waveform, double threshold )
 {
   
   int ion=-1;
@@ -500,26 +497,30 @@ TH1D* daqMC::Discriminator( TH1D* waveform, double threshold )
   
   double tlast=0;
   double nCounts=0;
-  
-  int nbins = waveform->GetNbinsX();
-  double resolution = waveform->GetBinWidth(1);
-  double tmin = waveform->GetBinCenter(1)-0.5*resolution;
-  double tmax = tmin+resolution*nbins;
 
+  double *wf_x = g_waveform->GetX();
+  double *wf_y = g_waveform->GetY();
+  
+  int nbins = g_waveform->GetN();
+  double sampling = sipm->GetSampling();
+  double tmin = wf_x[0];
+  double tmax = wf_x[g_waveform->GetN()-1];
+  
   TH1D* h_discri = new TH1D("h_discri","h_discri",nbins,tmin,tmax);
   TH1D* h_timeSpec = new TH1D("h_timeSpec","h_timeSpec",nbins,tmin,tmax);
   
-  for(int i=0;i<=nbins;i++)
+  for(int i=0;i<nbins;i++)
   {
-    amp = waveform->GetBinContent(i);
+    amp = wf_y[i];
+    
     if(amp>=threshold)
     {
-      if((i-ioff)*resolution>=deadtime || ioff==-1)
+      if((i-ioff)*sampling>=deadtime || ioff==-1)
       {
 	if(on==false)
 	{
-	  h_timeSpec->Fill(i*resolution-tlast);
-	  tlast = i*resolution;
+	  h_timeSpec->Fill(i*sampling-tlast);
+	  tlast = i*sampling;
 	  nCounts++;
 	  ion=i;
 	}
@@ -531,7 +532,7 @@ TH1D* daqMC::Discriminator( TH1D* waveform, double threshold )
     
     if(amp<threshold)
     {
-      if((i-ion)*resolution>=width || ion==-1)
+      if((i-ion)*sampling>=width || ion==-1)
       {
 	if(on==true) ioff=i;
 	h_discri->SetBinContent(i,0);
@@ -543,7 +544,7 @@ TH1D* daqMC::Discriminator( TH1D* waveform, double threshold )
   
   h_discri->SetLineColor(2);
 
-  return h_discri;
+  return 0;	//fix!!!
 }
 
 

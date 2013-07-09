@@ -1,3 +1,4 @@
+
 #include "sipmMC.h"
 #include <TROOT.h>
 #include <TCanvas.h>
@@ -12,7 +13,21 @@
 
 using namespace std;
 
+
+Double_t PulseShape(Double_t *x, Double_t *par)
+{
+  Float_t t = x[0];
+  Double_t F=0;
+  Double_t tau1 = par[0];
+  Double_t tau2 = par[1];
+  
+  F = exp(-t/tau2) - exp(-t/tau1);
+
+  return F;
+}
+
 sipmMC* sipmMC::fInstance = NULL;
+
 
 sipmMC::sipmMC()
 {
@@ -23,6 +38,8 @@ sipmMC::sipmMC()
   else
   {
     this->fInstance = this;
+
+    f_pulse_shape_intern = new TF1("f_pulse_shape_intern",PulseShape,0,2000,2);
     
     NpixX=10;
     NpixY=10;
@@ -53,11 +70,15 @@ sipmMC::sipmMC()
     h_geometry = new TH2I();
     h_geometry->SetNameTitle("h_geometry","h_geometry");
 
-    waveform = new TH1D();
-    h_pulseShape = new TH1D();
-
-    cutOff = 0.001;
-    sampling = 0.1;
+    g_waveform = new TGraph();
+    g_waveform->SetMarkerStyle(1);
+    g_waveform->SetNameTitle("Waveform","Waveform");
+    g_waveform->GetXaxis()->SetTitle("Time [ns]");
+    g_waveform->GetYaxis()->SetTitle("Amplitude [mV]");
+    
+    update_pulse_shape = false;
+    SetSampling(0.1);
+    SetCutoff(0.001);
     SetPulseShape(1,40);
     SetGeometry("square");
   }
@@ -69,8 +90,7 @@ sipmMC::~sipmMC()
 {
   delete hitMatrix;
   delete h_geometry;
-  delete waveform;
-  delete h_pulseShape;
+  delete g_waveform;
 }
 
 
@@ -155,8 +175,8 @@ void sipmMC::GetParaFile( const char* filename )
 void sipmMC::SetGate( double Gate, bool gateCut )
 {
   gate = Gate;
-  if(customPulse==false) SetPulseShape(tau1, tau2);
   hitMatrix->SetGate(gate, gateCut);
+  update_pulse_shape = true;
 }
 
 
@@ -198,36 +218,24 @@ void sipmMC::SetGeometry( TH2I* hgeometry )
 
 void sipmMC::SetSampling( double Sampling )
 {
-  if(customPulse==false)
-  {
-    sampling = Sampling;
-    SetPulseShape(tau1, tau2);
-  }
-  else
-  {
-    cout << "WARNING: Custom pulse shape set. SetSampling has no effect!" << endl;
-  }
+
+  sampling = Sampling;
+  update_pulse_shape = true;
+
 }
 
 
 void sipmMC::SetCutoff( double Cutoff )
 {
-  if(customPulse==false)
-  {
-    cutOff = Cutoff;
-    SetPulseShape(tau1, tau2);
-  }
-  else
-  {
-    cout << "WARNING: Custom pulse shape set. SetCutoff has no effect!" << endl;
-  }
+
+  cutOff = Cutoff;
+  update_pulse_shape = true;
+
 }
 
 
 void sipmMC::SetPulseShape( double Tau1, double Tau2 )
 {
-  customPulse = false;
-
   if(Tau1<Tau2)
   {
     tau1 = Tau1;
@@ -239,36 +247,61 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2 )
     tau2 = Tau1;
   }
 
-  h_pulseShape->Reset("M");
-  h_pulseShape->SetBins(gate/sampling,0,gate);
-  double t;
+  f_pulse_shape_intern->SetParameters(tau1,tau2);
 
-  int i=1;
-  while(i<=gate/sampling)
-  {
-    t=(i-1)*sampling;
-    double amp = signalAmp/(pow(tau1/tau2,-tau2/(tau1-tau2))-pow(tau1/tau2,-tau1/(tau1-tau2)))*(exp(-t/tau1) -exp(-t/tau2));
-    h_pulseShape->SetBinContent(i,amp);
-    if(t>=log(tau1/tau2)/(1/tau2-1/tau1) && amp<signalAmp*cutOff) break;
-    i++;
-  }
-
-  nBinsPulseShape = i-1;
-  h_pulseShape->SetBins(nBinsPulseShape,0,nBinsPulseShape*sampling);
-  pulseIntegral = h_pulseShape->Integral();
+  SetPulseShape(f_pulse_shape_intern);
 }
 
 
-void sipmMC::SetPulseShape( TH1* PulseShape )
+void sipmMC::SetPulseShape( TF1* pulse_shape )
 {
-  customPulse = true;
-  sampling = PulseShape->GetBinWidth(1);
+  f_pulse_shape = pulse_shape;
 
-  h_pulseShape = (TH1D*)PulseShape;
-  pulseIntegral = h_pulseShape->Integral();
-  nBinsPulseShape = h_pulseShape->GetNbinsX();
+  update_pulse_shape = true;
+}
 
-  h_pulseShape->Scale(1/h_pulseShape->GetMaximum());
+
+void sipmMC::UpdatePulseShape()
+{
+//   cout << "Calculating pulse charge..." << endl;
+
+  g_pulse_charge.Set(0);
+
+  f_pulse_shape->SetRange(0,gate);
+
+  if(gPad!=0) gPad->SetLogx(false);
+
+  ///find pulse shape function amplitude
+  pulse_shape_func_max = f_pulse_shape->GetMaximum();
+
+  ///find pulse shape cutoff
+  int i_max = f_pulse_shape->GetMaximumX()/sampling + 1;
+
+  int i = i_max;
+  while(f_pulse_shape->Eval(i*sampling) > pulse_shape_func_max*cutOff)
+  {
+    i++;
+  }
+  n_pulse_samples = i;
+
+  ///calculate pulse charge graph
+  double flast_charge = 0;
+  for(int i=0;i<gate/sampling;i++)
+  {
+    double ftime = i*sampling;
+    double fcharge = f_pulse_shape->Integral(0,ftime,(const double*)0,1e-3);
+    g_pulse_charge.SetPoint(g_pulse_charge.GetN(),ftime,fcharge);
+
+    if(fabs(fcharge-flast_charge)<1e-3 && i>0)
+    {
+      g_pulse_charge.SetPoint(g_pulse_charge.GetN(),gate,fcharge);
+      break;
+    }
+    flast_charge = fcharge;
+  }
+
+  update_pulse_shape = false;
+//   cout << "Done..." << endl;
 }
 
 
@@ -306,8 +339,9 @@ void sipmMC::InitHitMatrix()
 double sipmMC::Generate( PhotonList photons )
 {
   Reset();
-  ImportPhotons(photons);	//Übersetzte Potonen aus PhotonList auf Pixelbasis
-  InitHitMatrix();		//Geben Parameter an HitMatrix weiter
+  ImportPhotons(photons);				//Übersetzte Potonen aus PhotonList auf Pixelbasis
+  InitHitMatrix();					//Geben Parameter an HitMatrix weiter
+  if(update_pulse_shape==true) UpdatePulseShape();	//Calculate pulse shape parameters if something has changes
 
 
   if(PDE>1 || PDE<0)
@@ -436,9 +470,8 @@ double sipmMC::Generate( PhotonList photons )
     hitMatrix->SetAmplitude(i,amplitude);
     
     double overflow;
-    if(customPulse==true)  overflow = h_pulseShape->Integral((gate-time)/sampling+1,nBinsPulseShape)/pulseIntegral*amplitude;
-    if(customPulse==false) overflow = amplitude/(tau1-tau2)*(tau1*exp(-(gate-time)/tau1)-tau2*exp(-(gate-time)/tau2));		///Not effected by jitter!
-    charge.all+=amplitude-overflow;
+    overflow = amplitude*(1-g_pulse_charge.Eval(gate-time)/g_pulse_charge.Eval(gate));		///Not effected by jitter!
+    charge.all+=amplitude -overflow;
 
     if(amplitude>0)
     {
@@ -502,54 +535,40 @@ double sipmMC::Generate( PhotonList photons )
 }
 
 
-TH1D* sipmMC::GetWaveform()
+TGraph* sipmMC::GetWaveform()
 {
+  //reset g_waveform
+  g_waveform->Set(0);
 
-  waveform->Reset("M");
-  waveform->SetBins(gate/sampling,0,gate);
-
-  for(int i=0;i<hitMatrix->nHits();i++)
+  for(int i=0;i<gate/sampling+1;i++)
   {
-    double time = hitMatrix->GetHit(i)[TIME];
-    double amplitude = hitMatrix->GetHit(i)[AMPLITUDE];
+    g_waveform->SetPoint(i,i*sampling,0);
+  }
+
+  double *wf_x = g_waveform->GetX();
+  double *wf_y = g_waveform->GetY();
+  
+  for(int n=0;n<hitMatrix->nHits();n++)
+  {
+    double time = hitMatrix->GetHit(n)[TIME];
+    double amplitude = hitMatrix->GetHit(n)[AMPLITUDE];
     
-    if(customPulse==true)
+    int i_start= time/sampling + 1;
+    double tstart = wf_x[i_start];
+    for(int i=0;i<n_pulse_samples;i++)
     {
-      ///no risetime jitter implemented yet!!!
-      int i_ps=1;
-      while(i_ps<=nBinsPulseShape && i_ps*sampling+time<=gate)
-      {
-	int i_wf = time/sampling + i_ps;
-	waveform->AddBinContent(i_wf,h_pulseShape->GetBinContent(i_ps)*amplitude/gain*signalAmp);
-	i_ps++;
-      }
-    }
-    if(customPulse==false)
-    {
-//       double tau1_jittered = r.Gaus(tau1,jitter/2.);
-//       if(tau1_jittered<0) tau1_jittered = 0.001;
+      if(i_start+i > g_waveform->GetN()) break;
 
-      double tau1_jittered = tau1;	///Risetime jitter disabled! (Only starting-time jitter...)
-      
-      int i_wf=time/sampling+1;
-      int j=0;
-      double t=0;
-      while(i_wf<=gate/sampling)
-      {	
-	t=j*sampling;
-	double amp = amplitude/gain*signalAmp/(pow(tau1_jittered/tau2,-tau2/(tau1_jittered-tau2))-pow(tau1_jittered/tau2,-tau1_jittered/(tau1_jittered-tau2)))*(exp(-t/tau1_jittered) -exp(-t/tau2));
-	waveform->AddBinContent(i_wf,amp);
-	i_wf++;
-	j++;
-	if(t>=log(tau1_jittered/tau2)/(1/tau2-1/tau1_jittered) && amp<signalAmp*cutOff) break;
-      }
+      double t = i*sampling + tstart - time;
+      double amp = signalAmp*amplitude/gain*f_pulse_shape->Eval(t)/pulse_shape_func_max;
+      wf_y[i_start+i] += amp;
     }
   }
-
-  for(int i=1;i<=waveform->GetNbinsX();i++)
+  
+  for(int i=0;i<=g_waveform->GetN();i++)
   {
-    waveform->AddBinContent(i,r.Gaus(0,noiseRMS));
+    wf_y[i] += r.Gaus(0,noiseRMS);
   }
 
-  return waveform;
+  return g_waveform;
 }
