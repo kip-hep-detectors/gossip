@@ -51,8 +51,11 @@ PhotonList PhotonSource::GeneratePhotons()
     }
     else if(shape=="elliptic")
     {
-      xHit=(r.Rndm()-0.5)*xWidth + x;
-      yHit=2*(r.Rndm()-0.5)*sqrt(pow(yWidth/2.,2)-pow(yWidth/xWidth*xHit,2)) + y;
+      xHit=(r.Rndm()-0.5)*xWidth;
+      yHit=2*(r.Rndm()-0.5)*sqrt(pow(yWidth/2.,2)-pow(yWidth/xWidth*xHit,2));
+      
+      xHit += x;
+      yHit += y;
     }
     else if(shape=="custom")
     {

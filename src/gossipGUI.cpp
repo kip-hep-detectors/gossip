@@ -5,6 +5,7 @@
 #include "PhotonSource.h"
 
 #include "iostream"
+#include "fstream"
 
 #include "TRint.h"
 #include "TSystem.h"
@@ -228,7 +229,7 @@ void gossipGUI::BuildLightSourceFrame( TGFrame *parentFrame )
   comboBoxLEDpulse->Resize(80,22);
   comboBoxLEDpulse->Select(1);
   
-  entryLEDtime = new TGNumberEntry(parametersEntriesFrame,5,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
+  entryLEDtime = new TGNumberEntry(parametersEntriesFrame,5,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAAnyNumber,TGNumberFormat::kNELNoLimits);
   parametersEntriesFrame->AddFrame(entryLEDtime, layout1);
   labelLEDtime = new TGLabel(parametersLabelsFrame,"Initial time [ns]");
   parametersLabelsFrame->AddFrame(labelLEDtime, layout2);
@@ -306,8 +307,13 @@ void gossipGUI::BuildDAQFrame( TGFrame *parentFrame )
   
   entryGate = new TGNumberEntry(parametersEntriesFrame,300,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
   parametersEntriesFrame->AddFrame(entryGate, layout1);
-  labelGate = new TGLabel(parametersLabelsFrame,"Integration gate [ns]   ");
+  labelGate = new TGLabel(parametersLabelsFrame,"Gate [ns]   ");
   parametersLabelsFrame->AddFrame(labelGate, layout2);
+
+  entryPreGate = new TGNumberEntry(parametersEntriesFrame,0,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
+  parametersEntriesFrame->AddFrame(entryPreGate, layout1);
+  labelPreGate = new TGLabel(parametersLabelsFrame,"Pregate [ns]   ");
+  parametersLabelsFrame->AddFrame(labelPreGate, layout2);
   
   entryPedestal = new TGNumberEntry(parametersEntriesFrame,50,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
   parametersEntriesFrame->AddFrame(entryPedestal, layout1);
@@ -543,6 +549,7 @@ void gossipGUI::SetParameters()
 
   //daq
   sipm->SetGate(entryGate->GetNumber());
+  sipm->SetPreGate(entryPreGate->GetNumber());
   daq->SetPedestal(entryPedestal->GetNumber());
 
   daq->SetDiscriMinTime(entryDiscriMinTime->GetNumber());
@@ -691,5 +698,121 @@ void gossipGUI::SelectMeasurement( int meas )
     entryLEDyWidth->SetState(true);
     
     entryNentries->SetNumber(10000);
+  }
+}
+
+void gossipGUI::ReadParaFile( const char* filename )
+{
+  string para, pm, dump;
+  ifstream in(filename);
+
+  double value;
+    
+  while(1)
+  {
+    in >> para;
+    if(para == "PDE")
+    {
+      in >> value;
+      entryPDE->SetNumber(value*100);
+    }
+    else if(para == "Gain")
+    {
+      in >> value;
+      entryGain->SetNumber(value);
+    }
+    else if(para == "TauDR")
+    {
+      in >> value;
+      entryTau_dr->SetNumber(value);
+    }
+    else if(para == "AP_s")
+    {
+      in >> value;
+      entryPap1->SetNumber(value*100);
+    }
+    else if(para == "TauAP_s")
+    {
+      in >> value;
+      entryTau_ap1->SetNumber(value);
+    }
+    else if(para == "AP_f")
+    {
+      in >> value;
+      entryPap2->SetNumber(value*100);
+    }
+    else if(para == "TauAP_f")
+    {
+      in >> value;
+      entryTau_ap2->SetNumber(value);
+    }
+    else if(para == "XT")
+    {
+      in >> value;
+      entryPx->SetNumber(value*100);
+    }
+    else if(para == "ENF")
+    {
+      in >> value;
+      entryENF->SetNumber(value);
+    }
+    else if(para == "EN")
+    {
+      in >> value;
+      entryEN->SetNumber(value);
+    }
+    else if(para == "TauRec")
+    {
+      in >> value;
+      entryTau_rec->SetNumber(value);
+    }
+    else if(para == "Jitter")
+    {
+      in >> value;
+      entryJitter->SetNumber(value);
+    }
+    else if(para == "Npx")
+    {
+      in >> value;
+      entryNpx->SetNumber(value);
+    }
+    else if(para == "Npy")
+    {
+      in >> value;
+      entryNpy->SetNumber(value);
+    }
+    else if(para == "SizeX")
+    {
+      in >> value;
+      entrySizeX->SetNumber(value);
+    }
+    else if(para == "SizeY")
+    {
+      in >> value;
+      entrySizeY->SetNumber(value);
+    }
+    else if(para == "NoiseRMS")
+    {
+      in >> value;
+      entryRMS->SetNumber(value);
+    }
+    else if(para == "SignalAmp")
+    {
+      in >> value;
+      entrySignalAmp->SetNumber(value);
+    }
+    else if(para == "Tau1")
+    {
+      in >> value;
+      entryTau_le->SetNumber(value);
+    }
+    else if(para == "Tau2")
+    {
+      in >> value;
+      entryTau_te->SetNumber(value);
+    }
+    else getline(in, dump);
+    
+    if(!in.good()) break;
   }
 }

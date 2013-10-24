@@ -33,7 +33,9 @@ public:
   void SetParameters();
   void SetProgress( int );
   void SelectMeasurement( int );
-  
+  void ReadParaFile( const char* filename );
+
+  sipmMC* GetSiPM(){ return sipm; };
 
 private:
 
@@ -96,6 +98,7 @@ private:
 			*entryLEDyWidth,
 			*entryNentries,
 			*entryGate,
+			*entryPreGate,
 			*entryPedestal,
 			*entryThreshStart,
 			*entryThreshStop,
@@ -137,6 +140,7 @@ private:
 			*labelLEDyWidth,
 			*labelNentries,
 			*labelGate,
+			*labelPreGate,
 			*labelPedestal,
 			*labelLEDgeometry,
 			*labelLEDpulse,

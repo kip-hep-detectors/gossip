@@ -39,27 +39,30 @@ sipmMC::sipmMC()
   {
     this->fInstance = this;
 
-    f_pulse_shape_intern = new TF1("f_pulse_shape_intern",PulseShape,0,2000,2);
+    pulse_shape_func_range = 1000;
     
-    NpixX=10;
-    NpixY=10;
-    xSipm=1;
-    ySipm=1;
-    gate=300;
-    tau_recovery=10;
-    PDE=0.1;
-    Pxt=0.1;
-    Pap_s=0.1;
-    Pap_f=0.1;
-    tau_ap_s=150;
-    tau_ap_f=40;
-    tau_dr=2000;
-    gain=20;
-    ENF=2;
-    EN=2;
-    signalAmp = 20;
-    noiseRMS = 2;
-    jitter = 0.25;
+    f_pulse_shape_intern = new TF1("f_pulse_shape_intern",PulseShape,0,pulse_shape_func_range,2);
+    
+    NpixX	= 10;
+    NpixY	= 10;
+    xSipm	= 1;
+    ySipm	= 1;
+    gate	= 300;
+    pre_gate	= 0;
+    tau_recovery= 10;
+    PDE		= 0.1;
+    Pxt		= 0.1;
+    Pap_s	= 0.1;
+    Pap_f	= 0.1;
+    tau_ap_s	= 150;
+    tau_ap_f	= 40;
+    tau_dr	= 2000;
+    gain	= 20;
+    ENF		= 2;
+    EN		= 2;
+    signalAmp	= 20;
+    noiseRMS	= 2;
+    jitter	= 0.25;
 
     timeval time;
     gettimeofday(&time,NULL);    
@@ -180,6 +183,12 @@ void sipmMC::SetGate( double Gate, bool gateCut )
 }
 
 
+void sipmMC::SetPreGate( double preGate )
+{
+  pre_gate = preGate;
+}
+
+
 void sipmMC::SetGeometry(string Geometry)
 {
   h_geometry->Reset("M");
@@ -247,6 +256,7 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2 )
     tau2 = Tau1;
   }
 
+  f_pulse_shape_intern->SetRange(0,pulse_shape_func_range);
   f_pulse_shape_intern->SetParameters(tau1,tau2);
 
   SetPulseShape(f_pulse_shape_intern);
@@ -267,7 +277,7 @@ void sipmMC::UpdatePulseShape()
 
   g_pulse_charge.Set(0);
 
-  f_pulse_shape->SetRange(0,gate);
+  f_pulse_shape->SetRange(0,pulse_shape_func_range);
 
   if(gPad!=0) gPad->SetLogx(false);
 
@@ -286,7 +296,7 @@ void sipmMC::UpdatePulseShape()
 
   ///calculate pulse charge graph
   double flast_charge = 0;
-  for(int i=0;i<gate/sampling;i++)
+  for(int i=0;i<pulse_shape_func_range/sampling;i++)
   {
     double ftime = i*sampling;
     double fcharge = f_pulse_shape->Integral(0,ftime,(const double*)0,1e-3);
@@ -294,10 +304,20 @@ void sipmMC::UpdatePulseShape()
 
     if(fabs(fcharge-flast_charge)<1e-3 && i>0)
     {
-      g_pulse_charge.SetPoint(g_pulse_charge.GetN(),gate,fcharge);
+      g_pulse_charge.SetPoint(g_pulse_charge.GetN(),gate+pre_gate,fcharge);
       break;
     }
     flast_charge = fcharge;
+  }
+
+
+  ///normalize to 1
+  double *x = g_pulse_charge.GetX();
+  double *y = g_pulse_charge.GetY();
+  
+  for(int i=0;i<g_pulse_charge.GetN();i++)
+  {
+    y[i] /= flast_charge;
   }
 
   update_pulse_shape = false;
@@ -410,20 +430,20 @@ double sipmMC::Generate( PhotonList photons )
   ///darkrate:
   if(tau_dr!=0)
   {
-    double time=0;
+    double time = -pre_gate;
     int x,y;
     
     while(1)
     {
-      time+=r.Exp(tau_dr);
+      time += r.Exp(tau_dr);
       while(1)
       {
-	x=r.Rndm()*h_geometry->GetNbinsX();
-	y=r.Rndm()*h_geometry->GetNbinsY();
+	x = r.Rndm()*h_geometry->GetNbinsX();
+	y = r.Rndm()*h_geometry->GetNbinsY();
 	if(h_geometry->GetBinContent(x+1,y+1)==1) break;
       }
       hitMatrix->AddHit(x,y,time,DR);
-      if(time>=gate) break;	//letzter hit liegt nach dem gate für time distribution
+      if(time >= gate) break;	//letzter hit liegt nach dem gate für time distribution
     }
   }
 
@@ -470,8 +490,15 @@ double sipmMC::Generate( PhotonList photons )
     hitMatrix->SetAmplitude(i,amplitude);
     
     double overflow;
-    overflow = amplitude*(1-g_pulse_charge.Eval(gate-time)/g_pulse_charge.Eval(gate));		///Not effected by jitter!
-    charge.all+=amplitude -overflow;
+    if(time>=0)
+    {
+      overflow = amplitude*(1-g_pulse_charge.Eval(gate-time));		///Not effected by jitter!
+    }
+    else ///events in pre_gate
+    {
+      overflow = amplitude*g_pulse_charge.Eval(-time);			///Not effected by jitter!
+    }
+    charge.all += amplitude - overflow;
 
     if(amplitude>0)
     {
@@ -542,7 +569,7 @@ TGraph* sipmMC::GetWaveform()
 
   for(int i=0;i<gate/sampling+1;i++)
   {
-    g_waveform->SetPoint(i,i*sampling,0);
+    g_waveform->SetPoint(i,i*sampling,r.Gaus(0,noiseRMS));
   }
 
   double *wf_x = g_waveform->GetX();
@@ -553,22 +580,28 @@ TGraph* sipmMC::GetWaveform()
     double time = hitMatrix->GetHit(n)[TIME];
     double amplitude = hitMatrix->GetHit(n)[AMPLITUDE];
     
-    int i_start= time/sampling + 1;
-    double tstart = wf_x[i_start];
+    int i_start;
+    double tstart;
+    if(time>=0)
+    {
+      i_start= time/sampling + 1;
+      tstart = wf_x[i_start];
+    }
+    else
+    {
+      i_start = 0;
+      tstart = 0;
+    }
+    
     for(int i=0;i<n_pulse_samples;i++)
     {
       if(i_start+i > g_waveform->GetN()) break;
 
-      double t = i*sampling + tstart - time;
+      double t = i*sampling + (tstart - time);
       double amp = signalAmp*amplitude/gain*f_pulse_shape->Eval(t)/pulse_shape_func_max;
       wf_y[i_start+i] += amp;
     }
   }
   
-  for(int i=0;i<=g_waveform->GetN();i++)
-  {
-    wf_y[i] += r.Gaus(0,noiseRMS);
-  }
-
   return g_waveform;
 }

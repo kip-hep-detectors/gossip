@@ -72,7 +72,7 @@ int HitMatrix::AddHit( int x, int y, double time, int type )
 
   if(h_geometry->GetBinContent(x+1,y+1)==1)
   {
-    if((time<=gate && time>=0) || gateCut==false)
+    if((time<=gate/* && time>=0*/) || gateCut==false)
     {
       hit.push_back(x);
       hit.push_back(y);
@@ -165,6 +165,7 @@ int HitMatrix::FindHit( vector<double> aHit )
 
   return n;
 }
+
 
 void HitMatrix::EraseHit( vector<double> aHit )
 {

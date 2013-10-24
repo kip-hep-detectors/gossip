@@ -71,6 +71,7 @@ class sipmMC{
     void		SetSampling( double Sampling );			/**<Sets waveform sampling*/
     void		SetCutoff( double Cutoff );			/**<Sets pixel waveform cutoff*/
     void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see HitMatrix class)*/
+    void		SetPreGate( double preGate );			/**<Sets time period before integration.*/
     
     TGraph*		GetWaveform();					/**<Returns simulated signal waveform*/
 									/**Returns signal charge from different components*/
@@ -93,6 +94,7 @@ class sipmMC{
     TF1*		f_pulse_shape;
     TF1*		f_pulse_shape_intern;
     double		pulse_shape_func_max;
+    double		pulse_shape_func_range;
     bool		update_pulse_shape;
 
     int			Npix;
@@ -103,6 +105,7 @@ class sipmMC{
     int			n_pulse_samples;
     GCharge		charge;
     double		gate;
+    double		pre_gate;
     
     TRandom3		r;
     vector<double>	hit;

@@ -9,7 +9,7 @@ int main(int argc,char** argv)
   
   gossipGUI gui;
   gui.BuildMainFrame();
-//   if(argc == 2) mainWin.ReadParaFile(argv[1]);
+  if(argc == 2) gui.ReadParaFile(argv[1]);
 
   app.Run();
 
