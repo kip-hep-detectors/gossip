@@ -9,12 +9,17 @@ LIBS         := -L$(gossip)/lib -lHitMatrix -lPhotonList -lPhotonSource -lsipmMC
 INC          := -I$(gossip)/include
 CC = g++
 
-all: Dict.cxx HitMatrix.o libHitMatrix.so PhotonList.o libPhotonList.so PhotonSource.o libPhotonSource.so sipmMC.o libsipmMC.so daqMC.o libdaqMC.so gossipGUI.o libgossipGUI.so gossip
+all: Dict.cpp Dict.o HitMatrix.o libHitMatrix.so PhotonList.o libPhotonList.so PhotonSource.o libPhotonSource.so sipmMC.o libsipmMC.so daqMC.o libdaqMC.so gossipGUI.o libgossipGUI.so gossip
 
-
-Dict.cxx: $(gossip)/include/HitMatrix.h $(gossip)/include/PhotonList.h $(gossip)/include/PhotonSource.h $(gossip)/include/sipmMC.h $(gossip)/include/daqMC.h $(gossip)/include/gossipGUI.h $(gossip)/include/LinkDef.h
+Dict.cpp: $(gossip)/include/HitMatrix.h $(gossip)/include/PhotonList.h $(gossip)/include/PhotonSource.h $(gossip)/include/sipmMC.h $(gossip)/include/daqMC.h $(gossip)/include/gossipGUI.h $(gossip)/include/LinkDef.h
 	@echo "Generating Dictionary $@..."
 	@rootcint -f src/$@ -c $^
+	mv src/Dict.h include
+
+Dict.o: src/Dict.cpp include/Dict.h
+	@echo "Compiling $< ..."
+	@$(CC) -fPIC $(INC) $(ROOTCFLAGS) $(ROOTGLIBS) -c src/Dict.cpp
+	mv $@ lib
 
 HitMatrix.o: src/HitMatrix.cpp include/HitMatrix.h
 	@echo "Compiling $< ..."
@@ -66,7 +71,7 @@ gossipGUI.o: src/gossipGUI.cpp include/gossipGUI.h
 	@$(CC) -fPIC $(INC) $(ROOTCFLAGS) -c src/gossipGUI.cpp
 	mv $@ lib
 
-libgossipGUI.so: lib/gossipGUI.o src/Dict.cxx lib/daqMC.o lib/sipmMC.o lib/HitMatrix.o lib/PhotonList.o lib/PhotonSource.o
+libgossipGUI.so: lib/gossipGUI.o lib/Dict.o lib/daqMC.o lib/sipmMC.o lib/HitMatrix.o lib/PhotonList.o lib/PhotonSource.o
 	@echo "Compiling $< ..."
 	@$(CC) -fPIC -shared $(INC) $(ROOTCFLAGS) $(ROOTLIBS) $(ROOTGLIBS) -o lib/$@ $^
 
@@ -76,7 +81,7 @@ gossip: main.cpp
 
 
 clean:
-	@rm -f src/Dict.cxx src/Dict.h lib/HitMatrix.o lib/libHitMatrix.so lib/PhotonList.o lib/libPhotonList.so lib/PhotonSource.o lib/libPhotonSource.so lib/sipmMC.o lib/libsipmMC.so lib/daqMC.o lib/libdaqMC.so lib/gossipGUI.o lib/libgossipGUI.so gossip
+	@rm -f src/Dict.cpp include/Dict.h lib/Dict.o lib/HitMatrix.o lib/libHitMatrix.so lib/PhotonList.o lib/libPhotonList.so lib/PhotonSource.o lib/libPhotonSource.so lib/sipmMC.o lib/libsipmMC.so lib/daqMC.o lib/libdaqMC.so lib/gossipGUI.o lib/libgossipGUI.so gossip
 
 
 
