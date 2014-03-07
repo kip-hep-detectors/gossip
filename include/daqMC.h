@@ -54,7 +54,7 @@ class daqMC{
 														/**Connect daqMC class with PhotonSource object*/
   void      		SetPhotonSource( PhotonSource *myPhotonSource ){ photonSource = myPhotonSource; };		
   void      		Statistic( int N );									/**<Plots number of pde, ct, ap, dr events in "N" events*/
-  TGraph*     		Scope();										/**<Returns waveform*/
+  TGraph*		Scope();										/**<Returns waveform*/
   TH1D*     		QDCSpectrum( int N );									/**<Simulates charge spectrum with "N" events*/
   TGraphErrors*		ThreshScan( double gate, double tstart, double tstop, double tstep );			/**<Simulates theshold scan with "gate" integration time and thresholds from "tstart" to "tstop" with step size "tstep"*/
   TH1D*     		TDCSpectrum( int N );									/**<Simulated time spectrum with "N" events*/
@@ -103,7 +103,6 @@ class daqMC{
   vector<double>	hit;
   sipmMC*              	sipm;
   PhotonSource*       	photonSource;
-  TGraph*              	g_waveform;
   
   double 		discriMinTime;
   double 		discriWidth;

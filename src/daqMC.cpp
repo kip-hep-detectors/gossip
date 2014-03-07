@@ -180,8 +180,8 @@ TH1D* daqMC::QDCSpectrum( int N )
     h_QDC->Fill(QDC(charge));
   }
   
-  h_QDC->Draw("HIST E0");
-  h_QDC->Draw("");
+//   h_QDC->Draw("HIST E0");
+//   h_QDC->Draw("");
   
   return h_QDC;
 }
@@ -300,7 +300,7 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
   double tlast[N]={0};
   
   sipm->Generate(empty);
-  g_waveform = sipm->GetWaveform();
+  TGraph *g_waveform = sipm->GetWaveform();
   hitMatrix = sipm->GetHitMatrix();
   
 //   int imax = sipm->GetPulseShape()->GetMaximumBin();
@@ -472,7 +472,7 @@ TGraph* daqMC::Scope()
   PhotonList photons = photonSource->GeneratePhotons();
 
   sipm->Generate(photons);
-  g_waveform = sipm->GetWaveform();
+  TGraph *g_waveform = sipm->GetWaveform();
 
   return g_waveform;
 }

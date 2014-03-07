@@ -447,19 +447,33 @@ void gossipGUI::onRunButtonClicked()
   if(measurement==1)
   {
     c_main->Clear();
+    double max = 0;
+    double min = 0;
     for(int i=0;i<entryNentries->GetNumber();i++)
     {
-      daq->Scope()->Draw("ALP");
+      TGraph *g = (TGraph*)daq->Scope()->Clone();	//small memory leak, since clones are not beeing deleted...fix later =)
+      
+      if(g->GetYaxis()->GetXmax()>max) max = g->GetYaxis()->GetXmax();
+      if(g->GetYaxis()->GetXmin()<min) min = g->GetYaxis()->GetXmin();
+      
+      if(i==0) g->Draw("ALP");
+      else g->Draw("SAMELP");
     }
+    
+    TGraph *g_first = (TGraph*)c_main->GetListOfPrimitives()->At(0);
+    g_first->GetYaxis()->SetRangeUser(min,max);
+    
     c_main->SetLogy(false);
     c_main->SetLogx(false);
     sipm->GetHitMatrix()->DrawMatrix();
   }
   if(measurement==2)
   {
-    daq->QDCSpectrum(entryNentries->GetNumber());
+    TH1D* h_QDC = daq->QDCSpectrum(entryNentries->GetNumber());
     c_main->SetLogy(false);
     c_main->SetLogx(false);
+//     h_QDC->Draw("HIST E0");
+    h_QDC->Draw("");
   }
   if(measurement==3)
   {
@@ -469,8 +483,7 @@ void gossipGUI::onRunButtonClicked()
   }
   if(measurement==4)
   {
-    daq->ThreshScan(entryGate->GetNumber()*1000,entryThreshStart->GetNumber(),entryThreshStop->GetNumber(),entryThreshStep->
-    GetNumber());
+    daq->ThreshScan(entryGate->GetNumber()*1000,entryThreshStart->GetNumber(),entryThreshStop->GetNumber(),entryThreshStep->GetNumber());
     c_main->SetLogy(true);
     c_main->SetLogx(false);
   }
@@ -561,7 +574,7 @@ void gossipGUI::SelectMeasurement( int meas )
   measurement = meas;
 
   if(measurement==1){
-    entryNentries->SetState(false);
+    entryNentries->SetState(true);
     entryGate->SetState(true);
     entryPedestal->SetState(false);
     entryThreshStart->SetState(false);

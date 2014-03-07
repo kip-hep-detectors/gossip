@@ -3,8 +3,7 @@
 #include "TRint.h"
 
 int main(int argc,char** argv)
-{
-  
+{ 
   TRint app("sipmMC", 0, 0);
   
   gossipGUI gui;
