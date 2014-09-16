@@ -217,6 +217,8 @@ TH2D* HitMatrix::DrawMatrix()
   c_hitMatrix->SetGridx();
   c_hitMatrix->SetGridy();
   h_hits->Draw("colz");
+  
+  c_hitMatrix->Update();
 
   return h_hits;
 }

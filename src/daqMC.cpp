@@ -585,7 +585,7 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
     {
       if(cancel==true) break;
       sipm->Generate(photonSource->GeneratePhotons());
-      GCharge charge = sipm->GetCharge();
+      GCharge charge = sipm->GetChargeDecomp();
       h_QDC->Fill(QDC(charge.all));
       h_QDC_pe.Fill(QDC(charge.pe));
       h_QDC_dr.Fill(QDC(charge.dr));

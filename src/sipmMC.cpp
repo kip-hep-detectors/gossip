@@ -14,7 +14,7 @@
 using namespace std;
 
 
-Double_t PulseShape(Double_t *x, Double_t *par)
+Double_t GPulseShape(Double_t *x, Double_t *par)
 {
   Float_t t = x[0];
   Double_t F=0;
@@ -41,7 +41,7 @@ sipmMC::sipmMC()
 
     pulse_shape_func_range = 1000;
     
-    f_pulse_shape_intern = new TF1("f_pulse_shape_intern",PulseShape,0,pulse_shape_func_range,2);
+    f_pulse_shape_intern = new TF1("f_pulse_shape_intern",GPulseShape,0,pulse_shape_func_range,2);
     
     NpixX	= 10;
     NpixY	= 10;
@@ -593,6 +593,13 @@ TGraph* sipmMC::GetWaveform()
       tstart = 0;
     }
     
+//    ///risetime jitter
+//    double tau1_tmp = tau1;
+//    double risetime = r.Gaus(tau1,jitter);
+//    if(risetime<=0.2) risetime = 0.2;
+//    SetPulseShape(risetime,tau2);
+//    tau1 = tau1_tmp;
+
     for(int i=0;i<n_pulse_samples;i++)
     {
       if(i_start+i > g_waveform->GetN()) break;

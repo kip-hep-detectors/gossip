@@ -74,8 +74,10 @@ class sipmMC{
     void		SetPreGate( double preGate );			/**<Sets time period before integration.*/
     
     TGraph*		GetWaveform();					/**<Returns simulated signal waveform*/
-									/**Returns signal charge from different components*/
-    GCharge		GetCharge(){ return charge; };
+									/**Returns signal charge*/
+    double		GetCharge(){ return charge.all; };
+									/**Returns decomposition of the signal charge*/
+    GCharge		GetChargeDecomp(){ return charge; };
 									/**Returns length of integration gate in ns*/
     double		GetGate(){ return gate; };
 									/**Returns single pixel waveform*/
