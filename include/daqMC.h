@@ -12,6 +12,7 @@
 #include <TF1.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
+#include <TLegend.h>
 #include <stdlib.h>
 #include <vector>
 #include <TROOT.h>
@@ -56,11 +57,11 @@ class daqMC{
 		/**Connect daqMC class with PhotonSource object*/
 		void      		SetPhotonSource( PhotonSource *myPhotonSource ){ photonSource = myPhotonSource; };		
 		void      		Statistic( int N );									/**<Plots number of pde, ct, ap, dr events in "N" events*/
-		TGraph*		Scope();										/**<Returns waveform*/
+		TGraph*			Scope();										/**<Returns waveform*/
 		TH1D*     		QDCSpectrum( int N );									/**<Simulates charge spectrum with "N" events*/
-		TGraphErrors*		ThreshScan( double gate, double tstart, double tstop, double tstep );			/**<Simulates theshold scan with "gate" integration time and thresholds from "tstart" to "tstop" with step size "tstep"*/
+		TGraph*			ThreshScan( double gate, double tstart, double tstop, double tstep );			/**<Simulates theshold scan with "gate" integration time and thresholds from "tstart" to "tstop" with step size "tstep"*/
 		TH1D*     		TDCSpectrum( int N );									/**<Simulated time spectrum with "N" events*/
-		GResonseCurve 	DynamicRange( int N, double Ngamma_max, double Ngamma_step );				/**<Simulates saturation curve and RMS with "N" events per intensity from 0 to "Ngamma_max" photons with "Ngamma_step" step width*/
+		GResonseCurve 		DynamicRange( int N, double Ngamma_max, double Ngamma_step );				/**<Simulates saturation curve and RMS with "N" events per intensity from 0 to "Ngamma_max" photons with "Ngamma_step" step width*/
 
 		double   		QDC( double charge );									/**<Returns charge in QDC channels*/
 		/**Sets number of QDC channels*/
@@ -78,38 +79,41 @@ class daqMC{
 
 		void      		Progress( int ); //*SIGNAL*								
 
-		GResonseCurve         responseCurve;										/**<Response curve and resolution graphs*/
-		TGraphErrors  	*g_threshScan;										/**<Threshold scan graph*/
-		TH1D          	*h_pe;											/**<Number of detected photons histogram*/
-		TH1D          	*h_dr;											/**<Number of thermal pulses histogram*/
-		TH1D          	*h_xt;											/**<SNumber of cross-talk histogram*/
-		TH1D          	*h_ap;											/**<Number of after-pulses histogram*/
-		TH1D          	*h_QDC;											/**<Charge spectrum histogram*/
-		TH1D          	*h_TDC;											/**<Time spectrum histogram*/
+		GResonseCurve		responseCurve;										/**<Response curve and resolution graphs*/
+		TGraph  		*g_threshScan;										/**<Threshold scan graph*/
+		TH1D          		*h_pe;											/**<Number of detected photons histogram*/
+		TH1D          		*h_dr;											/**<Number of thermal pulses histogram*/
+		TH1D          		*h_xt;											/**<SNumber of cross-talk histogram*/
+		TH1D          		*h_ap;											/**<Number of after-pulses histogram*/
+		TH1D          		*h_QDC;											/**<Charge spectrum histogram*/
+		TH1D          		*h_TDC;											/**<Time spectrum histogram*/
 		//   TGraph          	*g_wf;											/**<Oscilloscope waveform*/
 
 
-		bool   		cancel;											/**<Cancels simulation process*/
-		double 		progress;										/**<Progress of simulation*/
+		bool   			cancel;											/**<Cancels simulation process*/
+		double 			progress;										/**<Progress of simulation*/
 
 	private:
 
-		bool  		Check();
+		bool  			Check();
 
-		double 		pedestal;
+		double 			pedestal;
 
 		int 			nTDC_channels;
 
-		TRandom3      	r;
-		HitMatrix*    	hitMatrix;
-		vector<double>	hit;
+		TRandom3      		r;
+		HitMatrix*    		hitMatrix;
+		vector<double>		hit;
 		sipmMC*              	sipm;
 		PhotonSource*       	photonSource;
 
-		double 		discriMinTime;
-		double 		discriWidth;
+		double 			discriMinTime;
+		double 			discriWidth;
 
 		int                  	plast;
+
+		TLegend*		legend;
+		TLegend*		legend2;
 
 };
 

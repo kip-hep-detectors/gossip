@@ -42,16 +42,31 @@ daqMC::daqMC() : sipm(0), photonSource(0)
 
 	h_pe = new TH1D();
 	h_pe->SetNameTitle("PE","PE");
+	h_pe->GetXaxis()->SetTitle("Fired Pixels");
+	h_pe->GetYaxis()->SetTitle("# Entries");
 	h_pe->SetLineColor(1);
+	h_pe->SetFillColor(0);
 	h_dr = new TH1D();
 	h_dr->SetNameTitle("DR","DR");
 	h_dr->SetLineColor(2);
+	h_dr->SetFillColor(0);
+	h_dr->GetXaxis()->SetTitle("Fired Pixels");
+	h_dr->GetYaxis()->SetTitle("# Entries");
 	h_xt = new TH1D();
 	h_xt->SetNameTitle("CT","CT");
 	h_xt->SetLineColor(3);
+	h_xt->SetFillColor(0);
+	h_xt->GetXaxis()->SetTitle("Fired Pixels");
+	h_xt->GetYaxis()->SetTitle("# Entries");
 	h_ap = new TH1D();
 	h_ap->SetNameTitle("AP","AP");
 	h_ap->SetLineColor(4);
+	h_ap->SetFillColor(0);
+	h_ap->GetXaxis()->SetTitle("Fired Pixels");
+	h_ap->GetYaxis()->SetTitle("# Entries");
+	
+	g_threshScan = new TGraph();
+	g_threshScan->SetTitle("Threshold Scan");
 
 	responseCurve.response = new TGraphErrors();
 	responseCurve.responsePE = new TGraphErrors();
@@ -60,6 +75,7 @@ daqMC::daqMC() : sipm(0), photonSource(0)
 	responseCurve.responseCT = new TGraphErrors();
 	responseCurve.responseEN = new TGraphErrors();
 	responseCurve.responseENF = new TGraphErrors();
+
 	responseCurve.resolution = new TGraphErrors();
 	responseCurve.resolutionPE = new TGraphErrors();
 	responseCurve.resolutionDR = new TGraphErrors();
@@ -68,15 +84,13 @@ daqMC::daqMC() : sipm(0), photonSource(0)
 	responseCurve.resolutionEN = new TGraphErrors();
 	responseCurve.resolutionENF = new TGraphErrors();
 
-	//   sipm = new sipmMC();
-	//   photonSource = new PhotonSource();
+	legend = NULL;
+	legend2 = NULL;
 }
 
 
 daqMC::~daqMC()
 {
-	delete sipm;
-	delete photonSource;
 	delete h_pe;
 	delete h_dr;
 	delete h_xt;
@@ -98,14 +112,14 @@ bool daqMC::Check()
 {
 	if(sipm && photonSource) return true;
 	else if (!sipm){ cout << "No SiPM loaded!" << endl; return false; }
-	else if (!photonSource){ cout << "No PhotonSource loaded!" << endl; false; }
+	else if (!photonSource){ cout << "No PhotonSource loaded!" << endl; return false; }
 }
 
 
 void daqMC::Statistic( int N )
 {
 
-	if(!Check());
+	if(!Check()) return;
 
 	h_pe->Reset("M");
 	h_dr->Reset("M");
@@ -157,6 +171,15 @@ void daqMC::Statistic( int N )
 	h_xt->Draw("HIST E0 SAME");
 	h_ap->Draw("HIST E0 SAME");
 
+	///draw legend
+	if(legend!=0) delete legend;
+	legend = new TLegend(0.65,0.65,0.85,0.85);
+	legend->AddEntry(h_pe,"PE");
+	legend->AddEntry(h_dr,"DR");
+	legend->AddEntry(h_xt,"CT");
+	legend->AddEntry(h_ap,"AP");
+
+	legend->Draw();
 }
 
 
@@ -281,9 +304,11 @@ TH1D* daqMC::TDCSpectrum( int N )
 }
 
 
-TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, double tstep )
+TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tstep )
 {
 
+	g_threshScan->Set(0);
+	
 	photonSource->SetNgamma(0);
 	sipm->SetGate(gate);
 
@@ -293,8 +318,8 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 	const int N = 10000;//(tstop-tstart)/tstep+1;
 
 	double thresh;
-	double V[N]={0}, count[N]={0};
-	double V_err[N]={0}, count_err[N]={0};
+	double counts;
+	double rate;
 	double tlast[N]={0};
 
 	sipm->Generate(empty);
@@ -436,8 +461,11 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 				}
 			}
 		}
-		count[n]=on.size()-1;
-		V[n]=thresh;
+		counts = on.size();
+		rate = counts/gate*1e9;
+		
+		g_threshScan->SetPoint(n,thresh,rate);
+		
 		n++;
 	}
 
@@ -451,10 +479,11 @@ TGraphErrors* daqMC::ThreshScan( double gate, double tstart, double tstop, doubl
 
 	//----------------------------------------------------------------------------//
 
-	g_threshScan = new TGraphErrors(n,V,count,V_err,count_err);
-
-	g_threshScan->SetTitle("Threshold Scan");
 	g_threshScan->Draw("ALP");
+
+	g_threshScan->GetXaxis()->SetTitle("Threshold [mV]");
+	g_threshScan->GetYaxis()->SetTitle("Count Rate [Hz]");
+
 	//   g_waveform->Draw();
 	//   h->Draw("SAME");
 	//   h->SetLineColor(2);
@@ -679,6 +708,10 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	responseCurve.response->SetTitle("Response");
 	responseCurve.response->Draw("ALP");
 
+	responseCurve.response->GetXaxis()->SetTitle("Number of Photons");
+	responseCurve.response->GetYaxis()->SetTitle("Signal Charge");
+
+
 	responseCurve.responsePE->SetMarkerStyle(20);
 	responseCurve.responsePE->SetLineColor(4);
 	responseCurve.responsePE->SetMarkerColor(4);
@@ -710,6 +743,21 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	responseCurve.responseEN->SetTitle("EN");
 	responseCurve.responseEN->Draw("SAMELP");
 
+	
+	///draw legend
+	if(legend!=0) delete legend;
+	legend = new TLegend(0.15,0.55,0.35,0.85);
+	legend->AddEntry(responseCurve.response,"Total");
+	legend->AddEntry(responseCurve.responsePE,"PE");
+	legend->AddEntry(responseCurve.responseDR,"DR");
+	legend->AddEntry(responseCurve.responseCT,"CT");
+	legend->AddEntry(responseCurve.responseAP,"AP");
+	legend->AddEntry(responseCurve.responseENF,"ENF");
+	legend->AddEntry(responseCurve.responseEN,"EN");
+
+	legend->Draw();
+
+
 	//   TF1 *fit = new TF1("fit","[0]*(1-TMath::Exp(-x*[1]/[0]))+[2]",0,Ngamma_max);
 	//   fit->SetParameters(sipm->GetNpix(),sipm->PDE,1);
 	//   g_Response->Fit("fit","M","",0,Ngamma_max);
@@ -727,6 +775,10 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	responseCurve.resolution->SetMarkerStyle(20);
 	responseCurve.resolution->SetTitle("Resolution");
 	responseCurve.resolution->Draw("ALP");
+
+	responseCurve.resolution->GetXaxis()->SetTitle("Number of Photons");
+	responseCurve.resolution->GetYaxis()->SetTitle("Signal Charge RMS");
+
 
 	responseCurve.resolutionPE->SetMarkerStyle(20);
 	responseCurve.resolutionPE->SetLineColor(4);
@@ -758,6 +810,21 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	responseCurve.resolutionEN->SetMarkerColor(7);
 	responseCurve.resolutionEN->SetTitle("EN");
 	responseCurve.resolutionEN->Draw("SAMELP");
+
+	
+	///draw legend
+	if(legend2!=0) delete legend2;
+	legend2 = new TLegend(0.15,0.55,0.35,0.85);
+	legend2->AddEntry(responseCurve.resolution,"Total");
+	legend2->AddEntry(responseCurve.resolutionPE,"PE");
+	legend2->AddEntry(responseCurve.resolutionDR,"DR");
+	legend2->AddEntry(responseCurve.resolutionCT,"CT");
+	legend2->AddEntry(responseCurve.resolutionAP,"AP");
+	legend2->AddEntry(responseCurve.resolutionENF,"ENF");
+	legend2->AddEntry(responseCurve.resolutionEN,"EN");
+
+	legend2->Draw();
+
 
 	SetQDCChannels(nQDC_temp);
 
