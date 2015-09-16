@@ -705,41 +705,51 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	responseCurve.resolutionEN->Set(Npoints);
 
 	responseCurve.response->SetMarkerStyle(20);
+	responseCurve.response->SetLineColor(1);
+	responseCurve.response->SetMarkerColor(1);
+	responseCurve.response->SetFillColor(0);
 	responseCurve.response->SetTitle("Response");
 	responseCurve.response->Draw("ALP");
 
 	responseCurve.response->GetXaxis()->SetTitle("Number of Photons");
-	responseCurve.response->GetYaxis()->SetTitle("Signal Charge");
+	responseCurve.response->GetYaxis()->SetTitle("Number of Fired Pixels");
 
 
 	responseCurve.responsePE->SetMarkerStyle(20);
 	responseCurve.responsePE->SetLineColor(4);
 	responseCurve.responsePE->SetMarkerColor(4);
+	responseCurve.responsePE->SetFillColor(0);
 	responseCurve.responsePE->SetTitle("PE");
 	responseCurve.responsePE->Draw("SAMELP");
 	responseCurve.responseDR->SetMarkerStyle(20);
 	responseCurve.responseDR->SetLineColor(3);
 	responseCurve.responseDR->SetMarkerColor(3);
+	responseCurve.responseDR->SetFillColor(0);
 	responseCurve.responseDR->SetTitle("DR");
 	responseCurve.responseDR->Draw("SAMELP");
 	responseCurve.responseCT->SetMarkerStyle(20);
 	responseCurve.responseCT->SetLineColor(5);
 	responseCurve.responseCT->SetMarkerColor(5);
+	responseCurve.responseCT->SetFillColor(0);
 	responseCurve.responseCT->SetTitle("CT");
 	responseCurve.responseCT->Draw("SAMELP");
 	responseCurve.responseAP->SetMarkerStyle(20);
 	responseCurve.responseAP->SetLineColor(2);
 	responseCurve.responseAP->SetMarkerColor(2);
+	responseCurve.responseAP->SetFillColor(0);
 	responseCurve.responseAP->SetTitle("AP");
 	responseCurve.responseAP->Draw("SAMELP");
 	responseCurve.responseENF->SetMarkerStyle(20);
 	responseCurve.responseENF->SetLineColor(6);
 	responseCurve.responseENF->SetMarkerColor(6);
+	responseCurve.responseENF->SetFillColor(0);
 	responseCurve.responseENF->SetTitle("ENF");
 	responseCurve.responseENF->Draw("SAMELP");
 	responseCurve.responseEN->SetMarkerStyle(20);
 	responseCurve.responseEN->SetLineColor(7);
 	responseCurve.responseEN->SetMarkerColor(7);
+	responseCurve.responseEN->SetLineColor(7);
+	responseCurve.responseEN->SetFillColor(0);
 	responseCurve.responseEN->SetTitle("EN");
 	responseCurve.responseEN->Draw("SAMELP");
 
@@ -773,41 +783,50 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	TCanvas *cc2 = new TCanvas("cc2","cc2",750,0,700,500);
 
 	responseCurve.resolution->SetMarkerStyle(20);
+	responseCurve.resolution->SetLineColor(1);
+	responseCurve.resolution->SetMarkerColor(1);
+	responseCurve.resolution->SetFillColor(0);
 	responseCurve.resolution->SetTitle("Resolution");
 	responseCurve.resolution->Draw("ALP");
 
 	responseCurve.resolution->GetXaxis()->SetTitle("Number of Photons");
-	responseCurve.resolution->GetYaxis()->SetTitle("Signal Charge RMS");
+	responseCurve.resolution->GetYaxis()->SetTitle("Number of Fired Pixels RMS");
 
 
 	responseCurve.resolutionPE->SetMarkerStyle(20);
 	responseCurve.resolutionPE->SetLineColor(4);
 	responseCurve.resolutionPE->SetMarkerColor(4);
+	responseCurve.resolutionPE->SetFillColor(0);
 	responseCurve.resolutionPE->SetTitle("PE");
 	responseCurve.resolutionPE->Draw("SAMELP");
 	responseCurve.resolutionDR->SetMarkerStyle(20);
 	responseCurve.resolutionDR->SetLineColor(3);
 	responseCurve.resolutionDR->SetMarkerColor(3);
+	responseCurve.resolutionDR->SetFillColor(0);
 	responseCurve.resolutionDR->SetTitle("DR");
 	responseCurve.resolutionDR->Draw("SAMELP");
 	responseCurve.resolutionCT->SetMarkerStyle(20);
 	responseCurve.resolutionCT->SetLineColor(5);
 	responseCurve.resolutionCT->SetMarkerColor(5);
+	responseCurve.resolutionCT->SetFillColor(0);
 	responseCurve.resolutionCT->SetTitle("CT");
 	responseCurve.resolutionCT->Draw("SAMELP");
 	responseCurve.resolutionAP->SetMarkerStyle(20);
 	responseCurve.resolutionAP->SetLineColor(2);
 	responseCurve.resolutionAP->SetMarkerColor(2);
+	responseCurve.resolutionAP->SetFillColor(0);
 	responseCurve.resolutionAP->SetTitle("AP");
 	responseCurve.resolutionAP->Draw("SAMELP");
 	responseCurve.resolutionENF->SetMarkerStyle(20);
 	responseCurve.resolutionENF->SetLineColor(6);
 	responseCurve.resolutionENF->SetMarkerColor(6);
+	responseCurve.resolutionENF->SetFillColor(0);
 	responseCurve.resolutionENF->SetTitle("ENF");
 	responseCurve.resolutionENF->Draw("SAMELP");
 	responseCurve.resolutionEN->SetMarkerStyle(20);
 	responseCurve.resolutionEN->SetLineColor(7);
 	responseCurve.resolutionEN->SetMarkerColor(7);
+	responseCurve.resolutionEN->SetFillColor(0);
 	responseCurve.resolutionEN->SetTitle("EN");
 	responseCurve.resolutionEN->Draw("SAMELP");
 

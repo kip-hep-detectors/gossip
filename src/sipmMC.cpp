@@ -10,6 +10,7 @@
 #include <ctime>
 #include <sys/time.h>
 
+using namespace std;
 
 Double_t GPulseShape(Double_t *x, Double_t *par)
 {
@@ -54,7 +55,7 @@ sipmMC::sipmMC()
 	jitter	= 0.25;
 
 	timeval time;
-	gettimeofday(&time,NULL);    
+	gettimeofday(&time,NULL);
 	r.SetSeed(time.tv_usec);
 
 	hitMatrix = new HitMatrix();
@@ -404,7 +405,7 @@ double sipmMC::Generate( PhotonList photons )
 	{
 		Pxt=0;
 		cout << "ERROR: Pxt not in between 0 and 1. Set Pxt to 0!" << endl;
-	}  
+	}
 	if(ENF<0)
 	{
 		ENF=0;
@@ -466,7 +467,7 @@ double sipmMC::Generate( PhotonList photons )
 	double q = (1-TMath::Power(1-Pxt,0.25));
 
 	for(int i=0;i<hitMatrix->nHits();i++)
-	{    
+	{
 		hit.clear();
 		hit=hitMatrix->GetHit(i);
 		int x=hit[X];

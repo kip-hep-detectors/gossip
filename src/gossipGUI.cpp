@@ -17,6 +17,7 @@
 
 ClassImp (gossipGUI);
 
+using namespace std;
 
 gossipGUI::gossipGUI()
 {
@@ -66,17 +67,17 @@ void gossipGUI::BuildSiPMFrame( TGFrame *parentFrame )
 
 	entryGain = new TGNumberEntry(parametersEntriesFrame,20,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
 	parametersEntriesFrame->AddFrame(entryGain, layout1);
-	labelGain = new TGLabel(parametersLabelsFrame,"Gain");
+	labelGain = new TGLabel(parametersLabelsFrame,"Gain [1E4]");
 	parametersLabelsFrame->AddFrame(labelGain, layout2);
 
 	entryENF = new TGNumberEntry(parametersEntriesFrame,2,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
 	parametersEntriesFrame->AddFrame(entryENF, layout1);
-	labelENF = new TGLabel(parametersLabelsFrame,"Gain fluct.");
+	labelENF = new TGLabel(parametersLabelsFrame,"Gain fluct. [1E4]");
 	parametersLabelsFrame->AddFrame(labelENF, layout2);
 
 	entryTau_dr = new TGNumberEntry(parametersEntriesFrame,2000,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELNoLimits);
 	parametersEntriesFrame->AddFrame(entryTau_dr, layout1);
-	labelTau_dr = new TGLabel(parametersLabelsFrame,"DR time-const.. [ns]");
+	labelTau_dr = new TGLabel(parametersLabelsFrame,"DR time-const. [ns]");
 	parametersLabelsFrame->AddFrame(labelTau_dr, layout2);
 
 	entryPap1 = new TGNumberEntry(parametersEntriesFrame,10,6,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELLimitMinMax,0,100);
@@ -349,7 +350,7 @@ void gossipGUI::BuildDAQFrame( TGFrame *parentFrame )
 	labelNgammaMax = new TGLabel(parametersLabelsFrame,"nPhotons max.");
 	parametersLabelsFrame->AddFrame(labelNgammaMax, layout2);
 
-	entryNgammaStep = new TGNumberEntry(parametersEntriesFrame,10,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
+	entryNgammaStep = new TGNumberEntry(parametersEntriesFrame,50,8,-1,TGNumberFormat::kNESRealOne,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELNoLimits);
 	parametersEntriesFrame->AddFrame(entryNgammaStep, layout1);
 	labelNgammaStep = new TGLabel(parametersLabelsFrame,"nPhotons step");
 	parametersLabelsFrame->AddFrame(labelNgammaStep, layout2);
@@ -709,7 +710,7 @@ void gossipGUI::SelectMeasurement( int meas )
 		entryLEDxWidth->SetState(true);
 		entryLEDyWidth->SetState(true);
 
-		entryNentries->SetNumber(10000);
+		entryNentries->SetNumber(1000);
 	}
 }
 
