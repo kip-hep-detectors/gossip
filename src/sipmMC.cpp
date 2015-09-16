@@ -301,7 +301,7 @@ void sipmMC::UpdatePulseShape()
 	for(int i=0;i<pulse_shape_func_range/sampling;i++)
 	{
 		double ftime = i*sampling;
-		double fcharge = f_pulse_shape->Integral(0,ftime,(const double*)0,1e-3);
+		double fcharge = f_pulse_shape->Integral(0,ftime);
 		g_pulse_charge.SetPoint(g_pulse_charge.GetN(),ftime,fcharge);
 
 		if(fabs(fcharge-flast_charge)<1e-3 && i>0)

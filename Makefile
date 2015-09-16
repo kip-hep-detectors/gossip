@@ -14,9 +14,8 @@ all: Dict.cpp Dict.o HitMatrix.o PhotonList.o PhotonSource.o sipmMC.o daqMC.o go
 Dict.cpp: $(gossip)/include/HitMatrix.h $(gossip)/include/PhotonList.h $(gossip)/include/PhotonSource.h $(gossip)/include/sipmMC.h $(gossip)/include/daqMC.h $(gossip)/include/gossipGUI.h $(gossip)/include/LinkDef.h
 	@echo "Generating Dictionary $@..."
 	@rootcint -f src/$@ -c $^
-	mv src/Dict.h include
 
-Dict.o: src/Dict.cpp include/Dict.h
+Dict.o: src/Dict.cpp
 	@echo "Compiling $< ..."
 	@$(CC) -fPIC $(INC) $(ROOTCFLAGS) -c src/Dict.cpp $(ROOTGLIBS)
 	mv $@ lib
@@ -61,7 +60,7 @@ gossip: main.cpp
 
 
 clean:
-	@rm -f src/Dict.cpp include/Dict.h lib/Dict.o lib/HitMatrix.o lib/PhotonList.o lib/PhotonSource.o lib/sipmMC.o lib/daqMC.o lib/gossipGUI.o lib/libGossip.so gossip
+	@rm -f src/Dict.cpp src/Dict_rdict.pcm lib/Dict.o lib/HitMatrix.o lib/PhotonList.o lib/PhotonSource.o lib/sipmMC.o lib/daqMC.o lib/gossipGUI.o lib/libGossip.so gossip
 
 
 
