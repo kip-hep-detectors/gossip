@@ -275,6 +275,7 @@ void sipmMC::SetPulseShape( TF1* pulse_shape )
 
 void sipmMC::UpdatePulseShape()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipm::UpdatePulseShape()" << endl;
 	//   cout << "Calculating pulse charge..." << endl;
 
 	g_pulse_charge.Set(0);
@@ -301,7 +302,7 @@ void sipmMC::UpdatePulseShape()
 	for(int i=0;i<pulse_shape_func_range/sampling;i++)
 	{
 		double ftime = i*sampling;
-		double fcharge = f_pulse_shape->Integral(0,ftime);
+		double fcharge = f_pulse_shape->Integral(0,ftime,1e-3);
 		g_pulse_charge.SetPoint(g_pulse_charge.GetN(),ftime,fcharge);
 
 		if(fabs(fcharge-flast_charge)<1e-3 && i>0)
@@ -311,7 +312,6 @@ void sipmMC::UpdatePulseShape()
 		}
 		flast_charge = fcharge;
 	}
-
 
 	///normalize to 1
 	double *x = g_pulse_charge.GetX();
@@ -360,9 +360,12 @@ void sipmMC::InitHitMatrix()
 
 double sipmMC::Generate( PhotonList photons )
 {
+
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipm::Generate()" << endl;
+
 	Reset();
-	ImportPhotons(photons);				//Übersetzte Potonen aus PhotonList auf Pixelbasis
-	InitHitMatrix();					//Geben Parameter an HitMatrix weiter
+	ImportPhotons(photons);					//Translate photons from PhotonList to pixel basis
+	InitHitMatrix();					//Pass parameters to HitMatrix class
 	if(update_pulse_shape==true) UpdatePulseShape();	//Calculate pulse shape parameters if something has changes
 
 
@@ -578,6 +581,8 @@ double sipmMC::Generate( PhotonList photons )
 
 TGraph* sipmMC::GetWaveform()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetWaveform()" << endl;
+
 	//reset g_waveform
 	g_waveform->Set(0);
 

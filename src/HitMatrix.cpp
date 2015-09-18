@@ -25,7 +25,6 @@ void HitMatrix::Init()
 		delete c_hitMatrix;
 		c_hitMatrix = NULL;
 	}
-
 }
 
 
@@ -215,6 +214,7 @@ TH2D* HitMatrix::DrawMatrix()
 	c_hitMatrix->SetGridy();
 	h_hits->Draw("colz");
 
+	c_hitMatrix->Modified();
 	c_hitMatrix->Update();
 
 	return h_hits;
