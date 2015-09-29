@@ -18,7 +18,7 @@ void PhotonList::AddPhoton( double x, double y, double time, double wavelength )
 
 void PhotonList::AddPhotonList( PhotonList photonList )
 {
-	for(int i=0;i<photonList.size();i++)
+	for(unsigned int i=0;i<photonList.size();i++)
 	{
 		photon.clear();
 		photon = photonList.at(i);

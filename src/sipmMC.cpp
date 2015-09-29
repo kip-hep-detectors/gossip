@@ -105,7 +105,7 @@ void sipmMC::GetParaFile( const char* filename )
 	string para, pm, dump;
 	ifstream in(filename);
 
-	double tau1F, tau2F, gateF;
+	double tau1F, tau2F;
 
 	while(1)
 	{
@@ -187,7 +187,7 @@ void sipmMC::SetSpectralSensitivity( TGraph* sensitivity )
 
 void sipmMC::SetSpectralSensitivity( const char* file )
 {
-	g_spectral = new TGraph("file");
+	g_spectral = new TGraph(file);
 }
 
 
@@ -314,7 +314,7 @@ void sipmMC::UpdatePulseShape()
 	}
 
 	///normalize to 1
-	double *x = g_pulse_charge.GetX();
+	//double *x = g_pulse_charge.GetX();
 	double *y = g_pulse_charge.GetY();
 
 	for(int i=0;i<g_pulse_charge.GetN();i++)
