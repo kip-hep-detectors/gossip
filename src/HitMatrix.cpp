@@ -1,4 +1,5 @@
 #include "HitMatrix.h"
+#include "TROOT.h"
 #include <stdio.h>
 
 
@@ -11,21 +12,12 @@ HitMatrix::HitMatrix()
 	h_geometry = new TH2I("h_geometry","h_geometry",10,0,10,10,0,10);
 	h_hits = new TH2D();
 	h_hits->SetNameTitle("HitMatrix","HitMatrix");
-
-	c_hitMatrix = NULL;
 }
 
 
 void HitMatrix::Init()
 {
 	this->clear();
-
-	if(c_hitMatrix!=NULL)
-	{
-		delete c_hitMatrix;
-		c_hitMatrix = NULL;
-	}
-
 }
 
 
@@ -193,7 +185,13 @@ int HitMatrix::nHits()
 
 TH2D* HitMatrix::DrawMatrix()
 {
-	c_hitMatrix = new TCanvas("HitMatrix","HitMatrix",700,0,400,400);
+
+	//Build canvas if neccessary
+	c_hitMatrix= (TCanvas*)gROOT->FindObject("c_HitMatrix");
+	if(c_hitMatrix==0) c_hitMatrix = new TCanvas("c_HitMatrix","c_HitMatrix",700,0,400,400);
+
+	c_hitMatrix->cd();
+
 	h_hits->Reset("M");
 	h_hits->SetBins(Nx,0,Nx,Ny,0,Ny);
 	unsigned int i;
@@ -215,6 +213,7 @@ TH2D* HitMatrix::DrawMatrix()
 	c_hitMatrix->SetGridy();
 	h_hits->Draw("colz");
 
+	c_hitMatrix->Modified();
 	c_hitMatrix->Update();
 
 	return h_hits;

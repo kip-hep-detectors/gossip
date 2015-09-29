@@ -64,7 +64,7 @@ daqMC::daqMC() : sipm(0), photonSource(0)
 	h_ap->SetFillColor(0);
 	h_ap->GetXaxis()->SetTitle("Fired Pixels");
 	h_ap->GetYaxis()->SetTitle("# Entries");
-	
+
 	g_threshScan = new TGraph();
 	g_threshScan->SetTitle("Threshold Scan");
 
@@ -113,6 +113,7 @@ bool daqMC::Check()
 	if(sipm && photonSource) return true;
 	else if (!sipm){ cout << "No SiPM loaded!" << endl; return false; }
 	else if (!photonSource){ cout << "No PhotonSource loaded!" << endl; return false; }
+	else return false;
 }
 
 
@@ -151,7 +152,7 @@ void daqMC::Statistic( int N )
 		if(npe>=max) max=npe;
 		if(ndr>=max) max=ndr;
 		if(nxt>=max) max=nxt;
-		if(nap>=max) max=nap; 
+		if(nap>=max) max=nap;
 	}
 
 	h_pe->SetBins(max,0,max);
@@ -254,13 +255,13 @@ TH1D* daqMC::TDCSpectrum( int N )
 	//   Float_t tpfitstart = 2000;
 	//   Float_t fitstart = 100;
 	//   Float_t fitstop = 1000;
-	//   
+	//
 	//   Int_t const n = 2.6e6;
-	//   
+	//
 	//   ///fitte termische pulse
 	//   TF1 *fittp = new TF1("fittp",tpTDCspec,0,n*0.025,2);
 	//   fittp->SetParameters(1e7,1e3);
-	//   
+	//
 	//   //finde rechte fitgrenze
 	//   Int_t tpstop = tpfitstart;
 	//   while(1)
@@ -268,16 +269,16 @@ TH1D* daqMC::TDCSpectrum( int N )
 	//     if(h_TDC->GetBinContent(tpstop)<10) break;
 	//     tpstop=tpstop+1;
 	//   }
-	//   
+	//
 	//   //fitte
 	//   h_TDC->Fit("fittp","M0","",tpfitstart,tpstop);
-	//   
+	//
 	//   Double_t A3 = fittp->GetParameter(0);
 	//   Double_t tau3 = fittp->GetParameter(1);
 	//   Double_t A3_err = fittp->GetParError(0);
 	//   Double_t tau3_err = fittp->GetParError(1);
-	//   
-	//   
+	//
+	//
 	//   //fitte afterpulse
 	//   TF1 *fit = new TF1("fit",drTDCspec2,fitstart,n*0.025,6);
 	//   fit->SetParNames("N","APslow","APfast","tauDR","tauSlow","taufast");
@@ -290,14 +291,14 @@ TH1D* daqMC::TDCSpectrum( int N )
 	//   fit->SetParLimits(4,100,1e4);
 	//   fit->SetParLimits(5,0,100);
 	//   fit->FixParameter(3,tau3);
-	//   
+	//
 	//   fit->SetLineColor(2);
-	//   
+	//
 	//   h_TDC->Fit("fit","M0","",fitstart,fitstop);
 	//   Double_t chi2 = fit->GetChisquare();
 	//   Double_t ndf = fit->GetNDF();
 	//   cout << "Reduced ChiSquare: " << chi2 << " / " << ndf << " = " << chi2/ndf << endl;
-	//   
+	//
 	//   fit->Draw("SAME");
 
 	return h_TDC;
@@ -308,19 +309,19 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 {
 
 	g_threshScan->Set(0);
-	
+
 	photonSource->SetNgamma(0);
 	sipm->SetGate(gate);
 
 	PhotonList empty = photonSource->GeneratePhotons();
 
 	int nthresh = (tstop-tstart)/tstep+1;
-	const int N = 10000;//(tstop-tstart)/tstep+1;
+	//const int N = 10000;//(tstop-tstart)/tstep+1;
 
 	double thresh;
 	double counts;
 	double rate;
-	double tlast[N]={0};
+	//double tlast[N]={0};
 
 	sipm->Generate(empty);
 	TGraph *g_waveform = sipm->GetWaveform();
@@ -328,13 +329,13 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 
 	//   int imax = sipm->GetPulseShape()->GetMaximumBin();
 
-	double *wf_x = g_waveform->GetX();
+	//double *wf_x = g_waveform->GetX();
 	double *wf_y = g_waveform->GetY();
 
 	int nbins = g_waveform->GetN();
 	double sampling = sipm->GetSampling();
-	double tmin = wf_x[0];
-	double tmax = wf_x[g_waveform->GetN()-1];
+	//double tmin = wf_x[0];
+	//double tmax = wf_x[g_waveform->GetN()-1];
 
 	int n;
 
@@ -344,12 +345,12 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 	//   {
 	//     if(cancel==true) break;
 	//     Progress(100*i/hitMatrix->nHits());
-	//     
+	//
 	//     hit.clear();
 	//     hit=hitMatrix->GetHit(i);
-	// 
+	//
 	//     double amp = wf_y[hit[TIME]/sampling+imax];
-	// 
+	//
 	//     n=0;
 	//     for(thresh=tstart;thresh<=tstop;thresh+=tstep)
 	//     {
@@ -368,18 +369,18 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 	//   bool on[N]={0};
 	//   double toff[N]={0};
 	//   double ton[N]={0};
-	//   
+	//
 	//   TH1D *h = new TH1D("h","h",nbins,0,nbins*sampling);
-	//   
+	//
 	//   for(int i=0;i<nbins;i++)
 	//   {
 	//     if(cancel==true) break;
-	// 
+	//
 	//     if(i%(nbins/100)==0) Progress(i/(nbins/100));
-	//     
+	//
 	//     double amp = wf_y[i];
 	//     double time = wf_x[i];
-	//     
+	//
 	//     n=0;
 	//     for(thresh=tstart;thresh<=tstop;thresh+=tstep)
 	//     {
@@ -400,7 +401,7 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 	//     }
 	//   }
 
-	//----------------------------------------------------------------------------//  
+	//----------------------------------------------------------------------------//
 
 	//   for(int i=0;i<n;i++)
 	//   {
@@ -411,10 +412,10 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 	//----------------------------------------------------------------------------//
 
 	vector<int> on, off;
-	double toff[N]={0};
-	double ton[N]={0};
+	//double toff[N]={0};
+	//double ton[N]={0};
 
-	TH1D *h = new TH1D("h","h",nbins,0,nbins*sampling);
+	//TH1D *h = new TH1D("h","h",nbins,0,nbins*sampling);
 
 	n=0;
 	for(thresh=tstart;thresh<=tstop;thresh+=tstep)
@@ -426,7 +427,7 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 		for(int i=0;i<nbins;i++)
 		{
 			double amp = wf_y[i];
-			double time = wf_x[i];
+			//double time = wf_x[i];
 
 			if(i==0)
 			{
@@ -463,9 +464,9 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 		}
 		counts = on.size();
 		rate = counts/gate*1e9;
-		
+
 		g_threshScan->SetPoint(n,thresh,rate);
-		
+
 		n++;
 	}
 
@@ -566,7 +567,7 @@ TGraph* daqMC::Discriminator( TGraph* g_waveform, double threshold )
 				on=false;
 			}
 			else h_discri->SetBinContent(i,threshold);
-		}    
+		}
 	}
 
 	h_discri->SetLineColor(2);
@@ -590,9 +591,9 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 		Ntot+=Ngamma_max/Npoints*i;
 	}
 
-	const int Np = 100000;
+	//const int Np = 100000;
 
-	double Ngamma=0, Mean=0, Mean_err=0, RMS=0, RMS_err=0, Sigma=0;
+	double Ngamma=0, Mean=0, Mean_err=0, RMS=0, RMS_err=0;
 
 	for(int i=0; i<Npoints; i++)
 	{
@@ -753,7 +754,7 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	responseCurve.responseEN->SetTitle("EN");
 	responseCurve.responseEN->Draw("SAMELP");
 
-	
+
 	///draw legend
 	if(legend!=0) delete legend;
 	legend = new TLegend(0.15,0.55,0.35,0.85);
@@ -830,7 +831,7 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	responseCurve.resolutionEN->SetTitle("EN");
 	responseCurve.resolutionEN->Draw("SAMELP");
 
-	
+
 	///draw legend
 	if(legend2!=0) delete legend2;
 	legend2 = new TLegend(0.15,0.55,0.35,0.85);
@@ -843,6 +844,8 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 	legend2->AddEntry(responseCurve.resolutionEN,"EN");
 
 	legend2->Draw();
+
+	cc2->Update();
 
 
 	SetQDCChannels(nQDC_temp);
