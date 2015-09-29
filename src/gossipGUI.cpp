@@ -50,7 +50,7 @@ void gossipGUI::BuildSiPMFrame( TGFrame *parentFrame )
 
 	sipmFrame = new TGCompositeFrame(parentFrame, 60, 20, kHorizontalFrame);
 
-	///parameters
+	///Parameters
 	TGGroupFrame *parameterGroupFrame = new TGGroupFrame(sipmFrame, "Parameters", kHorizontalFrame);
 	sipmFrame->AddFrame(parameterGroupFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2));
 
@@ -115,7 +115,7 @@ void gossipGUI::BuildSiPMFrame( TGFrame *parentFrame )
 	labelTau_rec = new TGLabel(parametersLabelsFrame,"Recovery time [ns]");
 	parametersLabelsFrame->AddFrame(labelTau_rec, layout2);
 
-	///single pixel waveform
+	///Single pixel waveform
 	TGGroupFrame *waveformGroupFrame = new TGGroupFrame(sipmFrame, "Single Pixel Waveform", kHorizontalFrame);
 	sipmFrame->AddFrame(waveformGroupFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2));
 
@@ -161,7 +161,7 @@ void gossipGUI::BuildSiPMFrame( TGFrame *parentFrame )
 	waveformLabelsFrame->AddFrame(labelCutoff, layout2);
 
 
-	///geometry
+	///Geometry
 	TGGroupFrame *geometryGroupFrame = new TGGroupFrame(sipmFrame, "Geometry", kHorizontalFrame);
 	sipmFrame->AddFrame(geometryGroupFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2));
 
@@ -431,6 +431,11 @@ void gossipGUI::onTabSwitch( int selected )
 void gossipGUI::onRunButtonClicked()
 {
 
+	//Rebuild main canvas if neccessary
+	c_main = (TCanvas*)gROOT->FindObject("c_main");
+	if(c_main==0) c_main = new TCanvas("c_main","c_main",0,0,700,500);
+	c_main->cd();
+
 	loadFrame->MapWindow();
 
 	int x,y;
@@ -521,7 +526,7 @@ void gossipGUI::onCancelButtonClicked()
 
 void gossipGUI::SetParameters()
 {
-	//sipm
+	//Sipm
 	sipm->PDE = entryPDE->GetNumber()/100.0;
 	sipm->tau_dr = entryTau_dr->GetNumber();
 	sipm->Pap_s = entryPap1->GetNumber()/100.0;
@@ -546,7 +551,7 @@ void gossipGUI::SetParameters()
 
 	sipm->SetGeometry("square");
 
-	//photon Source
+	//Photon Source
 	led->SetNgamma(entryNgamma->GetNumber());
 	led->SetTime(entryLEDtime->GetNumber());
 	led->SetTimeWidth(entryLEDduration->GetNumber());
@@ -560,7 +565,7 @@ void gossipGUI::SetParameters()
 	if(comboBoxLEDpulse->GetSelected()==4) led->SetPulse("exp2");
 	led->SetFluctuation(checkButtonPhotonFluct->IsOn());
 
-	//daq
+	//Daq
 	sipm->SetGate(entryGate->GetNumber());
 	sipm->SetPreGate(entryPreGate->GetNumber());
 	daq->SetPedestal(entryPedestal->GetNumber());
