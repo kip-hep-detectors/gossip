@@ -39,7 +39,7 @@ set_target_properties(gossip_lib PROPERTIES OUTPUT_NAME gossip)
 target_link_libraries(gossip_lib ${ROOT_GUI_LIBRARIES})
 
 # build the executable
-add_executable(gossip_exe main.cpp)
+add_executable(gossip_exe gossip.cpp)
 set_target_properties(gossip_exe PROPERTIES OUTPUT_NAME gossip)
 target_link_libraries(gossip_exe gossip_lib ${ROOT_GUI_LIBRARIES} Gui GX11 GX11TTF ASImage Rint Core Hist HistPainter)
 
