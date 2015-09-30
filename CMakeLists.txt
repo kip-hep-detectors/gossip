@@ -16,7 +16,7 @@ include(${ROOT_USE_FILE})
 
 include_directories(${ROOT_INCLUDE_DIRS} ${gossip_SOURCE_DIR}/include)
 
-#set(gossip_VERSION 1.25)
+#set(gossip_VERSION 1.30)
 set(gossip_lib_SOURCES ${gossip_SOURCE_DIR}/src/daqMC.cpp
 	${gossip_SOURCE_DIR}/src/gossipGUI.cpp
 	${gossip_SOURCE_DIR}/src/HitMatrix.cpp
