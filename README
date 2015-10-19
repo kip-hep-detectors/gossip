@@ -1,0 +1,17 @@
+***INSTALLATION ON LINUX***
+
+**Create a build directory:
+"mkdir build"
+"cd build"
+
+**Run cmake:
+"cmake .."
+"make"
+"sudo make install"
+
+**You're ready to go:
+"gossip" or "gossip 'your_sipm_parameter_file'"
+
+
+***UNINSTALL***
+"sudo make uninstall"
