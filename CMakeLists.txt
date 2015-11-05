@@ -48,12 +48,12 @@ root_generate_dictionary(Dict ${gossip_lib_HEADERS} LINKDEF ${gossip_SOURCE_DIR}
 # build the library
 add_library(gossip_lib SHARED ${gossip_lib_SOURCES} Dict.cxx)
 set_target_properties(gossip_lib PROPERTIES OUTPUT_NAME gossip)
-target_link_libraries(gossip_lib ${ROOT_GUI_LIBRARIES})
+target_link_libraries(gossip_lib ${ROOT_LIBRARIES} Gui GX11 GX11TTF ASImage Rint Core Hist HistPainter)
 
 # build the executable
 add_executable(gossip_exe gossip.cpp)
 set_target_properties(gossip_exe PROPERTIES OUTPUT_NAME gossip)
-target_link_libraries(gossip_exe gossip_lib ${ROOT_GUI_LIBRARIES} Gui GX11 GX11TTF ASImage Rint Core Hist HistPainter)
+target_link_libraries(gossip_exe gossip_lib ${ROOT_LIBRARIES})
 
 # install target
 install(FILES ${gossip_lib_HEADERS} DESTINATION include)
