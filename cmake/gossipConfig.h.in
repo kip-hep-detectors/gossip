@@ -1,0 +1,2 @@
+#define gossip_VERSION_MAJOR @gossip_VERSION_MAJOR@
+#define gossip_VERSION_MINOR @gossip_VERSION_MINOR@
