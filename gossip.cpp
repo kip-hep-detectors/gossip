@@ -28,7 +28,16 @@ int main(int argc,char** argv)
 		switch (iarg)
 		{
 			case 'h':
-				cout << "Help option not implemented yet =)" << endl;
+				cout << endl;
+				cout << "---GosSiP is a framework for the simulation of the response of Silicon Photomultipliers---" << endl;
+				cout << endl;
+				cout << "Usage: gossip [options]" << endl;
+				cout << endl;
+				cout << "Possible options are:" << endl;
+				cout << "\t --help (or -h)\n\t\tOutput this text; GosSiP is not executed." << endl;
+				cout << "\t --version (or -v)\n\t\tOutput the version number of GosSiP; GosSiP is not executed." << endl;
+				cout << "\t --parfile FILE (or -p FILE)\n\t\tStarts GosSiP loading the SiPM parameters from FILE." << endl;
+				cout << endl;
 				return 1;
 
 			case 'v':
