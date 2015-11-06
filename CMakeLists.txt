@@ -20,7 +20,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 set(EXTRA_OPTIONS "-03")
 
 # add CERN ROOT
-find_package(ROOT REQUIRED)
+find_package(ROOT 6 REQUIRED)
 include(${ROOT_USE_FILE})
 
 include_directories(${ROOT_INCLUDE_DIRS} ${gossip_SOURCE_DIR}/include ${gossip_BINARY_DIR}/include)
