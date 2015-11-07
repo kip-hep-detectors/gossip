@@ -20,12 +20,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 set(EXTRA_OPTIONS "-03")
 
 # add CERN ROOT
-find_package(ROOT REQUIRED)
+find_package(ROOT 6 REQUIRED)
 include(${ROOT_USE_FILE})
 
 include_directories(${ROOT_INCLUDE_DIRS} ${gossip_SOURCE_DIR}/include ${gossip_BINARY_DIR}/include)
 
-#set(gossip_VERSION 1.30)
 set(gossip_lib_SOURCES ${gossip_SOURCE_DIR}/src/daqMC.cpp
 	${gossip_SOURCE_DIR}/src/gossipGUI.cpp
 	${gossip_SOURCE_DIR}/src/HitMatrix.cpp
@@ -45,15 +44,19 @@ set(gossip_lib_HEADERS ${gossip_SOURCE_DIR}/include/daqMC.h
 
 root_generate_dictionary(Dict ${gossip_lib_HEADERS} LINKDEF ${gossip_SOURCE_DIR}/include/LinkDef.h)
 
+set(CMAKE_MACOSX_RPATH ON)
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # build the library
 add_library(gossip_lib SHARED ${gossip_lib_SOURCES} Dict.cxx)
 set_target_properties(gossip_lib PROPERTIES OUTPUT_NAME gossip)
-target_link_libraries(gossip_lib ${ROOT_GUI_LIBRARIES})
+target_link_libraries(gossip_lib ${ROOT_LIBRARIES} Gui)
 
 # build the executable
 add_executable(gossip_exe gossip.cpp)
 set_target_properties(gossip_exe PROPERTIES OUTPUT_NAME gossip)
-target_link_libraries(gossip_exe gossip_lib ${ROOT_GUI_LIBRARIES} Gui GX11 GX11TTF ASImage Rint Core Hist HistPainter)
+target_link_libraries(gossip_exe gossip_lib ${ROOT_LIBRARIES} Rint)
 
 # install target
 install(FILES ${gossip_lib_HEADERS} DESTINATION include)
