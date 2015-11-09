@@ -61,3 +61,4 @@ inline void SiPMHit::operator delete(void *aHit)
 }
 
 #endif
+

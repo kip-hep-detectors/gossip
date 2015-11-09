@@ -25,4 +25,3 @@ class Ex01PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
 #endif
 
-

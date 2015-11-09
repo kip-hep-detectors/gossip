@@ -316,3 +316,4 @@ void SiPMMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 		mySiPM->GetGossip()->GetParaFile(newValue.c_str());
 	}
 }
+

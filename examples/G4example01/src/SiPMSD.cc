@@ -142,3 +142,4 @@ void SiPMSD::EndOfEvent(G4HCofThisEvent*)
 
 	n_event++;
 }
+

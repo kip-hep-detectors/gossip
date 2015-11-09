@@ -41,17 +41,17 @@ class SiPM
 		void			BuildSiO2();
 		void			GossipSetup();
 
-		G4double 		coatingWidth;
+		G4double		coatingWidth;
 
 		///sipm
-		G4Box 		*sipm_box;
+		G4Box		*sipm_box;
 		G4LogicalVolume	*sipm_log;
-		G4PVPlacement       	*sipm_phys;
+		G4PVPlacement	*sipm_phys;
 
 		///coating
-		G4Box 		*coating_box;
+		G4Box		*coating_box;
 		G4LogicalVolume	*coating_log;
-		G4PVPlacement       	*coating_phys;
+		G4PVPlacement	*coating_phys;
 
 		///materials
 		G4Material		*Si;
@@ -62,10 +62,11 @@ class SiPM
 
 		///gossip simluation
 		sipmMC		*gossip;
-		TGraph 		*g_spect;	///spectral sensitivity
+		TGraph		*g_spect;	///spectral sensitivity
 
 		///messenger
 		SiPMMessenger		*sipmMessenger;
 };
 
 #endif
+

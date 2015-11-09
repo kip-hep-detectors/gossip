@@ -52,3 +52,4 @@ G4bool Ex01ScintillatorSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 void Ex01ScintillatorSD::EndOfEvent(G4HCofThisEvent*)
 {
 }
+

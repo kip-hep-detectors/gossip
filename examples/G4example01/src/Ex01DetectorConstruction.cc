@@ -92,8 +92,8 @@ G4VPhysicalVolume* Ex01DetectorConstruction::Construct()
 	G4double world_x = 10.*cm;
 	G4double world_y = 10.*cm;
 	G4double world_z = 10.*cm;
-	G4Box* world_box = new G4Box("world_b", world_x, world_y, world_z);
-	world_log = new G4LogicalVolume(world_box, Air, "world_l", 0, 0, 0);
+	G4Box* world_box = new G4Box("world_box", world_x, world_y, world_z);
+	world_log = new G4LogicalVolume(world_box, Air, "world_log", 0, 0, 0);
 	world_phys = new G4PVPlacement(0, G4ThreeVector(), world_log, "world", 0, false, 0);
 
 	//------------------------------ scintillator
@@ -103,8 +103,8 @@ G4VPhysicalVolume* Ex01DetectorConstruction::Construct()
 	G4double scintillator_y = 3.*mm;
 	G4double scintillator_z = 15.*mm;
 
-	G4Box* scintillator_box = new G4Box("scintillator_b", scintillator_x/2., scintillator_y/2., scintillator_z/2.);
-	scintillator_log = new G4LogicalVolume(scintillator_box, LYSO, "scintillator_l", 0, 0, 0);
+	G4Box* scintillator_box = new G4Box("scintillator_box", scintillator_x/2., scintillator_y/2., scintillator_z/2.);
+	scintillator_log = new G4LogicalVolume(scintillator_box, LYSO, "scintillator_log", 0, 0, 0);
 	scintillator_phys = new G4PVPlacement(0,G4ThreeVector(), scintillator_log, "scintillator", world_log, false, 0);
 
 	//------------------------------ sipm
@@ -170,3 +170,4 @@ G4VPhysicalVolume* Ex01DetectorConstruction::Construct()
 
 	return world_phys;
 }
+

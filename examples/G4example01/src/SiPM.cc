@@ -35,8 +35,8 @@ SiPM::SiPM(G4RotationMatrix *pRot,
 	coatingWidth = 0.4*mm;	///the coating width if hardcoded at the moment...
 
 	///sipm
-	sipm_box = new G4Box("sipm_b",sizeX/2.,sizeY/2.,sizeZ/2.);
-	sipm_log = new G4LogicalVolume(sipm_box,Si,"sipm_l",0,0,0);
+	sipm_box = new G4Box("sipm_box",sizeX/2.,sizeY/2.,sizeZ/2.);
+	sipm_log = new G4LogicalVolume(sipm_box,Si,"sipm_log",0,0,0);
 	sipm_phys = new G4PVPlacement(pRot,tlate,"SiPM",sipm_log,pMother,pMany,pCopyNo,pSurfChk);
 
 	G4SDManager* SDman = G4SDManager::GetSDMpointer();
@@ -50,8 +50,8 @@ SiPM::SiPM(G4RotationMatrix *pRot,
 
 	///coating
 	G4ThreeVector tlate2 = G4ThreeVector(0,0,-coatingWidth/2. + sizeZ/2.);
-	coating_box = new G4Box("coating_b",sizeX/2.,sizeY/2.,coatingWidth/2.);
-	coating_log = new G4LogicalVolume(coating_box,SiO2,"coating_l",0,0,0);
+	coating_box = new G4Box("coating_box",sizeX/2.,sizeY/2.,coatingWidth/2.);
+	coating_log = new G4LogicalVolume(coating_box,SiO2,"coating_log",0,0,0);
 	coating_phys = new G4PVPlacement(pRot, tlate2, coating_log, "SiPMCoating", sipm_log, pMany, pCopyNo, pSurfChk);
 }
 
@@ -211,3 +211,4 @@ void SiPM::GossipSetup()
 	gossip->SetSpectralSensitivity((TGraph*)f.Get("MPPC_noRef"));
 	f.Close();
 }
+

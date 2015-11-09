@@ -58,3 +58,4 @@ inline void Ex01ScintillatorHit::operator delete(void *aHit)
 }
 
 #endif
+

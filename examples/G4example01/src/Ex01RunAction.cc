@@ -1,4 +1,4 @@
-// 
+//
 // --------------------------------------------------------------
 //      Gossip GEANT 4 example - Ex01
 // --------------------------------------------------------------
@@ -30,7 +30,7 @@ void Ex01RunAction::BeginOfRunAction(const G4Run* aRun)
 	tree_gossip = new TTree("gossip","gossip");		///output tree for simulation output ( charge and waveform )
 	tree_edep = new TTree("edep","edep");			///output tree the energy deposition in the scintillator
 
-	runNum = aRun->GetRunID(); 
+	runNum = aRun->GetRunID();
 }
 
 void Ex01RunAction::EndOfRunAction(const G4Run*)
