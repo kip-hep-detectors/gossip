@@ -1,0 +1,24 @@
+#/control/verbose 0
+#/run/verbose 0
+
+/gps/particle gamma
+/gps/energy 511 keV
+/gps/pos/centre 0 0 50 mm
+/gps/direction 0 0 -1
+
+
+#write photon output in file output_photons.bin
+/sipm/writePhotons true
+/sipm/filenamePhotons output_photons.bin
+
+#run gossip and write output in file output_gossip.bin
+/sipm/runGossip true
+/sipm/filenameGossip output_gossip.bin
+
+#set SiPM parameters and measurement gate
+/sipm/readParaFile input/MPPC_3x3.txt
+/sipm/gate 500
+/sipm/pregate 200
+
+
+/run/beamOn 10

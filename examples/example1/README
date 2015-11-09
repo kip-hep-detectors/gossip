@@ -1,0 +1,11 @@
+Basic example for signal generation using the integrated light source class.
+
+Build executable:
+"make"
+"./example1"
+
+Example contaings:
+	*Defining a light source
+	*Defining a sipm with a parameter file (Parameters.txt)
+	*Generating the sipm signal
+	*Accessing signal charge, waveform and avalanche list

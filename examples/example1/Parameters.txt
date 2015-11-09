@@ -1,0 +1,26 @@
+MPPC100_180
+
+69.50V
+
+PDE		0.1
+Gain		30.0
+TauDR		4000
+AP_f		0.05
+TauAP_f		50.0
+AP_s		0.1
+TauAP_s		200.0
+XT		0.1
+ENF		4.0
+EN		2.0
+TauRec		40.0	
+Npx		10
+Npy		10
+SizeX		1
+SizeY		1
+
+Tau1		1
+Tau2		40
+SignalAmp	20.0
+NoiseRMS	2.0
+
+Gate		300
