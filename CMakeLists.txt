@@ -4,7 +4,7 @@ project(gossip)
 
 #Set version number
 set (gossip_VERSION_MAJOR 1)
-set (gossip_VERSION_MINOR 30)
+set (gossip_VERSION_MINOR 31)
 
 configure_file (
 	"${gossip_SOURCE_DIR}/cmake/gossipConfig.h.in"
