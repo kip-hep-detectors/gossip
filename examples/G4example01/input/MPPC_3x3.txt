@@ -1,0 +1,24 @@
+MPPC 3x3
+Vover 2.0
+
+PDE		0.35
+TauDR		500
+AP_f		0.0
+TauAP_f		1
+AP_s		0.3
+TauAP_s		40
+XT		0.15
+Gain		20
+ENF		1.5
+EN		1.5
+Jitter		0.05
+TauRec		10
+Tau1		0.4
+Tau2		27.0
+
+SignalAmp	0.35
+NoiseRMS	0.3
+Npx		60
+Npy		60
+SizeX		3
+SizeY		3
