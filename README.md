@@ -1,4 +1,4 @@
-<p align="center"><img src="gossip_logo.png"></p>
+![Logo](gossip_logo.png "GosSiP Logo")
 
 #Introduction
 **What can the simulation do for you?**
