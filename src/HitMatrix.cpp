@@ -17,12 +17,16 @@ HitMatrix::HitMatrix()
 
 void HitMatrix::Init()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::Init()" << endl;
+
 	this->clear();
 }
 
 
 void HitMatrix::Clear( int type )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::Clear( int type )" << endl;
+
 	unsigned int i;
 	bool setzero=false;
 
@@ -45,6 +49,8 @@ void HitMatrix::Clear( int type )
 
 void HitMatrix::SetGeometry( TH2I* geometry )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::SetGeometry( TH2I* geometry )" << endl;
+
 	h_geometry = geometry;
 	Nx = h_geometry->GetNbinsX();
 	Ny = h_geometry->GetNbinsY();
@@ -53,6 +59,8 @@ void HitMatrix::SetGeometry( TH2I* geometry )
 
 int HitMatrix::AddHit( int x, int y, double time, int type )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::AddHit( int x, int y, double time, int type )" << endl;
+
 	int amplitude=-1;
 	int processed=0;
 	int good=0;
@@ -101,30 +109,40 @@ int HitMatrix::AddHit( int x, int y, double time, int type )
 
 vector<double> HitMatrix::GetHit( unsigned int iHit )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::GetHit( unsigned int iHit )" << endl;
+
 	return this->at(iHit);
 }
 
 
 void HitMatrix::SetAmplitude( unsigned int iHit, double amplitude )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::SetAmplitude( unsigned int iHit, double amplitude )" << endl;
+
 	this->at(iHit).at(AMPLITUDE) = amplitude;
 }
 
 
 void HitMatrix::HitProcessed( unsigned int iHit )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::HitProcessed( unsigned int iHit )" << endl;
+
 	this->at(iHit).at(PROCESSED) = 1;
 }
 
 
 bool HitMatrix::GetProcessed( unsigned int iHit )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::SetProcessed( unsigned int iHit )" << endl;
+
 	return this->at(iHit).at(PROCESSED);
 }
 
 
 double HitMatrix::GetPreviousTime( unsigned int iHit )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::GetPreviousTime( unsigned int iHit )" << endl;
+
 	int i = iHit-1;
 	double tlast=-1;
 
@@ -144,6 +162,8 @@ double HitMatrix::GetPreviousTime( unsigned int iHit )
 
 int HitMatrix::FindHit( vector<double> aHit )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::FindHit( vector<double> aHit )" << endl;
+
 	int n=-1;
 	unsigned int i;
 
@@ -158,6 +178,8 @@ int HitMatrix::FindHit( vector<double> aHit )
 
 void HitMatrix::EraseHit( vector<double> aHit )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::EraseHit( vector<double> aHit )" << endl;
+
 	int iHit = FindHit(aHit);
 	this->erase(this->begin()+iHit);
 }
@@ -165,6 +187,8 @@ void HitMatrix::EraseHit( vector<double> aHit )
 
 int HitMatrix::nHits(int type)
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::nHits( int type )" << endl;
+
 	int n=0;
 	unsigned int i;
 
@@ -179,12 +203,15 @@ int HitMatrix::nHits(int type)
 
 int HitMatrix::nHits()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::nHits()" << endl;
+
 	return this->size();
 }
 
 
 TH2D* HitMatrix::DrawMatrix()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::DrawMatrix()" << endl;
 
 	//Build canvas if neccessary
 	c_hitMatrix= (TCanvas*)gROOT->FindObject("c_HitMatrix");
@@ -222,6 +249,8 @@ TH2D* HitMatrix::DrawMatrix()
 
 void HitMatrix::PrintMatrix()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::PrintMatrix()" << endl;
+
 	cout.precision(3);
 	cout << "\nHitMatrix: " << endl;
 	cout<<"X\tY\tTime\tType\tAmplitude\tProcessed\n"<<endl;

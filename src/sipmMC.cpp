@@ -89,6 +89,8 @@ sipmMC::~sipmMC()
 
 void sipmMC::Reset()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::Reset()" << endl;
+
 	charge.all = 0;
 	charge.pe  = 0;
 	charge.dr  = 0;
@@ -101,6 +103,7 @@ void sipmMC::Reset()
 
 void sipmMC::GetParaFile( const char* filename )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetParaFile( const char* filename )" << endl;
 
 	string para, pm, dump;
 	ifstream in(filename);
@@ -167,6 +170,8 @@ void sipmMC::GetParaFile( const char* filename )
 
 void sipmMC::SetGate( double Gate, bool gateCut )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetGate( double Gate, bool gateCut )" << endl;
+
 	gate = Gate;
 	hitMatrix->SetGate(gate, gateCut);
 	update_pulse_shape = true;
@@ -175,24 +180,32 @@ void sipmMC::SetGate( double Gate, bool gateCut )
 
 void sipmMC::SetPreGate( double preGate )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetPreGate( double preGate )" << endl;
+
 	pre_gate = preGate;
 }
 
 
 void sipmMC::SetSpectralSensitivity( TGraph* sensitivity )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetSpectralSensitivity( TGraph* sensitivity )" << endl;
+
 	g_spectral = (TGraph*)sensitivity->Clone();
 }
 
 
 void sipmMC::SetSpectralSensitivity( const char* file )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetSpectralSensitivity( const char* file )" << endl;
+
 	g_spectral = new TGraph(file);
 }
 
 
 void sipmMC::SetGeometry(string Geometry)
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetGeometry( string Geometry )" << endl;
+
 	h_geometry->Reset("M");
 
 	if(Geometry=="square")
@@ -217,6 +230,8 @@ void sipmMC::SetGeometry(string Geometry)
 
 void sipmMC::SetGeometry( TH2I* hgeometry )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetGeometry( TH2I* hgeometry )" << endl;
+
 	h_geometry->Reset("M");
 
 	h_geometry = hgeometry;
@@ -229,6 +244,7 @@ void sipmMC::SetGeometry( TH2I* hgeometry )
 
 void sipmMC::SetSampling( double Sampling )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetSampling( double Sampling )" << endl;
 
 	sampling = Sampling;
 	update_pulse_shape = true;
@@ -238,6 +254,7 @@ void sipmMC::SetSampling( double Sampling )
 
 void sipmMC::SetCutoff( double Cutoff )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetCutoff( double Cutoff )" << endl;
 
 	cutOff = Cutoff;
 	update_pulse_shape = true;
@@ -247,6 +264,8 @@ void sipmMC::SetCutoff( double Cutoff )
 
 void sipmMC::SetPulseShape( double Tau1, double Tau2 )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetPulseShape( double Tau1, double Tau2 )" << endl;
+
 	if(Tau1<Tau2)
 	{
 		tau1 = Tau1;
@@ -267,6 +286,8 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2 )
 
 void sipmMC::SetPulseShape( TF1* pulse_shape )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetPulseShape( TF1* pulse_shape )" << endl;
+
 	f_pulse_shape = pulse_shape;
 
 	update_pulse_shape = true;
@@ -275,8 +296,7 @@ void sipmMC::SetPulseShape( TF1* pulse_shape )
 
 void sipmMC::UpdatePulseShape()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipm::UpdatePulseShape()" << endl;
-	//   cout << "Calculating pulse charge..." << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::UpdatePulseShape()" << endl;
 
 	g_pulse_charge.Set(0);
 
@@ -327,8 +347,9 @@ void sipmMC::UpdatePulseShape()
 }
 
 
-void sipmMC::ImportPhotons(PhotonList photons)
+void sipmMC::ImportPhotons( PhotonList photons )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::ImportPhotons( PhotonList photons )" << endl;
 
 	photonList = photons;
 
@@ -354,6 +375,8 @@ void sipmMC::ImportPhotons(PhotonList photons)
 
 void sipmMC::InitHitMatrix()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::InitHitMatrix()" << endl;
+
 	hitMatrix->Init();
 }
 
@@ -361,7 +384,7 @@ void sipmMC::InitHitMatrix()
 double sipmMC::Generate( PhotonList photons )
 {
 
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipm::Generate()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::Generate()" << endl;
 
 	Reset();
 	ImportPhotons(photons);					//Translate photons from PhotonList to pixel basis
