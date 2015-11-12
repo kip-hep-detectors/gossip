@@ -1,10 +1,15 @@
 #include "HitMatrix.h"
-#include "TROOT.h"
+
+#include <TROOT.h>
 #include <stdio.h>
+
+using namespace std;
 
 
 HitMatrix::HitMatrix()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::HitMatrix()" << endl;
+
 	Nx=10;
 	Ny=10;
 	gate=100;
@@ -12,6 +17,16 @@ HitMatrix::HitMatrix()
 	h_geometry = new TH2I("h_geometry","h_geometry",10,0,10,10,0,10);
 	h_hits = new TH2D();
 	h_hits->SetNameTitle("HitMatrix","HitMatrix");
+}
+
+
+HitMatrix::~HitMatrix()
+{
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::~HitMatrix()" << endl;
+
+	delete h_geometry;
+	delete h_hits;
+	if(!c_hitMatrix) delete c_hitMatrix;
 }
 
 
@@ -214,7 +229,7 @@ TH2D* HitMatrix::DrawMatrix()
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "HitMatrix::DrawMatrix()" << endl;
 
 	//Build canvas if neccessary
-	c_hitMatrix= (TCanvas*)gROOT->FindObject("c_HitMatrix");
+	c_hitMatrix = (TCanvas*)gROOT->FindObject("c_HitMatrix");
 	if(c_hitMatrix==0) c_hitMatrix = new TCanvas("c_HitMatrix","c_HitMatrix",700,0,400,400);
 
 	c_hitMatrix->cd();

@@ -4,15 +4,14 @@
 #include "daqMC.h"
 #include "PhotonSource.h"
 
-#include "iostream"
-#include "fstream"
-
-#include "TRint.h"
-#include "TSystem.h"
-#include "TGButton.h"
-#include "TGButtonGroup.h"
-#include "TGTextEntry.h"
-#include "TVirtualX.h"
+#include <iostream>
+#include <fstream>
+#include <TRint.h>
+#include <TSystem.h>
+#include <TGButton.h>
+#include <TGButtonGroup.h>
+#include <TGTextEntry.h>
+#include <TVirtualX.h>
 
 
 ClassImp (gossipGUI);
@@ -21,6 +20,8 @@ using namespace std;
 
 gossipGUI::gossipGUI()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::gossipGUI()" << endl;
+
 	layout1 = new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 0, 4, 4);
 	layout2 = new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 0, 0, 7, 7);
 
@@ -35,6 +36,8 @@ gossipGUI::gossipGUI()
 
 gossipGUI::~gossipGUI()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::~gossipGUI()" << endl;
+
 	delete sipm;
 	delete led;
 	delete daq;
@@ -47,6 +50,7 @@ gossipGUI::~gossipGUI()
 
 void gossipGUI::BuildSiPMFrame( TGFrame *parentFrame )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::BuildSiPMFrame( TGFrame *parentFrame )" << endl;
 
 	sipmFrame = new TGCompositeFrame(parentFrame, 60, 20, kHorizontalFrame);
 
@@ -195,6 +199,8 @@ void gossipGUI::BuildSiPMFrame( TGFrame *parentFrame )
 
 void gossipGUI::BuildLightSourceFrame( TGFrame *parentFrame )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::BuildLightSourceFrame( TGFrame *parentFrame )" << endl;
+
 	lightSourceFrame = new TGCompositeFrame(parentFrame, 60, 20, kVerticalFrame);
 
 	TGGroupFrame *parameterGroupFrame = new TGGroupFrame(lightSourceFrame, "Parameters", kHorizontalFrame);
@@ -278,6 +284,8 @@ void gossipGUI::BuildLightSourceFrame( TGFrame *parentFrame )
 
 void gossipGUI::BuildDAQFrame( TGFrame *parentFrame )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::BuildDAQFrame( TGFrame *parentFrame )" << endl;
+
 	daqFrame = new TGCompositeFrame(parentFrame, 60, 20, kHorizontalFrame);
 
 	TGButtonGroup *buttonGroupMeasurement = new TGButtonGroup(daqFrame,"Select Measurement");
@@ -359,6 +367,8 @@ void gossipGUI::BuildDAQFrame( TGFrame *parentFrame )
 
 void gossipGUI::BuildMainFrame()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::BuildMainFrame()" << endl;
+
 	BuildLoadFrame();
 
 	mainFrame = new TGMainFrame(gClient->GetRoot(), 100, 100, kMainFrame | kVerticalFrame);
@@ -400,6 +410,8 @@ void gossipGUI::BuildMainFrame()
 
 void gossipGUI::BuildLoadFrame()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::BuildLoadFrame()" << endl;
+
 	loadFrame = new TGMainFrame(gClient->GetRoot(), 100, 100, kTempFrame | kVerticalFrame);
 
 	//Cancel Button
@@ -425,11 +437,14 @@ void gossipGUI::BuildLoadFrame()
 
 void gossipGUI::onTabSwitch( int selected )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::onTabSwitch( int selected )" << endl;
+
 	mainFrame->Resize(tab->GetTabContainer(selected)->GetDefaultSize() + TGDimension(8,31+32));
 }
 
 void gossipGUI::onRunButtonClicked()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::onRunButtonClicked()" << endl;
 
 	//Rebuild main canvas if neccessary
 	c_main = (TCanvas*)gROOT->FindObject("c_main");
@@ -514,18 +529,24 @@ void gossipGUI::onRunButtonClicked()
 
 void gossipGUI::SetProgress( int progress )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::SetProgress( int progress )" << endl;
+
 	progressBar->SetPosition(progress);
 	gSystem->ProcessEvents();
 }
 
 void gossipGUI::onCancelButtonClicked()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::onCancelButtonClicked()" << endl;
+
 	daq->cancel=true;
 	progressBar->Reset();
 }
 
 void gossipGUI::SetParameters()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::SetParameters()" << endl;
+
 	//Sipm
 	sipm->PDE = entryPDE->GetNumber()/100.0;
 	sipm->tau_dr = entryTau_dr->GetNumber();
@@ -576,6 +597,8 @@ void gossipGUI::SetParameters()
 
 void gossipGUI::SelectMeasurement( int meas )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::SelectMeasurement( int meas )" << endl;
+
 	measurement = meas;
 
 	if(measurement==1){
@@ -721,6 +744,8 @@ void gossipGUI::SelectMeasurement( int meas )
 
 void gossipGUI::ReadParaFile( const char* filename )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "gossipGUI::ReadParaFile( const char* filename )" << endl;
+
 	string para, pm, dump;
 	ifstream in(filename);
 
@@ -834,3 +859,4 @@ void gossipGUI::ReadParaFile( const char* filename )
 		if(!in.good()) break;
 	}
 }
+

@@ -27,7 +27,7 @@ class HitMatrix : public vector<vector<double> >
 	public:
 
 		HitMatrix();
-		~HitMatrix(){};
+		~HitMatrix();
 
 		void		Init();									/**<Initializes the hitmatrix and delets all hits*/
 		void		Clear( int type );							/**<Deletes all hits of type "type"*/

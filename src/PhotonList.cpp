@@ -1,13 +1,22 @@
 #include "PhotonList.h"
 
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+
+using namespace std;
 
 PhotonList::PhotonList()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "PhotonList::PhotonList()" << endl;
+
 	photon.clear();
 }
 
 void PhotonList::AddPhoton( double x, double y, double time, double wavelength )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "PhotonList::AddPhoton( double x, double y, double time, double wavelength )" << endl;
+
 	photon.clear();
 	photon.push_back(x);
 	photon.push_back(y);
@@ -18,6 +27,8 @@ void PhotonList::AddPhoton( double x, double y, double time, double wavelength )
 
 void PhotonList::AddPhotonList( PhotonList photonList )
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "PhotonList::AddPhotonList( PhotonList photonList )" << endl;
+
 	for(unsigned int i=0;i<photonList.size();i++)
 	{
 		photon.clear();
@@ -25,3 +36,4 @@ void PhotonList::AddPhotonList( PhotonList photonList )
 		this->push_back(photon);
 	}
 }
+

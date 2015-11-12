@@ -1,4 +1,5 @@
 #include "sipmMC.h"
+
 #include <TROOT.h>
 #include <TCanvas.h>
 #include <iostream>
@@ -27,6 +28,8 @@ Double_t GPulseShape(Double_t *x, Double_t *par)
 
 sipmMC::sipmMC()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::sipmMC()" << endl;
+
 	pulse_shape_func_range = 1000;
 
 	f_pulse_shape_intern = new TF1("f_pulse_shape_intern",GPulseShape,0,pulse_shape_func_range,2);
@@ -79,6 +82,8 @@ sipmMC::sipmMC()
 
 sipmMC::~sipmMC()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::~sipmMC()" << endl;
+
 	delete hitMatrix;
 	delete h_geometry;
 	delete g_waveform;

@@ -1,12 +1,15 @@
 #include "PhotonSource.h"
-#include <iostream>
-#include "TF1.h"
-#include "math.h"
-#include "ctime"
 
+#include <iostream>
+#include <TF1.h>
+#include <math.h>
+
+using namespace std;
 
 PhotonSource::PhotonSource()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "PhotonSource::PhotonSource()" << endl;
+
 	r.SetSeed(time (NULL));
 	x=0;
 	y=0;
@@ -26,6 +29,8 @@ PhotonSource::PhotonSource()
 
 PhotonList PhotonSource::GeneratePhotons()
 {
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "PhotonSource::GeneratePhotons()" << endl;
+
 	photonList.clear();
 
 	//Number of photons N
@@ -80,3 +85,4 @@ PhotonList PhotonSource::GeneratePhotons()
 
 	return photonList;
 }
+
