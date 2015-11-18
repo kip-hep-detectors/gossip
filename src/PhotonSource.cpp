@@ -1,5 +1,7 @@
 #include "PhotonSource.h"
 
+#include "gglobals.h"
+
 #include <iostream>
 #include <TF1.h>
 #include <math.h>
@@ -68,7 +70,7 @@ PhotonList PhotonSource::GeneratePhotons()
 		}
 		else
 		{
-			cout << ">>> Error: Unknown shape!" << endl;
+			cout << C_RED << "ERROR: Unknown shape!" << C_RESET << endl;
 		}
 
 		//Time structure
@@ -77,7 +79,7 @@ PhotonList PhotonSource::GeneratePhotons()
 		else if(pulse=="exp" || (pulse=="exp2" && tRise<=0))  tHit=r.Exp  (tWidth) + t;
 		else if(pulse=="exp2") tHit=fExp2->GetRandom() + t;
 		else if(pulse=="custom") tHit=hTime->GetRandom() + t;
-		else cout << ">>> Error: Unknown pulse!" << endl;
+		else cout << C_RED << "ERROR: Unknown pulse!" << C_RESET << endl;
 
 		//Add photon to list
 		photonList.AddPhoton(xHit,yHit,tHit);

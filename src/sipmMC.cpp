@@ -1,5 +1,7 @@
 #include "sipmMC.h"
 
+#include "gglobals.h"
+
 #include <TROOT.h>
 #include <TCanvas.h>
 #include <iostream>
@@ -225,7 +227,7 @@ void sipmMC::SetGeometry(string Geometry)
 			}
 		}
 	}
-	else cout << "Error! Geometry not found" << endl;
+	else cout << C_RED << "ERROR: Geometry not found" << C_RESET << endl;
 
 	Npix = h_geometry->Integral();
 
@@ -396,56 +398,55 @@ double sipmMC::Generate( PhotonList photons )
 	InitHitMatrix();					//Pass parameters to HitMatrix class
 	if(update_pulse_shape==true) UpdatePulseShape();	//Calculate pulse shape parameters if something has changes
 
-
 	if(PDE>1 || PDE<0)
 	{
 		PDE=0;
-		cout << "ERROR: PDE not in between 0 and 1. Set PDE to 0!" << endl;
+		cout << C_YELLOW << "WARNING: PDE not in between 0 and 1. Setting PDE to 0!" << C_RESET << endl;
 	}
 	if(gain<0)
 	{
 		gain=0;
-		cout << "ERROR: Gain smaller than zero! Set Gain to 0!" << endl;
+		cout << C_YELLOW << "WARNING: Gain smaller than zero! Setting Gain to 0!" << C_RESET << endl;
 	}
 	if(tau_dr<0)
 	{
 		tau_dr=0;
-		cout << "ERROR: tau_dr smaller than zero! Set tau_dr to 0!" << endl;
+		cout << C_YELLOW << "WARNING: tau_dr smaller than zero! Setting tau_dr to 0!" << C_RESET << endl;
 	}
 	if(Pap_s>1 || Pap_s<0)
 	{
 		Pap_s=0;
-		cout << "ERROR: Pap_s not in between 0 and 1. Set Pap_s to 0!" << endl;
+		cout << C_YELLOW << "WARNING: Pap_s not in between 0 and 1. Setting Pap_s to 0!" << C_RESET << endl;
 	}
 	if(tau_ap_s<0)
 	{
 		tau_ap_s=0;
-		cout << "ERROR: tau_ap_s smaller than zero! Set tau_ap_s to 0!" << endl;
+		cout << C_YELLOW << "WARNING: tau_ap_s smaller than zero! Setting tau_ap_s to 0!" << C_RESET << endl;
 	}
 	if(Pap_f>1 || Pap_f<0)
 	{
 		Pap_f=0;
-		cout << "ERROR: Pap_f not in between 0 and 1. Set Pap_f to 0!" << endl;
+		cout << C_YELLOW << "WARNING: Pap_f not in between 0 and 1. Setting Pap_f to 0!" << C_RESET << endl;
 	}
 	if(tau_ap_f<0)
 	{
 		tau_ap_f=0;
-		cout << "ERROR: tau_ap_f smaller than zero! Set tau_ap_f to 0!" << endl;
+		cout << C_YELLOW << "WARNING: tau_ap_f smaller than zero! Setting tau_ap_f to 0!" << C_RESET << endl;
 	}
 	if(Pxt>1 || Pxt<0)
 	{
 		Pxt=0;
-		cout << "ERROR: Pxt not in between 0 and 1. Set Pxt to 0!" << endl;
+		cout << C_YELLOW << "WARNING: Pxt not in between 0 and 1. Setting Pxt to 0!" << C_RESET << endl;
 	}
 	if(ENF<0)
 	{
 		ENF=0;
-		cout << "ERROR: ENF smaller than zero! Set ENF to 0!" << endl;
+		cout << C_YELLOW << "WARNING: ENF smaller than zero! Setting ENF to 0!" << C_RESET << endl;
 	}
 	if(EN<0)
 	{
 		EN=0;
-		cout << "ERROR: EN smaller than zero! Set EN to 0!" << endl;
+		cout << C_YELLOW << "WARNING: EN smaller than zero! Setting EN to 0!" << C_RESET << endl;
 	}
 
 	///operation over-voltage:

@@ -39,6 +39,7 @@ set(gossip_lib_HEADERS ${gossip_SOURCE_DIR}/include/daqMC.h
 	${gossip_SOURCE_DIR}/include/PhotonList.h
 	${gossip_SOURCE_DIR}/include/PhotonSource.h
 	${gossip_SOURCE_DIR}/include/sipmMC.h
+	${gossip_SOURCE_DIR}/include/gglobals.h
 	${gossip_BINARY_DIR}/include/gossipConfig.h
 	)
 
