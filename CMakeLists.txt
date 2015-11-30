@@ -31,6 +31,8 @@ set(gossip_lib_SOURCES ${gossip_SOURCE_DIR}/src/daqMC.cpp
 	${gossip_SOURCE_DIR}/src/PhotonList.cpp
 	${gossip_SOURCE_DIR}/src/PhotonSource.cpp
 	${gossip_SOURCE_DIR}/src/sipmMC.cpp
+	${gossip_SOURCE_DIR}/src/Waveform.cpp
+	${gossip_SOURCE_DIR}/src/Digitizers/Filters/liir.c
 	)
 
 set(gossip_lib_HEADERS ${gossip_SOURCE_DIR}/include/daqMC.h
@@ -41,6 +43,8 @@ set(gossip_lib_HEADERS ${gossip_SOURCE_DIR}/include/daqMC.h
 	${gossip_SOURCE_DIR}/include/sipmMC.h
 	${gossip_SOURCE_DIR}/include/gglobals.h
 	${gossip_BINARY_DIR}/include/gossipConfig.h
+	${gossip_SOURCE_DIR}/include/Waveform.h
+	${gossip_SOURCE_DIR}/include/Digitizers/Filters/iir.h
 	)
 
 root_generate_dictionary(Dict ${gossip_lib_HEADERS} LINKDEF ${gossip_SOURCE_DIR}/include/LinkDef.h)

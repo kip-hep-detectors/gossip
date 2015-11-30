@@ -658,5 +658,7 @@ TGraph* sipmMC::GetWaveform()
 		}
 	}
 
+	waveform.Clear();
+
 	return g_waveform;
 }
