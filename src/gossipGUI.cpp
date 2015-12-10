@@ -1,9 +1,5 @@
 #include "gossipGUI.h"
 
-#include "sipmMC.h"
-#include "daqMC.h"
-#include "PhotonSource.h"
-
 #include <iostream>
 #include <fstream>
 #include <TRint.h>
@@ -32,6 +28,9 @@ gossipGUI::gossipGUI()
 	daq = new daqMC();
 	daq->SetSiPM(sipm);
 	daq->SetPhotonSource(led);
+
+	osci.ConnectSiPM(sipm);
+	qdc.ConnectSiPM(sipm);
 }
 
 gossipGUI::~gossipGUI()
@@ -471,7 +470,11 @@ void gossipGUI::onRunButtonClicked()
 		double min = 0;
 		for(int i=0;i<entryNentries->GetNumber();i++)
 		{
-			TGraph *g = (TGraph*)daq->Scope()->Clone();	//small memory leak, since clones are not beeing deleted...fix later =)
+			PhotonList photons = led->GeneratePhotons();
+			sipm->Generate(photons);
+			osci.Run();
+			TGraph *g = (TGraph*)osci.GetWaveform().GetGraph()->Clone();	//small memory leak, since clones are not beeing deleted...fix later =)
+
 
 			if(g->GetYaxis()->GetXmax()>max) max = g->GetYaxis()->GetXmax();
 			if(g->GetYaxis()->GetXmin()<min) min = g->GetYaxis()->GetXmin();
@@ -489,7 +492,20 @@ void gossipGUI::onRunButtonClicked()
 	}
 	if(measurement==2)
 	{
-		TH1D* h_QDC = daq->QDCSpectrum(entryNentries->GetNumber());
+		//TH1D* h_QDC = daq->QDCSpectrum(entryNentries->GetNumber());
+		TH1D* h_QDC = new TH1D();
+		h_QDC->SetNameTitle("Charge Spectrum","Charge Spectrum");
+		h_QDC->SetBins(1024,0,1024);
+
+		for(int i=0; i<entryNentries->GetNumber(); i++)
+		{
+			PhotonList photons  = led->GeneratePhotons();
+			sipm->Generate(photons);
+			qdc.Run();
+			int charge = qdc.GetValue();
+			h_QDC->Fill(charge);
+		}
+
 		c_main->SetLogy(false);
 		c_main->SetLogx(false);
 		//     h_QDC->Draw("HIST E0");
@@ -590,6 +606,7 @@ void gossipGUI::SetParameters()
 	sipm->SetGate(entryGate->GetNumber());
 	sipm->SetPreGate(entryPreGate->GetNumber());
 	daq->SetPedestal(entryPedestal->GetNumber());
+	qdc.SetPedestal(entryPedestal->GetNumber());
 
 	daq->SetDiscriMinTime(entryDiscriMinTime->GetNumber());
 	daq->SetDiscriWidth(entryDiscriWidth->GetNumber());

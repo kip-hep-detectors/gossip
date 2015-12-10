@@ -1,13 +1,22 @@
 #include "Waveform.h"
-#include "TMath.h"
 
-#include "iostream"
+#include <iostream>
 
 #include "Digitizers/Filters/iir.h"
+
+using namespace std;
 
 
 Waveform::Waveform()
 {
+	g_waveform = new TGraph();
+	g_waveform->SetTitle(";Time [ns];Amplitude [mV]");
+	g_waveform->SetMarkerStyle(1);
+}
+
+Waveform::Waveform( vector<double> y, double Sampling )
+{
+	SetWaveform(y, Sampling);
 }
 
 Waveform::~Waveform()
@@ -16,57 +25,57 @@ Waveform::~Waveform()
 
 void Waveform::Clear()
 {
-	v_time.clear();
-	v_amplitude.clear();
-	nSamples = 0;
-	sampling = 0;
-	tStart = 0;
-	tStop = 0;
+	v_amplitudes.clear();
+	g_waveform->Set(0);
+	sampling = 1;
 }
 
-void Waveform::SetWaveform( vector<double> y, double Sampling, double Tstart )
+void Waveform::SetWaveform( vector<double> y, double Sampling )
 {
-	Clear();
-
-	v_amplitude = y;
+	v_amplitudes = y;
 	sampling = Sampling;
-	tStart = Tstart;
-
-	for(int i=0;i<nSamples;i++)
-	{
-		double time = i*sampling+tStart;
-		v_time.push_back(time);
-	}
-
-	SetWaveform(v_amplitude,v_time);
 }
 
-void Waveform::SetWaveform( TGraph* g_wf )
+void Waveform::SetSampling( double Sampling )
 {
-	Clear();
-
-	double *x = g_wf->GetX();
-	double *y = g_wf->GetY();
-
-	for(int i=0;i<g_wf->GetN();i++)
-	{
-		double time = x[i];
-		double amplitude = y[i];
-		v_time.push_back(time);
-		v_amplitude.push_back(amplitude);
-	}
-
-	SetWaveform(v_amplitude,v_time);
+	sampling = Sampling;
 }
 
-void Waveform::Invert()
+void Waveform::SetSamples( vector<double> amps )
 {
+	v_amplitudes = amps;
+}
 
-	for(int i=0;i<nSamples;i++)
+void Waveform::SetSample( unsigned int i, double amp )
+{
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "Waveform::SetSample( unsigned int i, double amp )" << endl;
+
+	if(v_amplitudes.size() <= i)
 	{
-		v_amplitude.at(i) *= -1;
+		v_amplitudes.resize(i+1, 0);
+	}
+	v_amplitudes.at(i) = amp;
+}
+
+double Waveform::GetSample( unsigned int i )
+{
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "Waveform::GetSample( unsigned int i )" << endl;
+
+	if(v_amplitudes.size() <= i) return 0;
+	else return v_amplitudes.at(i);
+}
+
+TGraph* Waveform::GetGraph()
+{
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "Waveform::GetGraph()" << endl;
+
+	for(unsigned int i=0; i<v_amplitudes.size(); i++)
+	{
+		double time = i*sampling;
+		double amplitude = v_amplitudes.at(i);
+		g_waveform->SetPoint(i,time,amplitude);
 	}
 
-	SetWaveform(v_amplitude,v_time);
+	return g_waveform;
 }
 

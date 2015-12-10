@@ -1,28 +1,15 @@
 #include "Digitizers/Oscilloscope.h"
-//#include "Filters/
 
 Oscilloscope::Oscilloscope()
 {
-
 }
 
 Oscilloscope::~Oscilloscope()
 {
-
 }
 
-Oscilloscope::SetWaveform()
+void Oscilloscope::Run()
 {
-
-}
-
-Oscilloscope::Process()
-{
-
-}
-
-Oscilloscope::ApplyLPFilter()
-{
-
+	waveform = sipm->GetWaveform();
 }
 

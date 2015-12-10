@@ -13,6 +13,8 @@
 #include "sipmMC.h"
 #include "PhotonSource.h"
 #include "daqMC.h"
+#include "Digitizers/Oscilloscope.h"
+#include "Digitizers/QDC.h"
 
 class gossipGUI{
 
@@ -21,52 +23,54 @@ class gossipGUI{
 		gossipGUI();
 		~gossipGUI();
 
-		void BuildMainFrame();
-		void BuildLoadFrame();
-		void BuildSiPMFrame( TGFrame *parentFrame );
-		void BuildLightSourceFrame( TGFrame *parentFrame );
-		void BuildDAQFrame( TGFrame *parentFrame );
+		void			BuildMainFrame();
+		void			BuildLoadFrame();
+		void			BuildSiPMFrame( TGFrame *parentFrame );
+		void			BuildLightSourceFrame( TGFrame *parentFrame );
+		void			BuildDAQFrame( TGFrame *parentFrame );
 
-		void onTabSwitch( int );
-		void onRunButtonClicked();
-		void onCancelButtonClicked();
-		void SetParameters();
-		void SetProgress( int );
-		void SelectMeasurement( int );
-		void ReadParaFile( const char* filename );
+		void			onTabSwitch( int );
+		void			onRunButtonClicked();
+		void			onCancelButtonClicked();
+		void			SetParameters();
+		void			SetProgress( int );
+		void			SelectMeasurement( int );
+		void			ReadParaFile( const char* filename );
 
-		sipmMC* GetSiPM(){ return sipm; };
+		sipmMC*			GetSiPM(){ return sipm; };
 
 	private:
 
-		sipmMC		*sipm;
+		sipmMC			*sipm;
 		PhotonSource		*led;
 		daqMC			*daq;
+		Oscilloscope		osci;
+		QDC			qdc;
 
-		int 			measurement;
+		int			measurement;
 
-		TCanvas 		*c_main;
+		TCanvas			*c_main;
 
-		TGMainFrame 		*mainFrame,
+		TGMainFrame		*mainFrame,
 					*loadFrame;
 
-		TGCompositeFrame 	*sipmFrame;
-		TGCompositeFrame 	*lightSourceFrame;
-		TGCompositeFrame 	*daqFrame;
+		TGCompositeFrame	*sipmFrame;
+		TGCompositeFrame	*lightSourceFrame;
+		TGCompositeFrame	*daqFrame;
 
-		TGTab 		*tab;
+		TGTab			*tab;
 
-		TGLayoutHints 	*layout1,
-				*layout2;
+		TGLayoutHints		*layout1,
+					*layout2;
 
-		TGHProgressBar 	*progressBar;
+		TGHProgressBar		*progressBar;
 
 		TGComboBox		*comboBoxLEDgeometry,
 					*comboBoxLEDpulse;
 
-		TGCheckButton 	*checkButtonPhotonFluct;
+		TGCheckButton		*checkButtonPhotonFluct;
 
-		TGNumberEntry 	*entryPDE,
+		TGNumberEntry	*entryPDE,
 				*entryGain,
 				*entryTau_dr,
 				*entryPap1,

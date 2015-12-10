@@ -608,20 +608,24 @@ double sipmMC::Generate( PhotonList photons )
 }
 
 
-TGraph* sipmMC::GetWaveform()
+Waveform sipmMC::GetWaveform()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetWaveform()" << endl;
 
 	//reset g_waveform
-	g_waveform->Set(0);
+	//g_waveform->Set(0);
+
+	waveform.Clear();
+	waveform.SetSampling(sampling);
 
 	for(int i=0;i<gate/sampling+1;i++)
 	{
-		g_waveform->SetPoint(i,i*sampling,r.Gaus(0,noiseRMS));
+		//g_waveform->SetPoint(i,i*sampling,r.Gaus(0,noiseRMS));
+		waveform.SetSample(i, r.Gaus(0,noiseRMS));
 	}
 
-	double *wf_x = g_waveform->GetX();
-	double *wf_y = g_waveform->GetY();
+	//double *wf_x = g_waveform->GetX();
+	//double *wf_y = g_waveform->GetY();
 
 	for(int n=0;n<hitMatrix->nHits();n++)
 	{
@@ -632,8 +636,9 @@ TGraph* sipmMC::GetWaveform()
 		double tstart;
 		if(time>=0)
 		{
-			i_start= time/sampling + 1;
-			tstart = wf_x[i_start];
+			i_start = time/sampling + 1;
+			//tstart = wf_x[i_start];
+			tstart = i_start*sampling;	//check!!!!!!
 		}
 		else
 		{
@@ -650,15 +655,17 @@ TGraph* sipmMC::GetWaveform()
 
 		for(int i=0;i<n_pulse_samples;i++)
 		{
-			if(i_start+i > g_waveform->GetN()) break;
+			//if(i_start+i >= g_waveform->GetN()) break;
+			if(i_start+i >= waveform.GetNsamples()) break;
 
 			double t = i*sampling + (tstart - time);
 			double amp = signalAmp*amplitude/gain*f_pulse_shape->Eval(t)/pulse_shape_func_max;
-			wf_y[i_start+i] += amp;
+			//wf_y[i_start+i] += amp;
+			double amp_new = amp + waveform.GetSample(i_start+i);
+			waveform.SetSample(i_start+i,amp_new);
 		}
 	}
 
-	waveform.Clear();
-
-	return g_waveform;
+	return waveform;
 }
+

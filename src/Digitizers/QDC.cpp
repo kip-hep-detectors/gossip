@@ -1,0 +1,20 @@
+#include "Digitizers/QDC.h"
+#include "Digitizers/Filters/iir.h"
+
+QDC::QDC()
+{
+	pedestal = 50;
+	conv = 1;
+	nbins = 1024;
+}
+
+QDC::~QDC()
+{
+}
+
+void QDC::Run()
+{
+	double charge = sipm->GetCharge();
+	qdc_value = pedestal + conv*charge;
+}
+

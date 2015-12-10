@@ -76,7 +76,7 @@ class sipmMC{
 		void		SetSpectralSensitivity( TGraph* spect );	/**<Sets the spectral sensitivity via a TGraph*/
 		void		SetSpectralSensitivity( const char* file );	/**<Sets the spectral sensitivity via a text file*/
 
-		TGraph*		GetWaveform();					/**<Returns simulated signal waveform*/
+		Waveform	GetWaveform();					/**<Returns simulated signal waveform*/
 		/**Returns signal charge*/
 		double		GetCharge(){ return charge.all; };
 		/**Returns decomposition of the signal charge*/

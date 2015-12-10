@@ -336,7 +336,7 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 	//double tlast[N]={0};
 
 	sipm->Generate(empty);
-	TGraph *g_waveform = sipm->GetWaveform();
+	TGraph *g_waveform = sipm->GetWaveform().GetGraph();
 	hitMatrix = sipm->GetHitMatrix();
 
 	//   int imax = sipm->GetPulseShape()->GetMaximumBin();
@@ -513,7 +513,7 @@ TGraph* daqMC::Scope()
 	PhotonList photons = photonSource->GeneratePhotons();
 
 	sipm->Generate(photons);
-	TGraph *g_waveform = sipm->GetWaveform();
+	TGraph *g_waveform = sipm->GetWaveform().GetGraph();
 
 	return g_waveform;
 }
