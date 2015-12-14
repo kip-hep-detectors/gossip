@@ -1,3 +1,5 @@
+//TODO: move noise to Digitizers!!
+
 #include "sipmMC.h"
 
 #include "gglobals.h"

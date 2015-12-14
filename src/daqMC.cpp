@@ -212,8 +212,8 @@ TH1D* daqMC::QDCSpectrum( int N )
 		h_QDC->Fill(QDC(charge));
 	}
 
-	//   h_QDC->Draw("HIST E0");
-	//   h_QDC->Draw("");
+	//h_QDC->Draw("HIST E0");
+	h_QDC->Draw("");
 
 	return h_QDC;
 }

@@ -18,7 +18,8 @@ class Oscilloscope : public VDigitizer
 		double		GetENOB(){ return enob; };
 
 	private:
-		Waveform	waveform;
+		void		AddENoise();
+
 		double		sampling;
 		double		enob;
 };

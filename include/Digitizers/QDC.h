@@ -11,7 +11,7 @@ class QDC : public VDigitizer
 		~QDC();
 
 		void		Run();
-		int		GetValue(){ return qdc_value; };
+		int		GetQDCValue(){ return qdc_value; };
 		void		SetConversion( double c ){ conv = c; };
 		double		GetConversion(){ return conv; };
 		void		SetPedestal( double ped ){ pedestal = ped; };
@@ -20,6 +20,8 @@ class QDC : public VDigitizer
 		int		GetNbins(){ return nbins; };
 
 	private:
+		void		AddENoise();
+
 		double		conv;
 		double		pedestal;
 		int		nbins;

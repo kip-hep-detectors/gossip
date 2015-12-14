@@ -1,4 +1,4 @@
-#include "gossipGUI.h"
+#include "GUI.h"
 #include "gossipConfig.h"
 #include <getopt.h>
 #include "TRint.h"
@@ -53,7 +53,7 @@ int main(int argc,char** argv)
 	//Run GosSiP
 	TRint app("sipmMC", 0, 0);
 
-	gossipGUI gui;
+	GUI gui;
 	gui.BuildMainFrame();
 	if(parafile) gui.ReadParaFile(parafile);
 

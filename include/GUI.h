@@ -1,6 +1,6 @@
 
-#ifndef gossipGUI_hh
-#define gossipGUI_hh
+#ifndef GUI_hh
+#define GUI_hh
 
 #include "TGFrame.h"
 #include "TGTab.h"
@@ -16,12 +16,12 @@
 #include "Digitizers/Oscilloscope.h"
 #include "Digitizers/QDC.h"
 
-class gossipGUI{
+class GUI{
 
 	public:
 
-		gossipGUI();
-		~gossipGUI();
+		GUI();
+		~GUI();
 
 		void			BuildMainFrame();
 		void			BuildLoadFrame();

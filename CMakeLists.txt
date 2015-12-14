@@ -26,19 +26,20 @@ include(${ROOT_USE_FILE})
 include_directories(${ROOT_INCLUDE_DIRS} ${gossip_SOURCE_DIR}/include ${gossip_BINARY_DIR}/include)
 
 set(gossip_lib_SOURCES ${gossip_SOURCE_DIR}/src/daqMC.cpp
-	${gossip_SOURCE_DIR}/src/gossipGUI.cpp
+	${gossip_SOURCE_DIR}/src/GUI.cpp
 	${gossip_SOURCE_DIR}/src/HitMatrix.cpp
 	${gossip_SOURCE_DIR}/src/PhotonList.cpp
 	${gossip_SOURCE_DIR}/src/PhotonSource.cpp
 	${gossip_SOURCE_DIR}/src/sipmMC.cpp
 	${gossip_SOURCE_DIR}/src/Waveform.cpp
+	${gossip_SOURCE_DIR}/src/Digitizers/VDigitizer.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/Oscilloscope.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/QDC.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/Filters/liir.c
 	)
 
 set(gossip_lib_HEADERS ${gossip_SOURCE_DIR}/include/daqMC.h
-	${gossip_SOURCE_DIR}/include/gossipGUI.h
+	${gossip_SOURCE_DIR}/include/GUI.h
 	${gossip_SOURCE_DIR}/include/HitMatrix.h
 	${gossip_SOURCE_DIR}/include/PhotonList.h
 	${gossip_SOURCE_DIR}/include/PhotonSource.h
