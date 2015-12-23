@@ -35,7 +35,7 @@ set(gossip_lib_SOURCES ${gossip_SOURCE_DIR}/src/daqMC.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/VDigitizer.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/Oscilloscope.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/QDC.cpp
-	${gossip_SOURCE_DIR}/src/Digitizers/Filters/liir.c
+	${gossip_SOURCE_DIR}/src/Digitizers/Filters/iir.cpp
 	)
 
 set(gossip_lib_HEADERS ${gossip_SOURCE_DIR}/include/daqMC.h
