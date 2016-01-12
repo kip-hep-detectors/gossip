@@ -13,8 +13,6 @@
 #include "sipmMC.h"
 #include "PhotonSource.h"
 #include "daqMC.h"
-#include "Digitizers/Oscilloscope.h"
-#include "Digitizers/QDC.h"
 
 class GUI{
 
@@ -44,8 +42,6 @@ class GUI{
 		sipmMC			*sipm;
 		PhotonSource		*led;
 		daqMC			*daq;
-		Oscilloscope		osci;
-		QDC			qdc;
 
 		int			measurement;
 

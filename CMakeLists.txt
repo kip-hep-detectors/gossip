@@ -35,7 +35,8 @@ set(gossip_lib_SOURCES ${gossip_SOURCE_DIR}/src/daqMC.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/VDigitizer.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/Oscilloscope.cpp
 	${gossip_SOURCE_DIR}/src/Digitizers/QDC.cpp
-	${gossip_SOURCE_DIR}/src/Digitizers/Filters/iir.cpp
+	${gossip_SOURCE_DIR}/src/Digitizers/Filters/liir.cpp
+	${gossip_SOURCE_DIR}/src/Digitizers/Filters/BWFilters.cpp
 	)
 
 set(gossip_lib_HEADERS ${gossip_SOURCE_DIR}/include/daqMC.h
@@ -50,7 +51,8 @@ set(gossip_lib_HEADERS ${gossip_SOURCE_DIR}/include/daqMC.h
 	${gossip_SOURCE_DIR}/include/Digitizers/VDigitizer.h
 	${gossip_SOURCE_DIR}/include/Digitizers/Oscilloscope.h
 	${gossip_SOURCE_DIR}/include/Digitizers/QDC.h
-	${gossip_SOURCE_DIR}/include/Digitizers/Filters/iir.h
+	${gossip_SOURCE_DIR}/include/Digitizers/Filters/liir.h
+	${gossip_SOURCE_DIR}/include/Digitizers/Filters/BWFilters.h
 	)
 
 root_generate_dictionary(Dict ${gossip_lib_HEADERS} LINKDEF ${gossip_SOURCE_DIR}/include/LinkDef.h)

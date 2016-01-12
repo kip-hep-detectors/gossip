@@ -1,10 +1,11 @@
 #include "Digitizers/QDC.h"
 
-QDC::QDC()
+QDC::QDC( double kenoise, int knbins, double kpedestal, double kconv )
 {
-	pedestal = 50;
-	conv = 1;
-	nbins = 1024;
+	pedestal = kpedestal;
+	conv = kconv;
+	nbins = knbins;
+	enoise = kenoise;
 }
 
 QDC::~QDC()
@@ -18,9 +19,13 @@ void QDC::Run()
 	AddENoise();
 }
 
+void QDC::BWFilter()
+{
+}
+
 void QDC::AddENoise()
 {
-	TRandom3 r;
+	TRandom3 r(0);
 	qdc_value += r.Gaus(0,enoise);
 }
 

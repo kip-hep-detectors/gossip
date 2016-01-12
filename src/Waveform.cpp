@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "Digitizers/Filters/iir.h"
 
 using namespace std;
 
@@ -12,6 +11,8 @@ Waveform::Waveform()
 	g_waveform = new TGraph();
 	g_waveform->SetTitle(";Time [ns];Amplitude [mV]");
 	g_waveform->SetMarkerStyle(1);
+
+	sampling = 1;
 }
 
 Waveform::Waveform( vector<double> y, double Sampling )
@@ -27,7 +28,6 @@ void Waveform::Clear()
 {
 	v_amplitudes.clear();
 	g_waveform->Set(0);
-	sampling = 1;
 }
 
 void Waveform::SetWaveform( vector<double> y, double Sampling )

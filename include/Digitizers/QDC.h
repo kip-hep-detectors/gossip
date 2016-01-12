@@ -7,7 +7,7 @@
 class QDC : public VDigitizer
 {
 	public:
-		QDC();
+		QDC( double enoise = 1, int nbins = 1024, double pedestal = 50, double conv = 1 );
 		~QDC();
 
 		void		Run();
@@ -18,10 +18,14 @@ class QDC : public VDigitizer
 		double		GetPedestal(){ return pedestal; };
 		void		SetNbins( int n ){ nbins = n; };
 		int		GetNbins(){ return nbins; };
+		void		SetENoise( double noise ){ enoise = noise; };
+		double		GetENoise(){ return enoise; };
 
 	private:
+		void		BWFilter();
 		void		AddENoise();
 
+		double		enoise;
 		double		conv;
 		double		pedestal;
 		int		nbins;
