@@ -1,5 +1,4 @@
 #include "Digitizers/QDC.h"
-#include "Digitizers/Filters/iir.h"
 
 QDC::QDC()
 {
