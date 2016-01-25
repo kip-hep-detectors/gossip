@@ -95,7 +95,7 @@ install(FILES ${gossip_lib_HEADERS}
 	DESTINATION include
 	COMPONENT dev)
 
-install(FILES ${gossip_BINARY_DIR}/gossipDict_rdict.pcm
+install(FILES ${gossip_BINARY_DIR}/lib/gossipDict_rdict.pcm
 	DESTINATION lib)
 
 install(TARGETS gossip_lib
