@@ -59,8 +59,8 @@ export(TARGETS gossip_lib
 export(PACKAGE gossip)
 
 # ... for the build tree
-set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
-set(CONF_LIBS "${PROJECT_SOURCE_DIR}/lib/libgossip.so")
+set(CONF_INCLUDE_DIRS "${PROJECT_BINARY_DIR}/include")
+set(CONF_LIBS "${PROJECT_BINARY_DIR}/lib/libgossip.so")
 configure_file(cmake/gossipConfig.cmake.in
 	"${PROJECT_BINARY_DIR}/gossipConfig.cmake" @ONLY)
 
