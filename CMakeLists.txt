@@ -30,17 +30,18 @@ file(GLOB gossip_lib_SOURCES "src/*.cpp")
 file(GLOB gossip_lib_HEADERS "include/*.h")
 list(REMOVE_ITEM gossip_lib_HEADERS "${gossip_SOURCE_DIR}/include/LinkDef.h")
 
-root_generate_dictionary(Dict ${gossip_lib_HEADERS} LINKDEF ${gossip_SOURCE_DIR}/include/LinkDef.h)
-
 set(CMAKE_MACOSX_RPATH ON)
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# set library / binary output directories
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(BINARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
+root_generate_dictionary(gossipDict ${gossip_lib_HEADERS} LINKDEF ${gossip_SOURCE_DIR}/include/LinkDef.h)
+
 # build the library
-add_library(gossip_lib SHARED ${gossip_lib_SOURCES} Dict.cxx)
+add_library(gossip_lib SHARED ${gossip_lib_SOURCES} gossipDict.cxx)
 set_target_properties(gossip_lib PROPERTIES OUTPUT_NAME gossip)
 target_link_libraries(gossip_lib ${ROOT_LIBRARIES} Gui)
 
@@ -74,6 +75,15 @@ configure_file(cmake/gossipConfig.cmake.in
 configure_file(cmake/gossipConfigVersion.cmake.in
 	"${PROJECT_BINARY_DIR}/gossipConfigVersion.cmake" @ONLY)
 
+# copy header files to build dir
+add_custom_command(TARGET gossip_lib PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/include)
+
+# copy rdict to build dir
+add_custom_command(TARGET gossip_lib POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	${PROJECT_BINARY_DIR}/gossipDict_rdict.pcm ${PROJECT_BINARY_DIR}/lib)
 
 
 # install target
@@ -85,7 +95,7 @@ install(FILES ${gossip_lib_HEADERS}
 	DESTINATION include
 	COMPONENT dev)
 
-install(FILES ${gossip_BINARY_DIR}/Dict_rdict.pcm
+install(FILES ${gossip_BINARY_DIR}/gossipDict_rdict.pcm
 	DESTINATION lib)
 
 install(TARGETS gossip_lib
