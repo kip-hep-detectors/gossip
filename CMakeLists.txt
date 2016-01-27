@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 2.8)
 project(gossip)
 
 #Set version number
-set (gossip_VERSION_MAJOR 1)
-set (gossip_VERSION_MINOR 31)
-set(gossip_VERSION ${gossip_MAJOR_VERSION}.${gossip_MINOR_VERSION})
+set(gossip_VERSION_MAJOR 1)
+set(gossip_VERSION_MINOR 31)
+set(gossip_VERSION ${gossip_VERSION_MAJOR}.${gossip_VERSION_MINOR})
 
-configure_file (
+configure_file(
 	"${gossip_SOURCE_DIR}/cmake/gossipConfig.h.in"
 	"${gossip_BINARY_DIR}/include/gossipConfig.h"
 	)
