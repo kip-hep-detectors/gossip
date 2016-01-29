@@ -80,10 +80,14 @@ add_custom_command(TARGET gossip_lib PRE_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/include)
 
-# copy rdict to build dir
+# copy rdict and rootmap to build dir
 add_custom_command(TARGET gossip_lib POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy
 	${PROJECT_BINARY_DIR}/gossipDict_rdict.pcm ${PROJECT_BINARY_DIR}/lib)
+
+add_custom_command(TARGET gossip_lib POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	${PROJECT_BINARY_DIR}/libgossipDict.rootmap ${PROJECT_BINARY_DIR}/lib)
 
 
 # install target
@@ -95,7 +99,7 @@ install(FILES ${gossip_lib_HEADERS}
 	DESTINATION include
 	COMPONENT dev)
 
-install(FILES ${gossip_BINARY_DIR}/lib/gossipDict_rdict.pcm
+install(FILES ${gossip_BINARY_DIR}/lib/gossipDict_rdict.pcm ${gossip_BINARY_DIR}/lib/libgossipDict.rootmap
 	DESTINATION lib)
 
 install(TARGETS gossip_lib
