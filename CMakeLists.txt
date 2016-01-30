@@ -36,7 +36,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # set library / binary output directories
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-set(BINARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 root_generate_dictionary(gossip ${gossip_lib_HEADERS} LINKDEF ${gossip_SOURCE_DIR}/include/LinkDef.h)
 
