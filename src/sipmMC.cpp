@@ -32,9 +32,9 @@ sipmMC::sipmMC()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::sipmMC()" << endl;
 
-	pulse_shape_func_range = 1e3;
+	double pulse_shape_range = 1000;
 
-	f_pulse_shape_intern = new TF1("f_pulse_shape_intern",GPulseShape,0,pulse_shape_func_range,2);
+	f_pulse_shape_intern = new TF1("f_pulse_shape_intern",GPulseShape,0,pulse_shape_range,2);
 
 	g_spectral = NULL;
 
@@ -108,12 +108,20 @@ void sipmMC::Reset()
 }
 
 
-void sipmMC::GetParaFile( const char* filename )
+int sipmMC::GetParaFile( const char* filename )
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetParaFile( const char* filename )" << endl;
 
 	string para, value, dump;
 	ifstream in_config(filename);
+
+	///check if file exists
+	if(!in_config.good())
+	{
+		cout << C_YELLOW << "WARNING: Parameter file '" << filename << "' does not exist!" << C_RESET << endl;
+		in_config.close();
+		return 1;
+	}
 
 	double tau1F = tau1;
 	double tau2F = tau2;
@@ -180,6 +188,8 @@ void sipmMC::GetParaFile( const char* filename )
 	SetGeometry("square");
 
 	in_config.close();
+
+	return 0;
 }
 
 
@@ -294,20 +304,6 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2 )
 
 	f_pulse_shape_intern->SetParameters(tau1,tau2);
 
-	///find pulse shape cutoff
-	int i_max = f_pulse_shape_intern->GetMaximumX()/sampling + 1;
-	int i = i_max;
-	while(f_pulse_shape_intern->Eval(i*sampling) > f_pulse_shape_intern->GetMaximum()*cutOff)
-	{
-		if(i*sampling >= pulse_shape_func_range)
-		{
-			cout << C_YELLOW << "WARNING: No cutoff found for waveform!" << C_RESET << endl;
-			break;
-		}
-		i++;
-	}
-	n_pulse_samples = i;
-
 	SetPulseShape(f_pulse_shape_intern);
 }
 
@@ -318,10 +314,12 @@ void sipmMC::SetPulseShape( TF1* pulse_shape )
 
 	f_pulse_shape = pulse_shape;
 
-	///find pulse shape function amplitude
-	pulse_shape_func_max = f_pulse_shape->GetMaximum();
+	if(f_pulse_shape->GetXmin() != 0)
+	{
+		cout << C_YELLOW << "WARNING: TF1 used for pulse shape does not start at 0!" << C_RESET << endl;
+	}
 
-	update_pulse_shape = true;
+	UpdatePulseShape();
 }
 
 
@@ -332,6 +330,28 @@ void sipmMC::UpdatePulseShape()
 	g_pulse_charge.Set(0);
 
 	if(gPad!=0) gPad->SetLogx(false);
+
+	///find pulse shape function amplitude and range
+	pulse_shape_func_max = f_pulse_shape->GetMaximum();
+	pulse_shape_func_range = f_pulse_shape->GetXmax();
+
+	///find pulse shape cutoff
+	int i_max = f_pulse_shape->GetMaximumX()/sampling + 1;
+
+	int i = i_max;
+	if(cutOff > 0)
+	{
+		while(f_pulse_shape->Eval(i*sampling) > pulse_shape_func_max*cutOff)
+		{
+			if(i*sampling >= pulse_shape_func_range)
+			{
+				cout << C_YELLOW << "WARNING: No cutoff found for waveform!" << C_RESET << endl;
+				break;
+			}
+			i++;
+		}
+	}
+	n_pulse_samples = i;
 
 	///calculate pulse charge graph
 	double flast_charge = 0;
@@ -621,12 +641,23 @@ TGraph* sipmMC::GetWaveform()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetWaveform()" << endl;
 
-	//reset g_waveform
-	g_waveform->Set(0);
+	///reset g_waveform
+	if(g_waveform->GetN() != gate/sampling+1) g_waveform->Set(0);
 
-	for(int i=0;i<gate/sampling+1;i++)
+	///add random noise to waveform
+	if(noiseRMS > 0)
 	{
-		g_waveform->SetPoint(i,i*sampling,r.Gaus(0,noiseRMS));
+		for(int i=0;i<gate/sampling+1;i++)
+		{
+			g_waveform->SetPoint(i,i*sampling,r.Gaus(0,noiseRMS));
+		}
+	}
+	else
+	{
+		for(int i=0;i<gate/sampling+1;i++)
+		{
+			g_waveform->SetPoint(i,i*sampling,0);
+		}
 	}
 
 	double *wf_x = g_waveform->GetX();
@@ -639,7 +670,7 @@ TGraph* sipmMC::GetWaveform()
 
 		int i_start;
 		double tstart;
-		if(time>=0)
+		if(time >= 0)
 		{
 			i_start= time/sampling + 1;
 			tstart = wf_x[i_start];
