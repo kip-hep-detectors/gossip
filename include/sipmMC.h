@@ -66,8 +66,8 @@ class sipmMC{
 		void		GetParaFile( const char* filename );		/**<Sets SiPM parameters from config file*/
 		void		SetGeometry( string Geometry );			/**<Sets pixel arrangement. Only "square" implemented at the moment*/
 		void		SetGeometry( TH2I* hgeometry );			/**<Sets custom pixel arrangement from TH2I*/
-		void   		SetPulseShape( double Tau1, double Tau2 );	/**<Sets double exponential single pixel waveform with time constants "Tau1", "Tau2". "Sampling" is the sampling time of the simualtion in ns. Waveform is cut off at a fraction "cutOff" of the amplitude*/
-		void   		SetPulseShape( TF1* pulse_shape );		/**<Sets single pixel waveform from TF1*/
+		void		SetPulseShape( double Tau1, double Tau2 );	/**<Sets double exponential single pixel waveform with time constants "Tau1", "Tau2". "Sampling" is the sampling time of the simualtion in ns. Waveform is cut off at a fraction "cutOff" of the amplitude*/
+		void		SetPulseShape( TF1* pulse_shape );		/**<Sets single pixel waveform from TF1*/
 		void		SetSampling( double Sampling );			/**<Sets waveform sampling*/
 		void		SetCutoff( double Cutoff );			/**<Sets pixel waveform cutoff*/
 		void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see HitMatrix class)*/

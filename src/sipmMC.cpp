@@ -38,26 +38,26 @@ sipmMC::sipmMC()
 
 	g_spectral = NULL;
 
-	NpixX	= 10;
-	NpixY	= 10;
-	xSipm	= 1;
-	ySipm	= 1;
-	gate	= 300;
-	pre_gate	= 0;
-	tau_recovery= 10;
-	PDE		= 0.1;
-	Pxt		= 0.1;
-	Pap_s	= 0.1;
-	Pap_f	= 0.1;
-	tau_ap_s	= 150;
-	tau_ap_f	= 40;
-	tau_dr	= 2000;
-	gain	= 20;
-	ENF		= 2;
-	EN		= 2;
-	signalAmp	= 20;
-	noiseRMS	= 2;
-	jitter	= 0.25;
+	NpixX = 10;
+	NpixY = 10;
+	xSipm = 1;
+	ySipm = 1;
+	gate = 300;
+	pre_gate = 0;
+	tau_recovery = 10;
+	PDE = 0.1;
+	Pxt = 0.1;
+	Pap_s = 0.1;
+	Pap_f = 0.1;
+	tau_ap_s = 150;
+	tau_ap_f = 40;
+	tau_dr = 2000;
+	gain = 20;
+	ENF = 2;
+	EN = 2;
+	signalAmp = 20;
+	noiseRMS = 2;
+	jitter = 0.25;
 
 	timeval time;
 	gettimeofday(&time,NULL);
@@ -112,66 +112,74 @@ void sipmMC::GetParaFile( const char* filename )
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetParaFile( const char* filename )" << endl;
 
-	string para, pm, dump;
-	ifstream in(filename);
+	string para, value, dump;
+	ifstream in_config(filename);
 
-	double tau1F, tau2F;
+	double tau1F = tau1;
+	double tau2F = tau2;
+	double gateF = gate;
 
 	while(1)
 	{
-		in >> para;
-		if(para == "PDE") in >> PDE;
-		else if(para == "Gain") in >> gain;
-		else if(para == "TauDR") in >> tau_dr;
-		else if(para == "AP_s") in >> Pap_s;
-		else if(para == "TauAP_s") in >> tau_ap_s;
-		else if(para == "AP_f") in >> Pap_f;
-		else if(para == "TauAP_f") in >> tau_ap_f;
-		else if(para == "XT") in >> Pxt;
-		else if(para == "ENF") in >> ENF;
-		else if(para == "EN") in >> EN;
-		else if(para == "TauRec") in >> tau_recovery;
-		else if(para == "Jitter") in >> jitter;
-		else if(para == "Npx") in >> NpixX;
-		else if(para == "Npy") in >> NpixY;
-		else if(para == "SizeX") in >> xSipm;
-		else if(para == "SizeY") in >> ySipm;
-		else if(para == "NoiseRMS") in >> noiseRMS;
-		else if(para == "SignalAmp") in >> signalAmp;
-		else if(para == "Tau1") in >> tau1F;
-		else if(para == "Tau2") in >> tau2F;
-		else getline(in, dump);
+		///get rid of commented and empty lines
+		while(1)
+		{
+			char c = in_config.peek();
+			if(c=='\n') getline(in_config, para);
+			else if(c=='#') getline(in_config, para);
+			else break;
+		}
 
-		SetPulseShape(tau1F, tau2F);
-		SetGeometry("square");
+		///stop at end of file
+		if(in_config.eof()==true) break;
 
-		if(!in.good()) break;
+		///get config parameter (string before '=')
+		getline(in_config, para, '=');
+
+		///get config parameter value (string after '=')
+		getline(in_config, value);
+
+		///remove tabs and whitespaces
+		para.erase(remove(para.begin(), para.end(), '\t'), para.end());
+		para.erase(remove(para.begin(), para.end(), ' '), para.end());
+		para.erase(remove(para.begin(), para.end(), '\n'), para.end());
+
+		value.erase(remove(value.begin(), value.end(), '\t'), value.end());
+		value.erase(remove(value.begin(), value.end(), ' '), value.end());
+		value.erase(remove(value.begin(), value.end(), '\n'), value.end());
+
+		printf(">> %s = %s\n", para.c_str(), value.c_str());
+
+		///assign variable
+		if(para == "PDE") PDE = atof(value.c_str());
+		else if(para == "Gain") gain = atof(value.c_str());
+		else if(para == "TauDR") tau_dr = atof(value.c_str());
+		else if(para == "AP_s") Pap_s = atof(value.c_str());
+		else if(para == "TauAP_s") tau_ap_s = atof(value.c_str());
+		else if(para == "AP_f") Pap_f = atof(value.c_str());
+		else if(para == "TauAP_f") tau_ap_f = atof(value.c_str());
+		else if(para == "XT") Pxt = atof(value.c_str());
+		else if(para == "ENF") ENF = atof(value.c_str());
+		else if(para == "EN") EN = atof(value.c_str());
+		else if(para == "TauRec") tau_recovery = atof(value.c_str());
+		else if(para == "Jitter") jitter = atof(value.c_str());
+		else if(para == "Npx") NpixX = atoi(value.c_str());
+		else if(para == "Npy") NpixY = atoi(value.c_str());
+		else if(para == "SizeX") xSipm = atof(value.c_str());
+		else if(para == "SizeY") ySipm = atof(value.c_str());
+		else if(para == "NoiseRMS") noiseRMS = atof(value.c_str());
+		else if(para == "SignalAmp") signalAmp = atof(value.c_str());
+		else if(para == "Tau1") tau1F = atof(value.c_str());
+		else if(para == "Tau2") tau2F = atof(value.c_str());
+		else if(para == "Gate") gateF = atof(value.c_str());
+		else cout << C_YELLOW << "WARNING: Unknown parameter '" << para << "' in config file!" << C_RESET << endl;
 	}
 
-	cout << "PDE = " << PDE << "\n"
-		<< "Gain = " << gain << "\n"
-		<< "TauDR = " << tau_dr << "\n"
-		<< "AP_s = " << Pap_s << "\n"
-		<< "TauAP_s = " << tau_ap_s << "\n"
-		<< "AP_f = " << Pap_f << "\n"
-		<< "TauAP_f = " << tau_ap_f << "\n"
-		<< "XT = " << Pxt << "\n"
-		<< "ENF = " << ENF << "\n"
-		<< "EN = " << EN << "\n"
-		<< "TauRec = " << tau_recovery << "\n"
-		<< "Jitter = " << jitter << "\n"
-		<< "Npx = " << NpixX << "\n"
-		<< "Npy = " << NpixY << "\n"
-		<< "SizeX = " << xSipm << "\n"
-		<< "SizeY = " << ySipm << "\n"
-		<< "NoiseRMS = " << noiseRMS << "\n"
-		<< "SignalAmp = " << signalAmp << "\n"
-		<< "Tau1 = " << tau1F << "\n"
-		<< "Tau2 = " << tau2F << "\n"
-		<< endl;
+	SetGate(gateF);
+	SetPulseShape(tau1F, tau2F);
+	SetGeometry("square");
 
-	in.close();
-
+	in_config.close();
 }
 
 
