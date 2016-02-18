@@ -335,6 +335,8 @@ void sipmMC::UpdatePulseShape()
 	pulse_shape_func_max = f_pulse_shape->GetMaximum();
 	pulse_shape_func_range = f_pulse_shape->GetXmax();
 
+	n_pulse_samples = pulse_shape_func_range/sampling+1;	//not 100% sure about the +1...
+
 	///find pulse shape cutoff
 	int i_max = f_pulse_shape->GetMaximumX()/sampling + 1;
 
@@ -348,10 +350,10 @@ void sipmMC::UpdatePulseShape()
 				cout << C_YELLOW << "WARNING: No cutoff found for waveform!" << C_RESET << endl;
 				break;
 			}
-			i++;
+			i++;	//not 100% sure of i++ has to come before or after the break;
 		}
+		n_pulse_samples = i;
 	}
-	n_pulse_samples = i;
 
 	///calculate pulse charge graph
 	double flast_charge = 0;
