@@ -55,8 +55,8 @@ cd build
 cmake ..
 make
 sudo make install
-cd build
 ```
+The default installation path for the GosSiP library `libgossip.so` is `/usr/local/lib`. You can change the installation path via the `CMAKE_INSTALL_PREFIX` variable.
 
 
 **You're ready to go:**
