@@ -1,6 +1,6 @@
 ![Logo](gossip_logo.png "GosSiP Logo")
 
-#Introduction
+# Introduction
 **What can the simulation do for you?**
 
 The simulation models the response (signal waveform and charge) of a SiPM to an arbitrary
@@ -27,12 +27,12 @@ measured (or taken from the data sheet).
 
 ## Requirements:
 - cmake
-- [ROOT](https://root.cern.ch/)
+- [ROOT (Version 6)](https://root.cern.ch/downloading-root/)
 
 ## Getting the code:
 from [Github](https://github.com/kip-hep-detectors/gossip):
 ```bash
-git clone https://github.com/kip-hep-detectors/test.git
+git clone https://github.com/kip-hep-detectors/gossip.git
 ```
 or from [Bitbucket](https://bitbucket.org/kip-hep-detectors/gossip):
 ```bash
@@ -40,7 +40,7 @@ git clone git@bitbucket.org:kip-hep-detectors/gossip.git
 ```
 
 
-##Installation on Linux, OSX
+## Installation on Linux, OSX
 
 **Create a build directory:**
 ```bash
@@ -55,8 +55,8 @@ cd build
 cmake ..
 make
 sudo make install
-cd build
 ```
+The default installation path for the GosSiP library `libgossip.so` is `/usr/local/lib`. You can change the installation path via the `CMAKE_INSTALL_PREFIX` variable.
 
 
 **You're ready to go:**
@@ -65,13 +65,13 @@ gossip
 ```
 
 
-##Uninstall
+### Uninstall
 In your build directory, run:
 ```bash
 sudo make uninstall
 ```
 
 
-##Installation on Windows
+## Installation on Windows
 You need to install [Cygwin](https://www.cygwin.com/) to emulate a Unix shell. Follow
 the Linux installation instructions using the Cygwin terminal.

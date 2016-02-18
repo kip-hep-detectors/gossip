@@ -64,11 +64,12 @@ class sipmMC{
 		double		jitter;						/**<Jitter of rising edge tau1*/
 
 		double		Generate( PhotonList photons );			/**<Generates SiPM response*/
-		void		GetParaFile( const char* filename );		/**<Sets SiPM parameters from config file*/
+		int		GetParaFile( const char* filename );		/**<Sets SiPM parameters from config file. Returns 0 if successfull, returns 1 if file not found.*/
 		void		SetGeometry( string Geometry );			/**<Sets pixel arrangement. Only "square" implemented at the moment*/
 		void		SetGeometry( TH2I* hgeometry );			/**<Sets custom pixel arrangement from TH2I*/
 		void		SetPulseShape( double Tau1, double Tau2 );	/**<Sets double exponential single pixel waveform with time constants "Tau1", "Tau2". "Sampling" is the sampling time of the simualtion in ns. Waveform is cut off at a fraction "cutOff" of the amplitude*/
 		void		SetPulseShape( TF1* pulse_shape );		/**<Sets single pixel waveform from TF1*/
+		void		UpdatePulseShape();				/**<Builds g_pulse_charge*/
 		void		SetSampling( double Sampling );			/**<Sets waveform sampling*/
 		void		SetCutoff( double Cutoff );			/**<Sets pixel waveform cutoff*/
 		void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see HitMatrix class)*/
@@ -94,8 +95,6 @@ class sipmMC{
 
 	private:
 
-		void		UpdatePulseShape();				/**<Builds g_pulse_charge*/
-
 		TF1*		f_pulse_shape;
 		TF1*		f_pulse_shape_intern;
 		double		pulse_shape_func_max;
@@ -106,7 +105,6 @@ class sipmMC{
 
 		int		Npix;
 		HitMatrix*	hitMatrix;
-		TGraph*		g_waveform;
 		TGraph		g_pulse_charge;
 		Waveform	waveform;
 		double		pulseIntegral;

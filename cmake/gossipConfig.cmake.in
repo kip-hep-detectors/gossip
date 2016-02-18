@@ -1,0 +1,7 @@
+# - Config file for the gossip package
+# It defines the following variables
+#  gossip_INCLUDE_DIRS - include directories for gossip 
+#  gossip_LIBRARIES    - libraries to link against
+
+set(gossip_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+set(gossip_LIBRARIES "@CONF_LIBS@")

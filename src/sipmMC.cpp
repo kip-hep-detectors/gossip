@@ -34,32 +34,32 @@ sipmMC::sipmMC()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::sipmMC()" << endl;
 
-	pulse_shape_func_range = 1000;
+	double pulse_shape_range = 1000;
 
-	f_pulse_shape_intern = new TF1("f_pulse_shape_intern",GPulseShape,0,pulse_shape_func_range,2);
+	f_pulse_shape_intern = new TF1("f_pulse_shape_intern",GPulseShape,0,pulse_shape_range,2);
 
 	g_spectral = NULL;
 
-	NpixX	= 10;
-	NpixY	= 10;
-	xSipm	= 1;
-	ySipm	= 1;
-	gate	= 300;
-	pre_gate	= 0;
-	tau_recovery= 10;
-	PDE		= 0.1;
-	Pxt		= 0.1;
-	Pap_s	= 0.1;
-	Pap_f	= 0.1;
-	tau_ap_s	= 150;
-	tau_ap_f	= 40;
-	tau_dr	= 2000;
-	gain	= 20;
-	ENF		= 2;
-	EN		= 2;
-	signalAmp	= 20;
-	noiseRMS	= 2;
-	jitter	= 0.25;
+	NpixX = 10;
+	NpixY = 10;
+	xSipm = 1;
+	ySipm = 1;
+	gate = 300;
+	pre_gate = 0;
+	tau_recovery = 10;
+	PDE = 0.1;
+	Pxt = 0.1;
+	Pap_s = 0.1;
+	Pap_f = 0.1;
+	tau_ap_s = 150;
+	tau_ap_f = 40;
+	tau_dr = 2000;
+	gain = 20;
+	ENF = 2;
+	EN = 2;
+	signalAmp = 20;
+	noiseRMS = 2;
+	jitter = 0.25;
 
 	timeval time;
 	gettimeofday(&time,NULL);
@@ -69,12 +69,6 @@ sipmMC::sipmMC()
 
 	h_geometry = new TH2I();
 	h_geometry->SetNameTitle("h_geometry","h_geometry");
-
-	g_waveform = new TGraph();
-	g_waveform->SetMarkerStyle(1);
-	g_waveform->SetNameTitle("Waveform","Waveform");
-	g_waveform->GetXaxis()->SetTitle("Time [ns]");
-	g_waveform->GetYaxis()->SetTitle("Amplitude [mV]");
 
 	update_pulse_shape = false;
 	SetSampling(0.1);
@@ -90,7 +84,6 @@ sipmMC::~sipmMC()
 
 	delete hitMatrix;
 	delete h_geometry;
-	delete g_waveform;
 
 	if(g_spectral!=NULL) delete g_spectral;
 }
@@ -110,70 +103,88 @@ void sipmMC::Reset()
 }
 
 
-void sipmMC::GetParaFile( const char* filename )
+int sipmMC::GetParaFile( const char* filename )
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetParaFile( const char* filename )" << endl;
 
-	string para, pm, dump;
-	ifstream in(filename);
+	string para, value, dump;
+	ifstream in_config(filename);
 
-	double tau1F, tau2F;
+	///check if file exists
+	if(!in_config.good())
+	{
+		cout << C_YELLOW << "WARNING: Parameter file '" << filename << "' does not exist!" << C_RESET << endl;
+		in_config.close();
+		return 1;
+	}
+
+	double tau1F = tau1;
+	double tau2F = tau2;
+	double gateF = gate;
 
 	while(1)
 	{
-		in >> para;
-		if(para == "PDE") in >> PDE;
-		else if(para == "Gain") in >> gain;
-		else if(para == "TauDR") in >> tau_dr;
-		else if(para == "AP_s") in >> Pap_s;
-		else if(para == "TauAP_s") in >> tau_ap_s;
-		else if(para == "AP_f") in >> Pap_f;
-		else if(para == "TauAP_f") in >> tau_ap_f;
-		else if(para == "XT") in >> Pxt;
-		else if(para == "ENF") in >> ENF;
-		else if(para == "EN") in >> EN;
-		else if(para == "TauRec") in >> tau_recovery;
-		else if(para == "Jitter") in >> jitter;
-		else if(para == "Npx") in >> NpixX;
-		else if(para == "Npy") in >> NpixY;
-		else if(para == "SizeX") in >> xSipm;
-		else if(para == "SizeY") in >> ySipm;
-		else if(para == "NoiseRMS") in >> noiseRMS;
-		else if(para == "SignalAmp") in >> signalAmp;
-		else if(para == "Tau1") in >> tau1F;
-		else if(para == "Tau2") in >> tau2F;
-		else getline(in, dump);
+		///get rid of commented and empty lines
+		while(1)
+		{
+			char c = in_config.peek();
+			if(c=='\n') getline(in_config, para);
+			else if(c=='#') getline(in_config, para);
+			else break;
+		}
 
-		SetPulseShape(tau1F, tau2F);
-		SetGeometry("square");
+		///stop at end of file
+		if(in_config.eof()==true) break;
 
-		if(!in.good()) break;
+		///get config parameter (string before '=')
+		getline(in_config, para, '=');
+
+		///get config parameter value (string after '=')
+		getline(in_config, value);
+
+		///remove tabs and whitespaces
+		para.erase(remove(para.begin(), para.end(), '\t'), para.end());
+		para.erase(remove(para.begin(), para.end(), ' '), para.end());
+		para.erase(remove(para.begin(), para.end(), '\n'), para.end());
+
+		value.erase(remove(value.begin(), value.end(), '\t'), value.end());
+		value.erase(remove(value.begin(), value.end(), ' '), value.end());
+		value.erase(remove(value.begin(), value.end(), '\n'), value.end());
+
+		printf(">> %s = %s\n", para.c_str(), value.c_str());
+
+		///assign variable
+		if(para == "PDE") PDE = atof(value.c_str());
+		else if(para == "Gain") gain = atof(value.c_str());
+		else if(para == "TauDR") tau_dr = atof(value.c_str());
+		else if(para == "AP_s") Pap_s = atof(value.c_str());
+		else if(para == "TauAP_s") tau_ap_s = atof(value.c_str());
+		else if(para == "AP_f") Pap_f = atof(value.c_str());
+		else if(para == "TauAP_f") tau_ap_f = atof(value.c_str());
+		else if(para == "XT") Pxt = atof(value.c_str());
+		else if(para == "ENF") ENF = atof(value.c_str());
+		else if(para == "EN") EN = atof(value.c_str());
+		else if(para == "TauRec") tau_recovery = atof(value.c_str());
+		else if(para == "Jitter") jitter = atof(value.c_str());
+		else if(para == "Npx") NpixX = atoi(value.c_str());
+		else if(para == "Npy") NpixY = atoi(value.c_str());
+		else if(para == "SizeX") xSipm = atof(value.c_str());
+		else if(para == "SizeY") ySipm = atof(value.c_str());
+		else if(para == "NoiseRMS") noiseRMS = atof(value.c_str());
+		else if(para == "SignalAmp") signalAmp = atof(value.c_str());
+		else if(para == "Tau1") tau1F = atof(value.c_str());
+		else if(para == "Tau2") tau2F = atof(value.c_str());
+		else if(para == "Gate") gateF = atof(value.c_str());
+		else cout << C_YELLOW << "WARNING: Unknown parameter '" << para << "' in config file!" << C_RESET << endl;
 	}
 
-	cout << "PDE = " << PDE << "\n"
-		<< "Gain = " << gain << "\n"
-		<< "TauDR = " << tau_dr << "\n"
-		<< "AP_s = " << Pap_s << "\n"
-		<< "TauAP_s = " << tau_ap_s << "\n"
-		<< "AP_f = " << Pap_f << "\n"
-		<< "TauAP_f = " << tau_ap_f << "\n"
-		<< "XT = " << Pxt << "\n"
-		<< "ENF = " << ENF << "\n"
-		<< "EN = " << EN << "\n"
-		<< "TauRec = " << tau_recovery << "\n"
-		<< "Jitter = " << jitter << "\n"
-		<< "Npx = " << NpixX << "\n"
-		<< "Npy = " << NpixY << "\n"
-		<< "SizeX = " << xSipm << "\n"
-		<< "SizeY = " << ySipm << "\n"
-		<< "NoiseRMS = " << noiseRMS << "\n"
-		<< "SignalAmp = " << signalAmp << "\n"
-		<< "Tau1 = " << tau1F << "\n"
-		<< "Tau2 = " << tau2F << "\n"
-		<< endl;
+	SetGate(gateF);
+	SetPulseShape(tau1F, tau2F);
+	SetGeometry("square");
 
-	in.close();
+	in_config.close();
 
+	return 0;
 }
 
 
@@ -286,7 +297,6 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2 )
 		tau2 = Tau1;
 	}
 
-	f_pulse_shape_intern->SetRange(0,pulse_shape_func_range);
 	f_pulse_shape_intern->SetParameters(tau1,tau2);
 
 	SetPulseShape(f_pulse_shape_intern);
@@ -299,7 +309,12 @@ void sipmMC::SetPulseShape( TF1* pulse_shape )
 
 	f_pulse_shape = pulse_shape;
 
-	update_pulse_shape = true;
+	if(f_pulse_shape->GetXmin() != 0)
+	{
+		cout << C_YELLOW << "WARNING: TF1 used for pulse shape does not start at 0!" << C_RESET << endl;
+	}
+
+	UpdatePulseShape();
 }
 
 
@@ -309,22 +324,31 @@ void sipmMC::UpdatePulseShape()
 
 	g_pulse_charge.Set(0);
 
-	f_pulse_shape->SetRange(0,pulse_shape_func_range);
-
 	if(gPad!=0) gPad->SetLogx(false);
 
-	///find pulse shape function amplitude
+	///find pulse shape function amplitude and range
 	pulse_shape_func_max = f_pulse_shape->GetMaximum();
+	pulse_shape_func_range = f_pulse_shape->GetXmax();
+
+	n_pulse_samples = pulse_shape_func_range/sampling+1;	//not 100% sure about the +1...
 
 	///find pulse shape cutoff
 	int i_max = f_pulse_shape->GetMaximumX()/sampling + 1;
 
 	int i = i_max;
-	while(f_pulse_shape->Eval(i*sampling) > pulse_shape_func_max*cutOff)
+	if(cutOff > 0)
 	{
-		i++;
+		while(f_pulse_shape->Eval(i*sampling) > pulse_shape_func_max*cutOff)
+		{
+			if(i*sampling >= pulse_shape_func_range)
+			{
+				cout << C_YELLOW << "WARNING: No cutoff found for waveform!" << C_RESET << endl;
+				break;
+			}
+			i++;	//not 100% sure of i++ has to come before or after the break;
+		}
+		n_pulse_samples = i;
 	}
-	n_pulse_samples = i;
 
 	///calculate pulse charge graph
 	double flast_charge = 0;
@@ -614,20 +638,28 @@ Waveform sipmMC::GetWaveform()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetWaveform()" << endl;
 
-	//reset g_waveform
-	//g_waveform->Set(0);
-
-	waveform.Clear();
-	waveform.SetSampling(sampling);
-
-	for(int i=0;i<gate/sampling+1;i++)
+	///reset g_waveform
+	if(waveform.GetNsamples() != gate/sampling+1)
 	{
-		//g_waveform->SetPoint(i,i*sampling,r.Gaus(0,noiseRMS));
-		waveform.SetSample(i, r.Gaus(0,noiseRMS));
+		waveform.Clear();
+		waveform.SetSampling(sampling);
 	}
 
-	//double *wf_x = g_waveform->GetX();
-	//double *wf_y = g_waveform->GetY();
+	///add random noise to waveform
+	if(noiseRMS > 0)
+	{
+		for(int i=0;i<gate/sampling+1;i++)
+		{
+			waveform.SetSample(i, r.Gaus(0,noiseRMS));
+		}
+	}
+	else
+	{
+		for(int i=0;i<gate/sampling+1;i++)
+		{
+			waveform.SetSample(i, 0);
+		}
+	}
 
 	for(int n=0;n<hitMatrix->nHits();n++)
 	{
@@ -636,10 +668,9 @@ Waveform sipmMC::GetWaveform()
 
 		int i_start;
 		double tstart;
-		if(time>=0)
+		if(time >= 0)
 		{
 			i_start = time/sampling + 1;
-			//tstart = wf_x[i_start];
 			tstart = i_start*sampling;	//check!!!!!!
 		}
 		else
@@ -657,12 +688,10 @@ Waveform sipmMC::GetWaveform()
 
 		for(int i=0;i<n_pulse_samples;i++)
 		{
-			//if(i_start+i >= g_waveform->GetN()) break;
 			if(i_start+i >= waveform.GetNsamples()) break;
 
 			double t = i*sampling + (tstart - time);
 			double amp = signalAmp*amplitude/gain*f_pulse_shape->Eval(t)/pulse_shape_func_max;
-			//wf_y[i_start+i] += amp;
 			double amp_new = amp + waveform.GetSample(i_start+i);
 			waveform.SetSample(i_start+i,amp_new);
 		}
@@ -670,4 +699,3 @@ Waveform sipmMC::GetWaveform()
 
 	return waveform;
 }
-
