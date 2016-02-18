@@ -32,7 +32,7 @@ sipmMC::sipmMC()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::sipmMC()" << endl;
 
-	pulse_shape_func_range = 1000;
+	pulse_shape_func_range = 1e3;
 
 	f_pulse_shape_intern = new TF1("f_pulse_shape_intern",GPulseShape,0,pulse_shape_func_range,2);
 
@@ -292,8 +292,21 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2 )
 		tau2 = Tau1;
 	}
 
-	f_pulse_shape_intern->SetRange(0,pulse_shape_func_range);
 	f_pulse_shape_intern->SetParameters(tau1,tau2);
+
+	///find pulse shape cutoff
+	int i_max = f_pulse_shape_intern->GetMaximumX()/sampling + 1;
+	int i = i_max;
+	while(f_pulse_shape_intern->Eval(i*sampling) > f_pulse_shape_intern->GetMaximum()*cutOff)
+	{
+		if(i*sampling >= pulse_shape_func_range)
+		{
+			cout << C_YELLOW << "WARNING: No cutoff found for waveform!" << C_RESET << endl;
+			break;
+		}
+		i++;
+	}
+	n_pulse_samples = i;
 
 	SetPulseShape(f_pulse_shape_intern);
 }
@@ -305,6 +318,9 @@ void sipmMC::SetPulseShape( TF1* pulse_shape )
 
 	f_pulse_shape = pulse_shape;
 
+	///find pulse shape function amplitude
+	pulse_shape_func_max = f_pulse_shape->GetMaximum();
+
 	update_pulse_shape = true;
 }
 
@@ -315,22 +331,7 @@ void sipmMC::UpdatePulseShape()
 
 	g_pulse_charge.Set(0);
 
-	f_pulse_shape->SetRange(0,pulse_shape_func_range);
-
 	if(gPad!=0) gPad->SetLogx(false);
-
-	///find pulse shape function amplitude
-	pulse_shape_func_max = f_pulse_shape->GetMaximum();
-
-	///find pulse shape cutoff
-	int i_max = f_pulse_shape->GetMaximumX()/sampling + 1;
-
-	int i = i_max;
-	while(f_pulse_shape->Eval(i*sampling) > pulse_shape_func_max*cutOff)
-	{
-		i++;
-	}
-	n_pulse_samples = i;
 
 	///calculate pulse charge graph
 	double flast_charge = 0;
