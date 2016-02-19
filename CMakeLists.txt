@@ -4,7 +4,7 @@ project(gossip)
 
 #Set version number
 set(gossip_VERSION_MAJOR 1)
-set(gossip_VERSION_MINOR 31)
+set(gossip_VERSION_MINOR 32)
 set(gossip_VERSION ${gossip_VERSION_MAJOR}.${gossip_VERSION_MINOR})
 
 configure_file(
