@@ -7,7 +7,7 @@
 class Oscilloscope : public VDigitizer
 {
 	public:
-		Oscilloscope( double bandwidth=200, double enoise=1, double sampling=0.1, double enob=6 );
+		Oscilloscope( double bandwidth=0.2, double enoise=1, double sampling=0.1, double enob=6 );
 		~Oscilloscope();
 
 		void		Run();
