@@ -28,7 +28,7 @@ int main(int argc,char** argv){
 	sipmMC *sipm = new sipmMC();
 
 	///Read sipm parameters from file
-	sipm->GetParaFile("Parameters.txt");
+	sipm->GetParaFile("../input/Parameters.txt");
 
 	///Customize light source
 	lightSource->SetNgamma(100);		///Number of photons
@@ -63,16 +63,20 @@ int main(int argc,char** argv){
 
 
 	///Using Digitizer modules
+
+	///QDC
 	QDC qdc;
 	qdc.ConnectSiPM(sipm);
 	qdc.SetPedestal(50);
 	qdc.SetNbins(1024);
 	qdc.SetConversion(1);
 
+	///Osci
 	Oscilloscope osci;
+	osci.SetBW(0.2);
 	osci.ConnectSiPM(sipm);
 
-	sipm->Generate(photons);
+	//sipm->Generate(photons);
 
 	qdc.Run();
 	osci.Run();

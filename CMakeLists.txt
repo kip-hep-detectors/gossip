@@ -26,8 +26,14 @@ include(${ROOT_USE_FILE})
 
 include_directories(${ROOT_INCLUDE_DIRS} ${gossip_SOURCE_DIR}/include ${gossip_BINARY_DIR}/include)
 
-file(GLOB gossip_lib_SOURCES "src/*.cpp")
-file(GLOB gossip_lib_HEADERS "include/*.h")
+file(GLOB gossip_lib_SOURCES
+	"src/*.cpp"
+	"src/Digitizers/*.cpp"
+	"src/Digitizers/Filters/*.cpp")
+file(GLOB gossip_lib_HEADERS
+	"include/*.h"
+	"include/Digitizers/*.h"
+	"include/Digitizers/Filters/*.h")
 list(REMOVE_ITEM gossip_lib_HEADERS "${gossip_SOURCE_DIR}/include/LinkDef.h")
 
 set(CMAKE_MACOSX_RPATH ON)

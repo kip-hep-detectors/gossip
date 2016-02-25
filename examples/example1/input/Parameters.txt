@@ -21,6 +21,6 @@ SizeY		=	1
 Tau1		=	1
 Tau2		=	40
 SignalAmp	=	20.0
-NoiseRMS	=	2.0
+NoiseRMS	=	0.5
 
 Gate		=	300
