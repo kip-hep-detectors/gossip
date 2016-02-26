@@ -35,7 +35,7 @@ Ex01EventAction::Ex01EventAction(Ex01RunAction* runAction) : runAct(runAction)
 	sipm->SetSpectralSensitivity((TGraph*)f.Get("MPPC_noRef"));
 	f.Close();
 
-	waveform = sipm->GetWaveform();
+	waveform = sipm->GetWaveform().GetGraph();
 }
 
 Ex01EventAction::~Ex01EventAction()
@@ -155,7 +155,7 @@ void Ex01EventAction::EndOfEventAction(const G4Event* evt)
 	///Option 2:
 	sipm->Generate(photons);			///generate sipm response from photon list
 	charge = sipm->GetCharge();			///get output signal charge
-	waveform = sipm->GetWaveform();			///get output waveform
+	waveform = sipm->GetWaveform().GetGraph();	///get output waveform
 
 
 	///fill trees

@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 
 	unsigned int eventNb;	///event number
 	float charge;		///signal charge
-	float sampling; 	///sampling
+	float sampling;		///sampling
 	unsigned int sampleNb;	///sampleNb
 
 	char *buffer[1024];	///buffer for reading in values

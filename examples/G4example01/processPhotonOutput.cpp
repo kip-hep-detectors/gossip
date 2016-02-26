@@ -78,11 +78,11 @@ int main(int argc, char** argv)
 		}
 
 		sipm->Generate(photons);
-		
-		g_wf = sipm->GetWaveform();
-		
+
+		g_wf = sipm->GetWaveform().GetGraph();
+
 		double charge = sipm->GetCharge();
-		
+
 		cout << "Signal charge: " << charge << endl;
 
 		///now you can do stuff with the waveform

@@ -122,18 +122,18 @@ void SiPMSD::EndOfEvent(G4HCofThisEvent*)
 	{
 		sipm->Generate(photons);			///generate sipm response from photon list
 		float charge = sipm->GetCharge();		///get output signal charge
-		TGraph *waveform = sipm->GetWaveform();	///get output waveform
+		Waveform waveform = sipm->GetWaveform();	///get output waveform
 
 		float sampling = sipm->GetSampling();
-		unsigned int n_samples = waveform->GetN();
+		unsigned int n_samples = waveform.GetNsamples();
 
 		file_gossip.write((char*)&charge,sizeof(float));		///write output charge
 		file_gossip.write((char*)&sampling,sizeof(float));		///write sampling
 		file_gossip.write((char*)&n_samples,sizeof(unsigned int));	///write number of samples
 
-		for(int i=0;i<waveform->GetN();i++)				///write amplitudes
+		for(unsigned int i=0;i<n_samples;i++)				///write amplitudes
 		{
-			float amplitude = waveform->GetY()[i];
+			float amplitude = waveform.GetSample(i);
 			file_gossip.write((char*)&amplitude,sizeof(float));
 		}
 
