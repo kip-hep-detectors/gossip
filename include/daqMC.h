@@ -6,7 +6,7 @@
 #include "PhotonSource.h"
 #include "sipmMC.h"
 
-#include <TRandom3.h>
+#include <TRandom.h>
 #include <TGraph.h>
 #include <TH1.h>
 #include <TF1.h>
@@ -101,7 +101,7 @@ class daqMC{
 
 		int			nTDC_channels;
 
-		TRandom3		r;
+		TRandom			r;
 		HitMatrix*		hitMatrix;
 		vector<double>		hit;
 		sipmMC*			sipm;

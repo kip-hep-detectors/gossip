@@ -25,7 +25,7 @@ void QDC::BWFilter()
 
 void QDC::AddENoise()
 {
-	TRandom3 r(0);
+	TRandom r(0);
 	qdc_value += r.Gaus(0,enoise);
 }
 

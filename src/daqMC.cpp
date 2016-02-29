@@ -2,7 +2,6 @@
 
 #include "HitMatrix.h"
 
-#include <TRandom1.h>
 #include <TROOT.h>
 #include <TCanvas.h>
 #include <iostream>
@@ -22,7 +21,7 @@ daqMC::daqMC() : sipm(0), photonSource(0)
 	plast=0;
 	cancel=false;
 
-	r.SetSeed(time (NULL));
+	r.SetSeed(0);
 
 	h_QDC = new TH1D();
 	h_QDC->SetNameTitle("Charge Spectrum","Charge Spectrum");
