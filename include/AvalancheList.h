@@ -68,7 +68,7 @@ class AvalancheList
 		void		Clear( int type );				/**<Deletes all hits of type "type"*/
 		int		AddHit( int x, int y, double time, int type );	/**<Adds hit (amplitude = 0). x, y coordinates in units of pixels! (x, y >= 0, 0)*/
 		double		GetPreviousTime( unsigned int iHit );		/**<Returns time of pixel hit before iHit*/
-		void		EraseHit( Avalanche av );			/**<Deletes aHit from the list*/
+		void		EraseHit( unsigned int iHit );			/**<Deletes aHit from the list*/
 		int		nHits( int type );				/**<Returns number of hits of type "type"*/
 		int		nHits();					/**<Returns total number of hits*/
 		TH2D*		DrawMatrix();					/**<Draws all hits of type "type" (-1 = all)*/

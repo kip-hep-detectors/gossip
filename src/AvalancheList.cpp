@@ -123,16 +123,15 @@ double AvalancheList::GetPreviousTime( unsigned int iHit )
 }
 
 
-void AvalancheList::EraseHit( Avalanche av )
+void AvalancheList::EraseHit( unsigned int iHit )
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "AvalancheList::EraseHit( vector<double> aHit )" << endl;
 
-	auto it = find(avlist.begin(), avlist.end(), av);
-	avlist.erase(it);
+	avlist.erase(avlist.begin() + iHit);
 }
 
 
-int AvalancheList::nHits(int type)
+int AvalancheList::nHits( int type )
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "AvalancheList::nHits( int type )" << endl;
 

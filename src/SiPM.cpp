@@ -530,7 +530,7 @@ double SiPM::Generate( PhotonList photons )
 		///PDE reduced due to pixel recovery:
 		if(av.type==PE && r.Rndm()>=Vover/Vop)
 		{
-			hitMatrix.EraseHit(av);
+			hitMatrix.EraseHit(i);
 			i--;
 			continue;
 		}
@@ -538,7 +538,7 @@ double SiPM::Generate( PhotonList photons )
 		///Dark-rate reduced due to pixel recovery:
 		if(av.type==DR && r.Rndm()>=Vover/Vop)
 		{
-			hitMatrix.EraseHit(av);
+			hitMatrix.EraseHit(i);
 			i--;
 			continue;
 		}
