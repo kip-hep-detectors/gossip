@@ -10,9 +10,9 @@
 #include "TGProgressBar.h"
 #include "TCanvas.h"
 
-#include "sipmMC.h"
+#include "SiPM.h"
 #include "PhotonSource.h"
-#include "daqMC.h"
+#include "BasicDAQ.h"
 
 class GUI{
 
@@ -35,13 +35,13 @@ class GUI{
 		void			SelectMeasurement( int );
 		void			ReadParaFile( const char* filename );
 
-		sipmMC*			GetSiPM(){ return sipm; };
+		SiPM*			GetSiPM(){ return sipm; };
 
 	private:
 
-		sipmMC			*sipm;
+		SiPM			*sipm;
 		PhotonSource		*led;
-		daqMC			*daq;
+		BasicDAQ			*daq;
 
 		int			measurement;
 

@@ -1,5 +1,5 @@
-#ifndef sipmMC_h
-#define sipmMC_h
+#ifndef SiPM_h
+#define SiPM_h
 
 #include "HitMatrix.h"
 #include "PhotonList.h"
@@ -37,12 +37,12 @@ struct GCharge /**<Structure of charge return value*/
  *
  * Generates the waveform and charge from a photon list
  */
-class sipmMC{
+class SiPM{
 
 	public:
 
-		sipmMC();
-		~sipmMC();
+		SiPM();
+		~SiPM();
 
 		int		NpixX;						/**<Number of pixels in x. Disregarded when SetGeometry( TH2I* hgeometry ) is used.*/
 		int		NpixY;						/**<Number of pixels in y. Disregarded when SetGeometry( TH2I* hgeometry ) is used.*/

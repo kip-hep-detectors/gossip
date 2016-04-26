@@ -1,4 +1,4 @@
-#include "daqMC.h"
+#include "BasicDAQ.h"
 
 #include "HitMatrix.h"
 
@@ -14,9 +14,9 @@
 
 using namespace std;
 
-daqMC::daqMC() : sipm(0), photonSource(0)
+BasicDAQ::BasicDAQ() : sipm(0), photonSource(0)
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::daqMC()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::BasicDAQ()" << endl;
 
 	plast=0;
 	cancel=false;
@@ -90,9 +90,9 @@ daqMC::daqMC() : sipm(0), photonSource(0)
 }
 
 
-daqMC::~daqMC()
+BasicDAQ::~BasicDAQ()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::~daqMC()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::~BasicDAQ()" << endl;
 
 	delete h_pe;
 	delete h_dr;
@@ -104,18 +104,18 @@ daqMC::~daqMC()
 }
 
 
-void daqMC::Progress( int p )
+void BasicDAQ::Progress( int p )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::Progress( int p )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::Progress( int p )" << endl;
 
 	if(p!=plast) Emit("Progress(int)",p+1);	// p = Progress in %
 	plast=p;
 }
 
 
-bool daqMC::Check()
+bool BasicDAQ::Check()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::Check()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::Check()" << endl;
 
 	if(sipm && photonSource) return true;
 	else if (!sipm){ cout << "No SiPM loaded!" << endl; return false; }
@@ -124,9 +124,9 @@ bool daqMC::Check()
 }
 
 
-void daqMC::Statistic( int N )
+void BasicDAQ::Statistic( int N )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::Statistic( int N )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::Statistic( int N )" << endl;
 
 	if(!Check()) return;
 
@@ -192,9 +192,9 @@ void daqMC::Statistic( int N )
 }
 
 
-TH1D* daqMC::QDCSpectrum( int N )
+TH1D* BasicDAQ::QDCSpectrum( int N )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::QDCSpectrum( int N )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::QDCSpectrum( int N )" << endl;
 
 	if(!Check()) return h_QDC;
 
@@ -218,9 +218,9 @@ TH1D* daqMC::QDCSpectrum( int N )
 }
 
 
-TH1D* daqMC::TDCSpectrum( int N )
+TH1D* BasicDAQ::TDCSpectrum( int N )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::TDCSpectrum( int N )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::TDCSpectrum( int N )" << endl;
 
 	//Simple: Use timestaps
 
@@ -315,9 +315,9 @@ TH1D* daqMC::TDCSpectrum( int N )
 }
 
 
-TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tstep )
+TGraph* BasicDAQ::ThreshScan( double gate, double tstart, double tstop, double tstep )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::ThreshScan( double gate, double tstart, double tstop, double tstep )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::ThreshScan( double gate, double tstart, double tstop, double tstep )" << endl;
 
 	g_threshScan->Set(0);
 
@@ -503,9 +503,9 @@ TGraph* daqMC::ThreshScan( double gate, double tstart, double tstop, double tste
 }
 
 
-TGraph* daqMC::Scope()
+TGraph* BasicDAQ::Scope()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::Scope()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::Scope()" << endl;
 
 	if(!Check()) return 0;
 
@@ -518,17 +518,17 @@ TGraph* daqMC::Scope()
 }
 
 
-double daqMC::QDC( double charge )
+double BasicDAQ::QDC( double charge )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::QDC( double charge )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::QDC( double charge )" << endl;
 
 	return charge+pedestal;
 }
 
 
-TGraph* daqMC::Discriminator( TGraph* g_waveform, double threshold )
+TGraph* BasicDAQ::Discriminator( TGraph* g_waveform, double threshold )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::Discriminator( TGraph* g_waveform, double threshold )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::Discriminator( TGraph* g_waveform, double threshold )" << endl;
 
 	int ion=-1;
 	int ioff=-1;
@@ -591,9 +591,9 @@ TGraph* daqMC::Discriminator( TGraph* g_waveform, double threshold )
 }
 
 
-GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step )
+GResonseCurve BasicDAQ::DynamicRange( int N, double Ngamma_max, double Ngamma_step )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "BasicDAQ::DynamicRange( int N, double Ngamma_max, double Ngamma_step )" << endl;
 
 	int nQDC_temp = h_QDC->GetNbinsX();
 	SetQDCChannels(1000000);
@@ -871,7 +871,7 @@ GResonseCurve daqMC::DynamicRange( int N, double Ngamma_max, double Ngamma_step 
 }
 
 
-// void daqMC::ScanCT(int N)
+// void BasicDAQ::ScanCT(int N)
 // {
 //     TH2D *h_scan = new TH2D("h_scan","h_scan",sipm->Npx,0,sipm->Npx,sipm->Npy,0,sipm->Npy);
 //     for(int x=0;x<sipm->Npx;x++){

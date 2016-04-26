@@ -2,7 +2,7 @@
 #define VDigitizer_h
 
 #include "Waveform.h"
-#include "sipmMC.h"
+#include "SiPM.h"
 
 class VDigitizer
 {
@@ -11,13 +11,13 @@ class VDigitizer
 		virtual ~VDigitizer(){};
 
 		virtual void		Run() = 0;
-		void			ConnectSiPM( sipmMC* SiPM ){ sipm = SiPM; };
+		void			ConnectSiPM( SiPM* SiPM ){ sipm = SiPM; };
 
 	protected:
 		virtual void		BWFilter() = 0;
 		virtual void		AddENoise() = 0;
 
-		sipmMC*			sipm;
+		SiPM*			sipm;
 		Waveform		waveform;
 		double			charge;
 };

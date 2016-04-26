@@ -1,6 +1,6 @@
 //TODO: move noise to Digitizers!!
 
-#include "sipmMC.h"
+#include "SiPM.h"
 
 #include "gglobals.h"
 
@@ -28,13 +28,13 @@ Double_t GPulseShape(Double_t *x, Double_t *par)
 }
 
 
-sipmMC::sipmMC()
+SiPM::SiPM()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::sipmMC()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SiPM()" << endl;
 
 	double pulse_shape_range = 1000;
 
-	f_pulse_shape_intern = new TF1("f_pulse_shape_intern",GPulseShape,0,pulse_shape_range,2);
+	f_pulse_shape_intern = new TF1("f_pulse_shape_intern", GPulseShape, 0, pulse_shape_range, 2);
 
 	g_spectral = NULL;
 
@@ -64,19 +64,19 @@ sipmMC::sipmMC()
 	hitMatrix = new HitMatrix();
 
 	h_geometry = new TH2I();
-	h_geometry->SetNameTitle("h_geometry","h_geometry");
+	h_geometry->SetNameTitle("h_geometry", "h_geometry");
 
 	update_pulse_shape = false;
 	SetSampling(0.1);
 	SetCutoff(0.001);
-	SetPulseShape(1,40);
+	SetPulseShape(1, 40);
 	SetGeometry("square");
 }
 
 
-sipmMC::~sipmMC()
+SiPM::~SiPM()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::~sipmMC()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::~SiPM()" << endl;
 
 	delete hitMatrix;
 	delete h_geometry;
@@ -85,9 +85,9 @@ sipmMC::~sipmMC()
 }
 
 
-void sipmMC::Reset()
+void SiPM::Reset()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::Reset()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::Reset()" << endl;
 
 	charge.all = 0;
 	charge.pe  = 0;
@@ -96,12 +96,14 @@ void sipmMC::Reset()
 	charge.ct  = 0;
 	charge.en  = 0;
 	charge.enf = 0;
+
+	photonList.clear();
 }
 
 
-int sipmMC::GetParaFile( const char* filename )
+int SiPM::GetParaFile( const char* filename )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetParaFile( const char* filename )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::GetParaFile( const char* filename )" << endl;
 
 	string para, value, dump;
 	ifstream in_config(filename);
@@ -184,9 +186,9 @@ int sipmMC::GetParaFile( const char* filename )
 }
 
 
-void sipmMC::SetGate( double Gate, bool gateCut )
+void SiPM::SetGate( double Gate, bool gateCut )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetGate( double Gate, bool gateCut )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetGate( double Gate, bool gateCut )" << endl;
 
 	gate = Gate;
 	hitMatrix->SetGate(gate, gateCut);
@@ -194,45 +196,45 @@ void sipmMC::SetGate( double Gate, bool gateCut )
 }
 
 
-void sipmMC::SetPreGate( double preGate )
+void SiPM::SetPreGate( double preGate )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetPreGate( double preGate )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetPreGate( double preGate )" << endl;
 
 	pre_gate = preGate;
 }
 
 
-void sipmMC::SetSpectralSensitivity( TGraph* sensitivity )
+void SiPM::SetSpectralSensitivity( TGraph* sensitivity )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetSpectralSensitivity( TGraph* sensitivity )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetSpectralSensitivity( TGraph* sensitivity )" << endl;
 
 	g_spectral = (TGraph*)sensitivity->Clone();
 }
 
 
-void sipmMC::SetSpectralSensitivity( const char* file )
+void SiPM::SetSpectralSensitivity( const char* file )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetSpectralSensitivity( const char* file )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetSpectralSensitivity( const char* file )" << endl;
 
 	g_spectral = new TGraph(file);
 }
 
 
-void sipmMC::SetGeometry(string Geometry)
+void SiPM::SetGeometry(string Geometry)
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetGeometry( string Geometry )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetGeometry( string Geometry )" << endl;
 
 	h_geometry->Reset("M");
 
 	if(Geometry=="square")
 	{
-		h_geometry->SetBins(NpixX,0,NpixX,NpixY,0,NpixY);
+		h_geometry->SetBins(NpixX, 0, NpixX, NpixY, 0, NpixY);
 
 		for(int x=0;x<NpixX;x++)
 		{
 			for(int y=0;y<NpixY;y++)
 			{
-				h_geometry->Fill(x,y);
+				h_geometry->Fill(x, y);
 			}
 		}
 	}
@@ -244,9 +246,9 @@ void sipmMC::SetGeometry(string Geometry)
 }
 
 
-void sipmMC::SetGeometry( TH2I* hgeometry )
+void SiPM::SetGeometry( TH2I* hgeometry )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetGeometry( TH2I* hgeometry )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetGeometry( TH2I* hgeometry )" << endl;
 
 	h_geometry->Reset("M");
 
@@ -258,9 +260,9 @@ void sipmMC::SetGeometry( TH2I* hgeometry )
 }
 
 
-void sipmMC::SetSampling( double Sampling )
+void SiPM::SetSampling( double Sampling )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetSampling( double Sampling )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetSampling( double Sampling )" << endl;
 
 	sampling = Sampling;
 	update_pulse_shape = true;
@@ -268,9 +270,9 @@ void sipmMC::SetSampling( double Sampling )
 }
 
 
-void sipmMC::SetCutoff( double Cutoff )
+void SiPM::SetCutoff( double Cutoff )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetCutoff( double Cutoff )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetCutoff( double Cutoff )" << endl;
 
 	cutOff = Cutoff;
 	update_pulse_shape = true;
@@ -278,9 +280,9 @@ void sipmMC::SetCutoff( double Cutoff )
 }
 
 
-void sipmMC::SetPulseShape( double Tau1, double Tau2 )
+void SiPM::SetPulseShape( double Tau1, double Tau2 )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetPulseShape( double Tau1, double Tau2 )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetPulseShape( double Tau1, double Tau2 )" << endl;
 
 	if(Tau1<Tau2)
 	{
@@ -293,15 +295,15 @@ void sipmMC::SetPulseShape( double Tau1, double Tau2 )
 		tau2 = Tau1;
 	}
 
-	f_pulse_shape_intern->SetParameters(tau1,tau2);
+	f_pulse_shape_intern->SetParameters(tau1, tau2);
 
 	SetPulseShape(f_pulse_shape_intern);
 }
 
 
-void sipmMC::SetPulseShape( TF1* pulse_shape )
+void SiPM::SetPulseShape( TF1* pulse_shape )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::SetPulseShape( TF1* pulse_shape )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetPulseShape( TF1* pulse_shape )" << endl;
 
 	f_pulse_shape = pulse_shape;
 
@@ -314,9 +316,9 @@ void sipmMC::SetPulseShape( TF1* pulse_shape )
 }
 
 
-void sipmMC::UpdatePulseShape()
+void SiPM::UpdatePulseShape()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::UpdatePulseShape()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::UpdatePulseShape()" << endl;
 
 	g_pulse_charge.Set(0);
 
@@ -351,12 +353,12 @@ void sipmMC::UpdatePulseShape()
 	for(int i=0;i<pulse_shape_func_range/sampling;i++)
 	{
 		double ftime = i*sampling;
-		double fcharge = f_pulse_shape->Integral(0,ftime,1e-3);
-		g_pulse_charge.SetPoint(g_pulse_charge.GetN(),ftime,fcharge);
+		double fcharge = f_pulse_shape->Integral(0, ftime, 1e-3);
+		g_pulse_charge.SetPoint(g_pulse_charge.GetN(), ftime, fcharge);
 
 		if(fabs(fcharge-flast_charge)<1e-3 && i>0)
 		{
-			g_pulse_charge.SetPoint(g_pulse_charge.GetN(),gate+pre_gate,fcharge);
+			g_pulse_charge.SetPoint(g_pulse_charge.GetN(), gate+pre_gate, fcharge);
 			break;
 		}
 		flast_charge = fcharge;
@@ -376,44 +378,37 @@ void sipmMC::UpdatePulseShape()
 }
 
 
-void sipmMC::ImportPhotons( PhotonList photons )
+void SiPM::ImportPhotons( PhotonList photons )
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::ImportPhotons( PhotonList photons )" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::ImportPhotons( PhotonList photons )" << endl;
 
-	photonList = photons;
-
-	for(unsigned int i=0;i<photonList.size();i++)
+	for(auto it : photons)
 	{
-		double x = photonList[i][X];
-		double y = photonList[i][Y];
+		double x = it.pos_x;
+		double y = it.pos_y;
 
 		if( x>=-xSipm/2. && x<=xSipm/2. && y>=-ySipm/2. && y<=ySipm/2.)
 		{
-			photonList[i][X] = (int)(((x+0.5*xSipm))/xSipm*h_geometry->GetNbinsX());
-			photonList[i][Y] = (int)(((y+0.5*ySipm))/ySipm*h_geometry->GetNbinsY());
-		}
-		else
-		{
-			photonList.erase(photonList.begin()+i);
-			i--;
+			it.pos_x = (int)(((x+0.5*xSipm))/xSipm*h_geometry->GetNbinsX());
+			it.pos_y = (int)(((y+0.5*ySipm))/ySipm*h_geometry->GetNbinsY());
+			photonList.push_back(it);
 		}
 	}
-
 }
 
 
-void sipmMC::InitHitMatrix()
+void SiPM::InitHitMatrix()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::InitHitMatrix()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::InitHitMatrix()" << endl;
 
 	hitMatrix->Init();
 }
 
 
-double sipmMC::Generate( PhotonList photons )
+double SiPM::Generate( PhotonList photons )
 {
 
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::Generate()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::Generate()" << endl;
 
 	Reset();
 	ImportPhotons(photons);					//Translate photons from PhotonList to pixel basis
@@ -475,12 +470,12 @@ double sipmMC::Generate( PhotonList photons )
 	double Vop = 1;		///has to be 1!!! (only for custom voltage dependence of parameters important)
 
 	///detected photons:
-	for(unsigned int i=0;i<photonList.size();i++)
+	for(auto it : photonList)
 	{
 		///apply spectral sensitivity if set
 		if(g_spectral!=NULL)
 		{
-			double wavelength = photonList[i][PL_WL];
+			double wavelength = it.wavelength;
 			double spec_sens = g_spectral->Eval(wavelength);
 
 			if(r.Rndm()>spec_sens) continue;	///photon is not detected
@@ -488,8 +483,10 @@ double sipmMC::Generate( PhotonList photons )
 
 		if(r.Rndm()<PDE)
 		{
-			double time = r.Gaus(photonList[i][PL_TIME],jitter);		///No time offset...signal can appear before photon time stamp! =)
-			hitMatrix->AddHit(photonList[i][PL_X],photonList[i][PL_Y],time,PE);
+			double time = r.Gaus(it.time, jitter);		///No time offset...signal can appear before photon time stamp! =)
+			int x = it.pos_x;
+			int y = it.pos_y;
+			hitMatrix->AddHit(x, y, time, PE);
 		}
 	}
 
@@ -499,7 +496,7 @@ double sipmMC::Generate( PhotonList photons )
 	if(tau_dr!=0)
 	{
 		double time = -pre_gate;
-		int x,y;
+		int x, y;
 
 		while(1)
 		{
@@ -508,9 +505,9 @@ double sipmMC::Generate( PhotonList photons )
 			{
 				x = r.Rndm()*h_geometry->GetNbinsX();
 				y = r.Rndm()*h_geometry->GetNbinsY();
-				if(h_geometry->GetBinContent(x+1,y+1)==1) break;
+				if(h_geometry->GetBinContent(x+1, y+1)==1) break;
 			}
-			hitMatrix->AddHit(x,y,time,DR);
+			hitMatrix->AddHit(x, y, time, DR);
 			if(time >= gate) break;	//letzter hit liegt nach dem gate für time distribution
 		}
 	}
@@ -518,7 +515,7 @@ double sipmMC::Generate( PhotonList photons )
 	/// crosstalk & afterpulses (& amplituden):
 	//double ct_length = 80;
 	//double pitch = (1000/Npx + 1000/Npy)*0.5;	//gemittelt über xpitch und ypitch
-	double q = (1-TMath::Power(1-Pxt,0.25));
+	double q = (1-TMath::Power(1-Pxt, 0.25));
 
 	for(int i=0;i<hitMatrix->nHits();i++)
 	{
@@ -551,11 +548,11 @@ double sipmMC::Generate( PhotonList photons )
 		}
 
 		///amplitude:
-		double enfNoise = r.Gaus(0,ENF*Vover/Vop);
+		double enfNoise = r.Gaus(0, ENF*Vover/Vop);
 		double amplitude= gain + enfNoise;
 		if(amplitude<0) amplitude=0;
 		amplitude=amplitude*Vover/Vop;	///recovery
-		hitMatrix->SetAmplitude(i,amplitude);
+		hitMatrix->SetAmplitude(i, amplitude);
 
 		double overflow;
 		if(time>=0)
@@ -583,16 +580,16 @@ double sipmMC::Generate( PhotonList photons )
 			if(Pxt!=0)
 			{
 				//direct
-				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x+1,y,hit[TIME],CT);
-				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x-1,y,hit[TIME],CT);
-				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x,y+1,hit[TIME],CT);
-				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x,y-1,hit[TIME],CT);
+				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x+1, y, hit[TIME], CT);
+				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x-1, y, hit[TIME], CT);
+				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x, y+1, hit[TIME], CT);
+				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x, y-1, hit[TIME], CT);
 
 				//diagonal
-				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y+1,hit[TIME],CT);
-				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1,y-1,hit[TIME],CT);
-				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y+1,hit[TIME],CT);
-				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1,y-1,hit[TIME],CT);
+				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1, y+1, hit[TIME], CT);
+				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1, y-1, hit[TIME], CT);
+				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1, y+1, hit[TIME], CT);
+				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1, y-1, hit[TIME], CT);
 			}
 
 			///afterpulses:
@@ -603,7 +600,7 @@ double sipmMC::Generate( PhotonList photons )
 				for(int i_ap=0;i_ap<Nap;i_ap++)
 				{
 					double time_ap = r.Exp(tau_ap_s);
-					if(hit[TIME]<=gate) hitMatrix->AddHit(x,y,hit[TIME]+time_ap,AP);	//hit[TIME]<=gate: erlaube noch ein hit nach dem gate für time distribution
+					if(hit[TIME]<=gate) hitMatrix->AddHit(x, y, hit[TIME]+time_ap, AP);	//hit[TIME]<=gate: erlaube noch ein hit nach dem gate für time distribution
 				}
 			}
 			if(Pap_f!=0)
@@ -612,7 +609,7 @@ double sipmMC::Generate( PhotonList photons )
 				for(int i_ap=0;i_ap<Nap;i_ap++)
 				{
 					double time_ap = r.Exp(tau_ap_f);
-					if(hit[TIME]<=gate) hitMatrix->AddHit(x,y,hit[TIME]+time_ap,AP);	//hit[TIME]<=gate: erlaube noch ein hit nach dem gate für time distribution
+					if(hit[TIME]<=gate) hitMatrix->AddHit(x, y, hit[TIME]+time_ap, AP);	//hit[TIME]<=gate: erlaube noch ein hit nach dem gate für time distribution
 				}
 			}
 
@@ -622,7 +619,7 @@ double sipmMC::Generate( PhotonList photons )
 	}
 
 	///Add electronic noise:
-	double eNoise = r.Gaus(0,EN);
+	double eNoise = r.Gaus(0, EN);
 	charge.en = eNoise;
 	charge.all += eNoise;
 
@@ -630,9 +627,9 @@ double sipmMC::Generate( PhotonList photons )
 }
 
 
-Waveform sipmMC::GetWaveform()
+Waveform SiPM::GetWaveform()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "sipmMC::GetWaveform()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::GetWaveform()" << endl;
 
 	///reset g_waveform
 	if(waveform.GetNsamples() != gate/sampling+1)
@@ -646,7 +643,7 @@ Waveform sipmMC::GetWaveform()
 	{
 		for(int i=0;i<gate/sampling+1;i++)
 		{
-			waveform.SetSample(i, r.Gaus(0,noiseRMS));
+			waveform.SetSample(i, r.Gaus(0, noiseRMS));
 		}
 	}
 	else
@@ -677,9 +674,9 @@ Waveform sipmMC::GetWaveform()
 
 		//    ///risetime jitter
 		//    double tau1_tmp = tau1;
-		//    double risetime = r.Gaus(tau1,jitter);
+		//    double risetime = r.Gaus(tau1, jitter);
 		//    if(risetime<=0.2) risetime = 0.2;
-		//    SetPulseShape(risetime,tau2);
+		//    SetPulseShape(risetime, tau2);
 		//    tau1 = tau1_tmp;
 
 		for(int i=0;i<n_pulse_samples;i++)
@@ -689,7 +686,7 @@ Waveform sipmMC::GetWaveform()
 			double t = i*sampling + (tstart - time);
 			double amp = signalAmp*amplitude/gain*f_pulse_shape->Eval(t)/pulse_shape_func_max;
 			double amp_new = amp + waveform.GetSample(i_start+i);
-			waveform.SetSample(i_start+i,amp_new);
+			waveform.SetSample(i_start+i, amp_new);
 		}
 	}
 

@@ -6,8 +6,8 @@
 #pragma link C++ class PhotonList;
 #pragma link C++ class PhotonSource;
 #pragma link C++ class HitMatrix;
-#pragma link C++ class sipmMC;
-#pragma link C++ class daqMC;
+#pragma link C++ class SiPM;
+#pragma link C++ class BasicDAQ;
 #pragma link C++ class GUI;
 
 #endif

@@ -1,10 +1,10 @@
-#ifndef daqMC_h
-#define daqMC_h
+#ifndef BasicDAQ_h
+#define BasicDAQ_h
 
 
 #include "HitMatrix.h"
 #include "PhotonSource.h"
-#include "sipmMC.h"
+#include "SiPM.h"
 
 #include <TRandom.h>
 #include <TGraph.h>
@@ -44,17 +44,17 @@ struct GResonseCurve /**<Structure of response measurement return value*/
 /**
  * Simple implementation of several characterization measurements
  */
-class daqMC{
-	RQ_OBJECT("daqMC")
+class BasicDAQ{
+	RQ_OBJECT("BasicDAQ")
 
 	public:
 
-		daqMC();
-		~daqMC();
+		BasicDAQ();
+		~BasicDAQ();
 
-		/**Connect daqMC class with sipmMC object*/
-		void			SetSiPM( sipmMC *mySiPM){ sipm = mySiPM; };
-		/**Connect daqMC class with PhotonSource object*/
+		/**Connect BasicDAQ class with SiPM object*/
+		void			SetSiPM( SiPM *mySiPM ){ sipm = mySiPM; };
+		/**Connect BasicDAQ class with PhotonSource object*/
 		void			SetPhotonSource( PhotonSource *myPhotonSource ){ photonSource = myPhotonSource; };
 		void			Statistic( int N );									/**<Plots number of pde, ct, ap, dr events in "N" events*/
 		TGraph*			Scope();										/**<Returns waveform*/
@@ -104,7 +104,7 @@ class daqMC{
 		TRandom			r;
 		HitMatrix*		hitMatrix;
 		vector<double>		hit;
-		sipmMC*			sipm;
+		SiPM*			sipm;
 		PhotonSource*		photonSource;
 
 		double			discriMinTime;

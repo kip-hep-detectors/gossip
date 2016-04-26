@@ -23,9 +23,9 @@ GUI::GUI()
 
 	c_main = new TCanvas("c_main","c_main",0,0,700,500);
 
-	sipm = new sipmMC();
+	sipm = new SiPM();
 	led = new PhotonSource();
-	daq = new daqMC();
+	daq = new BasicDAQ();
 	daq->SetSiPM(sipm);
 	daq->SetPhotonSource(led);
 }
