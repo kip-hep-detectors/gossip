@@ -2,7 +2,7 @@
 #define BasicDAQ_h
 
 
-#include "HitMatrix.h"
+#include "AvalancheList.h"
 #include "PhotonSource.h"
 #include "SiPM.h"
 
@@ -102,7 +102,7 @@ class BasicDAQ{
 		int			nTDC_channels;
 
 		TRandom			r;
-		HitMatrix*		hitMatrix;
+		AvalancheList*		hitMatrix;
 		vector<double>		hit;
 		SiPM*			sipm;
 		PhotonSource*		photonSource;

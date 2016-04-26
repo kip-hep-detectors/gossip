@@ -1,6 +1,6 @@
 #include "BasicDAQ.h"
 
-#include "HitMatrix.h"
+#include "AvalancheList.h"
 
 #include <TROOT.h>
 #include <TCanvas.h>
@@ -146,7 +146,7 @@ void BasicDAQ::Statistic( int N )
 	for(int i=0;i<N;i++)
 	{
 		sipm->Generate(photonSource->GeneratePhotons());
-		hitMatrix = sipm->GetHitMatrix();
+		hitMatrix = sipm->GetAvalancheList();
 
 		int npe = hitMatrix->nHits(PE);
 		int ndr = hitMatrix->nHits(DR);
@@ -244,15 +244,14 @@ TH1D* BasicDAQ::TDCSpectrum( int N )
 
 		double tlast=0;
 		sipm->Generate(empty);
-		hitMatrix = sipm->GetHitMatrix();
+		hitMatrix = sipm->GetAvalancheList();
 
 		for(int i=0;i<hitMatrix->nHits();i++)
 		{
-			hit.clear();
-			hit=hitMatrix->GetHit(i);
-			if(hit[TYPE]==CT || hit[TYPE]==PE || hit[TIME]-tlast<=deadtime) continue;
-			h_TDC->Fill(hit[TIME]-tlast);
-			tlast=hit[TIME];
+			Avalanche av = hitMatrix->At(i);
+			if(av.type==CT || av.type==PE || av.time-tlast<=deadtime) continue;
+			h_TDC->Fill(av.time-tlast);
+			tlast=av.time;
 			if(h_TDC->GetEntries()>=N) break;
 		}
 	}
@@ -336,7 +335,7 @@ TGraph* BasicDAQ::ThreshScan( double gate, double tstart, double tstop, double t
 
 	sipm->Generate(empty);
 	TGraph *g_waveform = sipm->GetWaveform().GetGraph();
-	hitMatrix = sipm->GetHitMatrix();
+	hitMatrix = sipm->GetAvalancheList();
 
 	//   int imax = sipm->GetPulseShape()->GetMaximumBin();
 
@@ -358,7 +357,7 @@ TGraph* BasicDAQ::ThreshScan( double gate, double tstart, double tstop, double t
 	//     Progress(100*i/hitMatrix->nHits());
 	//
 	//     hit.clear();
-	//     hit=hitMatrix->GetHit(i);
+	//     hit=hitMatrix[i];
 	//
 	//     double amp = wf_y[hit[TIME]/sampling+imax];
 	//

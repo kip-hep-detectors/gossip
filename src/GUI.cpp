@@ -482,7 +482,7 @@ void GUI::onRunButtonClicked()
 
 		c_main->SetLogy(false);
 		c_main->SetLogx(false);
-		sipm->GetHitMatrix()->DrawMatrix();
+		//sipm->GetAvalancheList()->DrawMatrix();
 	}
 	if(measurement==2)
 	{

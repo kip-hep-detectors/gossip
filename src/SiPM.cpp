@@ -61,8 +61,6 @@ SiPM::SiPM()
 
 	r.SetSeed(0);
 
-	hitMatrix = new HitMatrix();
-
 	h_geometry = new TH2I();
 	h_geometry->SetNameTitle("h_geometry", "h_geometry");
 
@@ -78,7 +76,6 @@ SiPM::~SiPM()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::~SiPM()" << endl;
 
-	delete hitMatrix;
 	delete h_geometry;
 
 	if(g_spectral!=NULL) delete g_spectral;
@@ -191,7 +188,7 @@ void SiPM::SetGate( double Gate, bool gateCut )
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetGate( double Gate, bool gateCut )" << endl;
 
 	gate = Gate;
-	hitMatrix->SetGate(gate, gateCut);
+	hitMatrix.SetGate(gate, gateCut);
 	update_pulse_shape = true;
 }
 
@@ -230,9 +227,9 @@ void SiPM::SetGeometry(string Geometry)
 	{
 		h_geometry->SetBins(NpixX, 0, NpixX, NpixY, 0, NpixY);
 
-		for(int x=0;x<NpixX;x++)
+		for(int x=0; x<NpixX; ++x)
 		{
-			for(int y=0;y<NpixY;y++)
+			for(int y=0; y<NpixY; ++y)
 			{
 				h_geometry->Fill(x, y);
 			}
@@ -242,7 +239,7 @@ void SiPM::SetGeometry(string Geometry)
 
 	Npix = h_geometry->Integral();
 
-	hitMatrix->SetGeometry(h_geometry);
+	hitMatrix.SetGeometry(h_geometry);
 }
 
 
@@ -256,7 +253,7 @@ void SiPM::SetGeometry( TH2I* hgeometry )
 
 	Npix = h_geometry->Integral();
 
-	hitMatrix->SetGeometry(h_geometry);
+	hitMatrix.SetGeometry(h_geometry);
 }
 
 
@@ -343,14 +340,14 @@ void SiPM::UpdatePulseShape()
 				cout << C_YELLOW << "WARNING: No cutoff found for waveform!" << C_RESET << endl;
 				break;
 			}
-			i++;	//not 100% sure of i++ has to come before or after the break;
+			++i;	//not 100% sure of i++ has to come before or after the break;
 		}
 		n_pulse_samples = i;
 	}
 
 	///calculate pulse charge graph
 	double flast_charge = 0;
-	for(int i=0;i<pulse_shape_func_range/sampling;i++)
+	for(int i=0; i<pulse_shape_func_range/sampling; ++i)
 	{
 		double ftime = i*sampling;
 		double fcharge = f_pulse_shape->Integral(0, ftime, 1e-3);
@@ -368,7 +365,7 @@ void SiPM::UpdatePulseShape()
 	//double *x = g_pulse_charge.GetX();
 	double *y = g_pulse_charge.GetY();
 
-	for(int i=0;i<g_pulse_charge.GetN();i++)
+	for(int i=0; i<g_pulse_charge.GetN(); ++i)
 	{
 		y[i] /= flast_charge;
 	}
@@ -397,11 +394,11 @@ void SiPM::ImportPhotons( PhotonList photons )
 }
 
 
-void SiPM::InitHitMatrix()
+void SiPM::InitAvalancheList()
 {
-	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::InitHitMatrix()" << endl;
+	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::InitAvalancheList()" << endl;
 
-	hitMatrix->Init();
+	hitMatrix.Init();
 }
 
 
@@ -412,7 +409,7 @@ double SiPM::Generate( PhotonList photons )
 
 	Reset();
 	ImportPhotons(photons);					//Translate photons from PhotonList to pixel basis
-	InitHitMatrix();					//Pass parameters to HitMatrix class
+	InitAvalancheList();					//Pass parameters to AvalancheList class
 	if(update_pulse_shape==true) UpdatePulseShape();	//Calculate pulse shape parameters if something has changes
 
 	if(PDE>1 || PDE<0)
@@ -486,7 +483,7 @@ double SiPM::Generate( PhotonList photons )
 			double time = r.Gaus(it.time, jitter);		///No time offset...signal can appear before photon time stamp! =)
 			int x = it.pos_x;
 			int y = it.pos_y;
-			hitMatrix->AddHit(x, y, time, PE);
+			hitMatrix.AddHit(x, y, time, PE);
 		}
 	}
 
@@ -507,7 +504,7 @@ double SiPM::Generate( PhotonList photons )
 				y = r.Rndm()*h_geometry->GetNbinsY();
 				if(h_geometry->GetBinContent(x+1, y+1)==1) break;
 			}
-			hitMatrix->AddHit(x, y, time, DR);
+			hitMatrix.AddHit(x, y, time, DR);
 			if(time >= gate) break;	//letzter hit liegt nach dem gate für time distribution
 		}
 	}
@@ -517,42 +514,41 @@ double SiPM::Generate( PhotonList photons )
 	//double pitch = (1000/Npx + 1000/Npy)*0.5;	//gemittelt über xpitch und ypitch
 	double q = (1-TMath::Power(1-Pxt, 0.25));
 
-	for(int i=0;i<hitMatrix->nHits();i++)
+	for(int i=0; i<hitMatrix.nHits(); ++i)
 	{
-		hit.clear();
-		hit=hitMatrix->GetHit(i);
-		int x=hit[X];
-		int y=hit[Y];
-		double time=hit[TIME];
+		Avalanche& av = hitMatrix[i];
+		int x=av.x;
+		int y=av.y;
+		double time=av.time;
 
 		///pixel recovery:
 		double Vover;
-		double tlast=hitMatrix->GetPreviousTime(i);
+		double tlast=hitMatrix.GetPreviousTime(i);
 		if(tlast!=-1 && tau_recovery>0) Vover = Vop*(1-TMath::Exp(-(time-tlast)/tau_recovery));
 		else Vover = Vop;
 
 		///PDE reduced due to pixel recovery:
-		if(hit[TYPE]==PE && r.Rndm()>=Vover/Vop)
+		if(av.type==PE && r.Rndm()>=Vover/Vop)
 		{
-			hitMatrix->EraseHit(hit);
+			hitMatrix.EraseHit(av);
 			i--;
 			continue;
 		}
 
 		///Dark-rate reduced due to pixel recovery:
-		if(hit[TYPE]==DR && r.Rndm()>=Vover/Vop)
+		if(av.type==DR && r.Rndm()>=Vover/Vop)
 		{
-			hitMatrix->EraseHit(hit);
+			hitMatrix.EraseHit(av);
 			i--;
 			continue;
 		}
 
 		///amplitude:
 		double enfNoise = r.Gaus(0, ENF*Vover/Vop);
-		double amplitude= gain + enfNoise;
+		double amplitude = gain + enfNoise;
 		if(amplitude<0) amplitude=0;
-		amplitude=amplitude*Vover/Vop;	///recovery
-		hitMatrix->SetAmplitude(i, amplitude);
+		amplitude = amplitude*Vover/Vop;	///recovery
+		av.amplitude = amplitude;
 
 		double overflow;
 		if(time>=0)
@@ -567,54 +563,48 @@ double SiPM::Generate( PhotonList photons )
 
 		if(amplitude>0)
 		{
-			if(hit[TYPE]==PE) charge.pe+=gain*Vover/Vop*(1-overflow/amplitude);	///formular from amplitude = (gain + enf)*Vover/Vop - overflow
-			if(hit[TYPE]==CT) charge.ct+=gain*Vover/Vop*(1-overflow/amplitude);	///                        = (gain + enf)*Vover/Vop - (gain + enf)*Vover/Vop*overflow/amplitude
-			if(hit[TYPE]==AP) charge.ap+=gain*Vover/Vop*(1-overflow/amplitude);	///                        = gain*Vover/Vop*(1-overflow/amplitude) + enf*Vover/Vop*(1-overflow/amplitude)
-			if(hit[TYPE]==DR) charge.dr+=gain*Vover/Vop*(1-overflow/amplitude);
+			if(av.type==PE) charge.pe+=gain*Vover/Vop*(1-overflow/amplitude);	///formular from amplitude = (gain + enf)*Vover/Vop - overflow
+			if(av.type==CT) charge.ct+=gain*Vover/Vop*(1-overflow/amplitude);	///                        = (gain + enf)*Vover/Vop - (gain + enf)*Vover/Vop*overflow/amplitude
+			if(av.type==AP) charge.ap+=gain*Vover/Vop*(1-overflow/amplitude);	///                        = gain*Vover/Vop*(1-overflow/amplitude) + enf*Vover/Vop*(1-overflow/amplitude)
+			if(av.type==DR) charge.dr+=gain*Vover/Vop*(1-overflow/amplitude);
 			charge.enf+=enfNoise*Vover/Vop*(1-overflow/amplitude);
 		}
 
-		if(hitMatrix->GetProcessed(i)==false)
+		///crosstalk:
+		if(Pxt!=0)
 		{
-			///crosstalk:
-			if(Pxt!=0)
-			{
-				//direct
-				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x+1, y, hit[TIME], CT);
-				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x-1, y, hit[TIME], CT);
-				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x, y+1, hit[TIME], CT);
-				if(r.Rndm()<q*Vover/Vop) hitMatrix->AddHit(x, y-1, hit[TIME], CT);
+			//direct
+			if(r.Rndm()<q*Vover/Vop) hitMatrix.AddHit(x+1, y, av.time, CT);
+			if(r.Rndm()<q*Vover/Vop) hitMatrix.AddHit(x-1, y, av.time, CT);
+			if(r.Rndm()<q*Vover/Vop) hitMatrix.AddHit(x, y+1, av.time, CT);
+			if(r.Rndm()<q*Vover/Vop) hitMatrix.AddHit(x, y-1, av.time, CT);
 
-				//diagonal
-				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1, y+1, hit[TIME], CT);
-				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x+1, y-1, hit[TIME], CT);
-				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1, y+1, hit[TIME], CT);
-				// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix->AddHit(x-1, y-1, hit[TIME], CT);
-			}
+			//diagonal
+			// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix.AddHit(x+1, y+1, av.time, CT);
+			// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix.AddHit(x+1, y-1, av.time, CT);
+			// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix.AddHit(x-1, y+1, av.time, CT);
+			// 	if(r.Rndm()<q*Vover/Vop*TMath::Exp(-sqrt(2)*pitch/ct_length)) hitMatrix.AddHit(x-1, y-1, av.time, CT);
+		}
 
-			///afterpulses:
-			//carrier stays trapped if new avalanche occurs before it's released
-			if(Pap_s!=0)
+		///afterpulses:
+		//carrier stays trapped if new avalanche occurs before it's released
+		if(Pap_s!=0)
+		{
+			int Nap=r.Poisson(Pap_s*Vover/Vop);
+			for(int i_ap=0; i_ap<Nap; ++i_ap)
 			{
-				int Nap=r.Poisson(Pap_s*Vover/Vop);
-				for(int i_ap=0;i_ap<Nap;i_ap++)
-				{
-					double time_ap = r.Exp(tau_ap_s);
-					if(hit[TIME]<=gate) hitMatrix->AddHit(x, y, hit[TIME]+time_ap, AP);	//hit[TIME]<=gate: erlaube noch ein hit nach dem gate für time distribution
-				}
+				double time_ap = r.Exp(tau_ap_s);
+				if(av.time<=gate) hitMatrix.AddHit(x, y, av.time+time_ap, AP);	//av.time<=gate: erlaube noch ein hit nach dem gate für time distribution
 			}
-			if(Pap_f!=0)
+		}
+		if(Pap_f!=0)
+		{
+			int Nap=r.Poisson(Pap_f*Vover/Vop);
+			for(int i_ap=0; i_ap<Nap; ++i_ap)
 			{
-				int Nap=r.Poisson(Pap_f*Vover/Vop);
-				for(int i_ap=0;i_ap<Nap;i_ap++)
-				{
-					double time_ap = r.Exp(tau_ap_f);
-					if(hit[TIME]<=gate) hitMatrix->AddHit(x, y, hit[TIME]+time_ap, AP);	//hit[TIME]<=gate: erlaube noch ein hit nach dem gate für time distribution
-				}
+				double time_ap = r.Exp(tau_ap_f);
+				if(av.time<=gate) hitMatrix.AddHit(x, y, av.time+time_ap, AP);	//av.time<=gate: erlaube noch ein hit nach dem gate für time distribution
 			}
-
-			///mark hit as processed:
-			hitMatrix->HitProcessed(i);
 		}
 	}
 
@@ -641,23 +631,23 @@ Waveform SiPM::GetWaveform()
 	///add random noise to waveform
 	if(noiseRMS > 0)
 	{
-		for(int i=0;i<gate/sampling+1;i++)
+		for(int i=0; i<gate/sampling+1; ++i)
 		{
 			waveform.SetSample(i, r.Gaus(0, noiseRMS));
 		}
 	}
 	else
 	{
-		for(int i=0;i<gate/sampling+1;i++)
+		for(int i=0; i<gate/sampling+1; ++i)
 		{
 			waveform.SetSample(i, 0);
 		}
 	}
 
-	for(int n=0;n<hitMatrix->nHits();n++)
+	for(int n=0; n<hitMatrix.nHits(); ++n)
 	{
-		double time = hitMatrix->GetHit(n)[TIME];
-		double amplitude = hitMatrix->GetHit(n)[AMPLITUDE];
+		double time = hitMatrix[n].time;
+		double amplitude = hitMatrix[n].amplitude;
 
 		int i_start;
 		double tstart;
@@ -679,7 +669,7 @@ Waveform SiPM::GetWaveform()
 		//    SetPulseShape(risetime, tau2);
 		//    tau1 = tau1_tmp;
 
-		for(int i=0;i<n_pulse_samples;i++)
+		for(int i=0; i<n_pulse_samples; ++i)
 		{
 			if(i_start+i >= waveform.GetNsamples()) break;
 

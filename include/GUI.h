@@ -41,7 +41,7 @@ class GUI{
 
 		SiPM			*sipm;
 		PhotonSource		*led;
-		BasicDAQ			*daq;
+		BasicDAQ		*daq;
 
 		int			measurement;
 

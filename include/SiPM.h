@@ -1,7 +1,7 @@
 #ifndef SiPM_h
 #define SiPM_h
 
-#include "HitMatrix.h"
+#include "AvalancheList.h"
 #include "PhotonList.h"
 #include "Waveform.h"
 
@@ -72,7 +72,7 @@ class SiPM{
 		void		UpdatePulseShape();				/**<Builds g_pulse_charge*/
 		void		SetSampling( double Sampling );			/**<Sets waveform sampling*/
 		void		SetCutoff( double Cutoff );			/**<Sets pixel waveform cutoff*/
-		void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see HitMatrix class)*/
+		void		SetGate( double Gate, bool gateCut=true );	/**<Sets integration gate. (For information on "gateCut" see AvalancheList class)*/
 		void		SetPreGate( double preGate );			/**<Sets time period before integration.*/
 		void		SetSpectralSensitivity( TGraph* spect );	/**<Sets the spectral sensitivity via a TGraph*/
 		void		SetSpectralSensitivity( const char* file );	/**<Sets the spectral sensitivity via a text file*/
@@ -87,7 +87,7 @@ class SiPM{
 		/**Returns single pixel waveform*/
 		TF1*		GetPulseShape(){ return f_pulse_shape; };
 		/**Returns hitmatrix*/
-		HitMatrix*	GetHitMatrix(){ return hitMatrix; };
+		AvalancheList*	GetAvalancheList(){ return &hitMatrix; };
 		/**Returns number of pixels of the SiPM*/
 		int		GetNpix(){ return Npix; };
 		/**Returns sampling rate*/
@@ -104,7 +104,7 @@ class SiPM{
 		TGraph*		g_spectral;
 
 		int		Npix;
-		HitMatrix*	hitMatrix;
+		AvalancheList	hitMatrix;
 		TGraph		g_pulse_charge;
 		Waveform	waveform;
 		double		pulseIntegral;
@@ -114,7 +114,6 @@ class SiPM{
 		double		pre_gate;
 
 		TRandom		r;
-		vector<double>	hit;
 		PhotonList	photonList;
 		TH2I*		h_geometry;
 		double		sampling;
@@ -123,7 +122,7 @@ class SiPM{
 
 		void		Reset();
 		void		ImportPhotons( PhotonList photons );
-		void		InitHitMatrix();
+		void		InitAvalancheList();
 };
 
 #endif
