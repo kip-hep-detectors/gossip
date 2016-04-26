@@ -12,7 +12,7 @@ PhotonSource::PhotonSource()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "PhotonSource::PhotonSource()" << endl;
 
-	r.SetSeed(time (NULL));
+	r.SetSeed(0);
 	x=0;
 	y=0;
 	t=0;

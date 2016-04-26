@@ -5,7 +5,7 @@
 #include "PhotonList.h"
 
 #include <TROOT.h>
-#include <TRandom3.h>
+#include <TRandom.h>
 #include <TGraph.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -112,7 +112,7 @@ class sipmMC{
 		double		gate;
 		double		pre_gate;
 
-		TRandom3	r;
+		TRandom		r;
 		vector<double>	hit;
 		PhotonList	photonList;
 		TH2I*		h_geometry;

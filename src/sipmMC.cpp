@@ -10,8 +10,6 @@
 #include <TMath.h>
 #include <stdio.h>
 #include <iostream>
-#include <ctime>
-#include <sys/time.h>
 
 using namespace std;
 
@@ -59,9 +57,7 @@ sipmMC::sipmMC()
 	noiseRMS = 2;
 	jitter = 0.25;
 
-	timeval time;
-	gettimeofday(&time,NULL);
-	r.SetSeed(time.tv_usec);
+	r.SetSeed(0);
 
 	hitMatrix = new HitMatrix();
 
