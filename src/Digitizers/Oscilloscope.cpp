@@ -1,7 +1,8 @@
 #include "Digitizers/Oscilloscope.h"
 
 #include "Digitizers/Filters/BWFilters.h"
-#include "TRandom3.h"
+
+#include <TRandom2.h>
 
 Oscilloscope::Oscilloscope( double kbandwidth, double kenoise, double ksampling, double kenob )
 {
@@ -30,11 +31,11 @@ void Oscilloscope::BWFilter()
 
 void Oscilloscope::AddENoise()
 {
-	TRandom3 r(0);
+	TRandom2 r(0);
 	for(int i=0; i<waveform.GetNsamples(); i++)
 	{
 		double amp = waveform.GetSample(i);
-		waveform.SetSample(i, amp+r.Gaus(0,enoise));
+		waveform.SetSample(i, amp+r.Gaus(0, enoise));
 	}
 }
 

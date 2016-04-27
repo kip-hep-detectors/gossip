@@ -621,28 +621,10 @@ Waveform SiPM::GetWaveform()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::GetWaveform()" << endl;
 
-	///reset g_waveform
-	if(waveform.GetNsamples() != gate/sampling+1)
-	{
-		waveform.Clear();
-		waveform.SetSampling(sampling);
-	}
+	int n_samples = gate/sampling+1;
 
-	///add random noise to waveform
-	if(noiseRMS > 0)
-	{
-		for(int i=0; i<gate/sampling+1; ++i)
-		{
-			waveform.SetSample(i, r.Gaus(0, noiseRMS));
-		}
-	}
-	else
-	{
-		for(int i=0; i<gate/sampling+1; ++i)
-		{
-			waveform.SetSample(i, 0);
-		}
-	}
+	vector<double> v_amplitudes;
+	v_amplitudes.resize(n_samples);
 
 	for(int n=0; n<hitMatrix.nHits(); ++n)
 	{
@@ -671,14 +653,26 @@ Waveform SiPM::GetWaveform()
 
 		for(int i=0; i<n_pulse_samples; ++i)
 		{
-			if(i_start+i >= waveform.GetNsamples()) break;
+			if(i_start+i >= n_samples) break;
 
 			double t = i*sampling + (tstart - time);
-			double amp = signalAmp*amplitude/gain*f_pulse_shape->Eval(t)/pulse_shape_func_max;
-			double amp_new = amp + waveform.GetSample(i_start+i);
-			waveform.SetSample(i_start+i, amp_new);
+			double amp = signalAmp*amplitude/gain*f_pulse_shape->Eval(t)/pulse_shape_func_max;	//TODO: optimise!
+			v_amplitudes[i_start+i] += amp;
 		}
 	}
+
+	///add random noise to waveform
+	if(noiseRMS > 0)
+	{
+		for(int i=0; i<n_samples; ++i)
+		{
+			v_amplitudes[i] += r.Gaus(0, noiseRMS);
+		}
+	}
+
+	///set g_waveform
+	waveform.Clear();
+	waveform.SetWaveform(v_amplitudes, sampling);
 
 	return waveform;
 }

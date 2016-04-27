@@ -15,6 +15,7 @@ class Waveform
 		~Waveform();
 
 		void		Clear();
+		void		Resize( int size );
 		void		SetWaveform( vector<double> amps, double Sampling );
 		void		SetSampling( double Sampling );
 		double		GetSampling(){ return sampling; };

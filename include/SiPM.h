@@ -6,7 +6,7 @@
 #include "Waveform.h"
 
 #include <TROOT.h>
-#include <TRandom.h>
+#include <TRandom2.h>
 #include <TGraph.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -113,7 +113,7 @@ class SiPM{
 		double		gate;
 		double		pre_gate;
 
-		TRandom		r;
+		TRandom2	r;
 		PhotonList	photonList;
 		TH2I*		h_geometry;
 		double		sampling;

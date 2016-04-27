@@ -6,7 +6,7 @@
 #include "PhotonSource.h"
 #include "SiPM.h"
 
-#include <TRandom.h>
+#include <TRandom2.h>
 #include <TGraph.h>
 #include <TH1.h>
 #include <TF1.h>
@@ -101,7 +101,7 @@ class BasicDAQ{
 
 		int			nTDC_channels;
 
-		TRandom			r;
+		TRandom2		r;
 		AvalancheList*		hitMatrix;
 		vector<double>		hit;
 		SiPM*			sipm;

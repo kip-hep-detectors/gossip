@@ -1,5 +1,7 @@
 #include "Digitizers/QDC.h"
 
+#include <TRandom2.h>
+
 QDC::QDC( double kenoise, int knbins, double kpedestal, double kconv )
 {
 	pedestal = kpedestal;
@@ -25,7 +27,7 @@ void QDC::BWFilter()
 
 void QDC::AddENoise()
 {
-	TRandom r(0);
-	qdc_value += r.Gaus(0,enoise);
+	TRandom2 r(0);
+	qdc_value += r.Gaus(0, enoise);
 }
 

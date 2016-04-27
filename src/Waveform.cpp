@@ -27,7 +27,11 @@ Waveform::~Waveform()
 void Waveform::Clear()
 {
 	v_amplitudes.clear();
-	g_waveform->Set(0);
+}
+
+void Waveform::Resize( int size )
+{
+	v_amplitudes.resize(size, 0);
 }
 
 void Waveform::SetWaveform( vector<double> y, double Sampling )
@@ -69,6 +73,7 @@ TGraph* Waveform::GetGraph()
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"),"1",1)==0) cout << "Waveform::GetGraph()" << endl;
 
+	g_waveform->Set(0);
 	for(unsigned int i=0; i<v_amplitudes.size(); i++)
 	{
 		double time = i*sampling;

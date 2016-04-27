@@ -2,7 +2,7 @@
 #define PhotonSource_h
 
 #include <vector>
-#include "TRandom.h"
+#include "TRandom2.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "PhotonList.h"
@@ -52,7 +52,7 @@ class PhotonSource
 	private:
 
 		PhotonList	photonList;
-		TRandom		r;
+		TRandom2	r;
 		bool		fluctuation;
 		double		x, y;
 		double		xWidth, yWidth;
