@@ -263,7 +263,6 @@ void SiPM::SetSampling( double Sampling )
 
 	sampling = Sampling;
 	update_pulse_shape = true;
-
 }
 
 
@@ -273,7 +272,6 @@ void SiPM::SetCutoff( double Cutoff )
 
 	cutOff = Cutoff;
 	update_pulse_shape = true;
-
 }
 
 
@@ -298,15 +296,28 @@ void SiPM::SetPulseShape( double Tau1, double Tau2 )
 }
 
 
-void SiPM::SetPulseShape( TF1* pulse_shape )
+void SiPM::SetPulseShape( TF1* f_shape )
 {
 	if(getenv("GOSSIP_DEBUG")!=0 && strncmp(getenv("GOSSIP_DEBUG"), "1", 1)==0) cout << "SiPM::SetPulseShape( TF1* pulse_shape )" << endl;
 
-	f_pulse_shape = pulse_shape;
+	f_pulse_shape = f_shape;
 
 	if(f_pulse_shape->GetXmin() != 0)
 	{
 		cout << C_YELLOW << "WARNING: TF1 used for pulse shape does not start at 0!" << C_RESET << endl;
+	}
+
+	pulse_shape.Clear();
+	double psampling = sampling;
+	pulse_shape.SetSampling(psampling);
+	double xmin = f_pulse_shape->GetXmin();
+	double xmax = f_pulse_shape->GetXmax();
+	double range = xmax - xmin;
+
+	for(int i=0; i<range/psampling; ++i)
+	{
+		double amp = f_pulse_shape->Eval(i*psampling);
+		pulse_shape.SetSample(i, amp);
 	}
 
 	UpdatePulseShape();
@@ -626,22 +637,30 @@ Waveform SiPM::GetWaveform()
 	vector<double> v_amplitudes;
 	v_amplitudes.resize(n_samples);
 
+	vector<double> v_pulse = pulse_shape.GetSamples();
+
+	int i_start;
+	int i_ps_start;
+	double dt;
+	double time;
+	double amplitude;
+	double amp_norm;
+	double amp;
 	for(int n=0; n<hitMatrix.nHits(); ++n)
 	{
-		double time = hitMatrix[n].time;
-		double amplitude = hitMatrix[n].amplitude;
-
-		int i_start;
-		double tstart;
+		time = hitMatrix[n].time;
+		amplitude = hitMatrix[n].amplitude;
 		if(time >= 0)
 		{
 			i_start = time/sampling + 1;
-			tstart = i_start*sampling;	//check!!!!!!
+			dt = i_start*sampling - time;
+			i_ps_start = 0;
 		}
 		else
 		{
+			i_ps_start = -time/sampling;
+			dt = -i_ps_start*sampling - time;
 			i_start = 0;
-			tstart = 0;
 		}
 
 		//    ///risetime jitter
@@ -651,13 +670,13 @@ Waveform SiPM::GetWaveform()
 		//    SetPulseShape(risetime, tau2);
 		//    tau1 = tau1_tmp;
 
-		for(int i=0; i<n_pulse_samples; ++i)
+		for(int i=i_ps_start; i<n_pulse_samples; ++i)
 		{
 			if(i_start+i >= n_samples) break;
 
-			double t = i*sampling + (tstart - time);
-			double amp = signalAmp*amplitude/gain*f_pulse_shape->Eval(t)/pulse_shape_func_max;	//TODO: optimise!
-			v_amplitudes[i_start+i] += amp;
+			amp_norm = v_pulse[i] + dt*(v_pulse[i+1]-v_pulse[i])/sampling;
+			amp = signalAmp*amplitude/gain*amp_norm/pulse_shape_func_max;
+			v_amplitudes[i_start+i-i_ps_start] += amp;
 		}
 	}
 
